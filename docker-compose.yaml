@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres/pgdata:/var/lib/postgresql/data/pgdata
+    restart: on-failure
+
+  api:
+    build: .
+    container_name: api
+    command: sh -c "gunicorn --bind 0.0.0.0:8000 --workers=4 core.wsgi --reload"
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+    restart: on-failure

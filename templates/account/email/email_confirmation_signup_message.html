@@ -1,0 +1,34 @@
+{% load static %} {% load account %} {% load i18n %} {% autoescape off %}
+
+<center>
+    <h3>{{ site_name }}</h3>
+    <h4>Verify your email id</h4>
+    <p>
+        is this right email address? to confirm that,
+        click the button bellow:
+    </p>
+    <a
+        href="http://{{ current_site }}/auth/signup-verification/{{ key }}"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        <button>Confirm Email Address</button>
+    </a>
+    <footer>
+        <div>
+            <small>
+                Thanks
+            </small>
+            <br />
+            <small>
+                Team {{ site_name }}
+            </small>
+            <br />
+            <small>
+                http://{{ current_site }}
+            </small>
+
+        </div>
+    </footer>
+</center>
+{% endautoescape %}
