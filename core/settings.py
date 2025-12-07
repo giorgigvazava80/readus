@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'drf_yasg',
 
     'accounts',
-    'novels'
+    'content'
 ]
 SITE_ID = 1
 MIDDLEWARE = [

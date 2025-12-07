@@ -15,23 +15,9 @@ class CustomRegisterSerializer(RegisterSerializer):
     def save(self, request):
         user = super().save(request)
 
-        role = self.validated_data.get("role")
+        reader_group, _ = Group.objects.get(name="Reader")
+        user.groups.add(reader_group)
 
-        if role == "writer":
-            group_name = "Writer"
-        else:
-            group_name = "Reader"
-
-        group = Group.objects.get(name=group_name)
-        user.groups.add(group)
-
-        if role == "writer":
-            user.is_active = False
-            user.save()
-
-    def validate(self, attrs):
-        print("🚀 CustomRegisterSerializer is being used!")
-        return super().validate(attrs)
         return user
 
 class WriterApplicationSerializer(serializers.ModelSerializer):
@@ -73,7 +59,6 @@ class WriterApplicationReviewSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         request = self.context.get('request')
-        user = request.user
 
         instance.status = validated_data.get('status', instance.status)
         instance.review_comment = validated_data.get('review_comment', instance.review_comment)
@@ -81,10 +66,15 @@ class WriterApplicationReviewSerializer(serializers.ModelSerializer):
         instance.save()
 
         if instance.status == 'approved':
+            user = instance.user
+
             writer_group = Group.objects.get(name='Writers')
             reader_group = Group.objects.get(name='Reader')
 
-            instance.user.groups.remove(reader_group)
-            instance.user.groups.add(writer_group)
+            user.groups.remove(reader_group)
+            user.groups.add(writer_group)
+
+            user.is_active=True
+            user.save()
 
         return instance
