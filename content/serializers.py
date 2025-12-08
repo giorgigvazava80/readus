@@ -1,69 +1,183 @@
 from rest_framework import serializers
-from .models import Story, Poem, Book, Chapter
+from .models import Story, Poem, Book, Chapter, SourceType
 
-class StorySerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField()
 
+class validate(serializers.ModelSerializer):
+    def validate(self, attrs):
+        """
+        Enforce:
+        - manual  -> body required, upload_file must be empty
+        - upload  -> upload_file required, body optional
+        """
+
+        # when updating, get old values from instance if not in attrs
+        instance = self.instance
+        source_type = attrs.get(
+            "source_type",
+            getattr(instance, "source_type", None),
+        )
+        body = attrs.get("body", getattr(instance, "body", None))
+        upload_file = attrs.get("upload_file", getattr(instance, "upload_file", None))
+
+        if source_type == SourceType.MANUAL:
+            if not body:
+                raise serializers.ValidationError(
+                    {"body": "When source_type is 'manual', body is required."}
+                )
+            if upload_file:
+                raise serializers.ValidationError(
+                    {"upload_file": "When source_type is 'manual', upload_file must be empty."}
+                )
+
+        elif source_type == SourceType.UPLOAD:
+            if not upload_file:
+                raise serializers.ValidationError(
+                    {"upload_file": "When source_type is 'upload', upload_file is required."}
+                )
+            # body is optional here
+
+        else:
+            # fallback: at least one is required if source_type missing/broken
+            if not body and not upload_file:
+                raise serializers.ValidationError(
+                    "You must provide either body or upload_file."
+                )
+
+        return attrs
+
+    class Meta:
+        abstract = True
+
+class StorySerializer(validate):
     class Meta:
         model = Story
-        fields = ['id', 'title', 'body', 'status', 'author', 'created_at', 'updated_at']
-        read_only_fields = ['status', 'author', 'created_at', 'updated_at']
+        fields = [
+            "id",
+            "title",
+            "description",
+            "body",
+            "source_type",
+            "upload_file",
+            "status",
+            "rejection_reason",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "status",
+            "rejection_reason",
+            "created_at",
+            "updated_at",
+        ]
 
     def create(self, validated_data):
-        user = self.context['request'].user
-        return Story.objects.create(author=user, **validated_data)
+        request = self.context.get('request')
+        validated_data['author'] = request.user
+        return super().create(validated_data)
 
-class PoemSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField(read_only=True)
-
+class PoemSerializer(validate):
     class Meta:
         model = Poem
-        fields = ['id', 'title', 'body', 'status', 'author', 'created_at', 'updated_at']
-        read_only_fields = ['status', 'author', 'created_at', 'updated_at']
+        fields = [
+            "id",
+            "title",
+            "description",
+            "body",
+            "source_type",
+            "upload_file",
+            "status",
+            "rejection_reason",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "status",
+            "rejection_reason",
+            "created_at",
+            "updated_at",
+        ]
 
     def create(self, validated_data):
-        user = self.context['request'].user
-        return Poem.objects.create(author=user, **validated_data)
+        request = self.context.get('request')
+        validated_data['author'] = request.user
+        return super().create(validated_data)
 
+
+#----------chapters and books-----------
 
 class ChapterSerializer(serializers.ModelSerializer):
+    auto_label = serializers.ReadOnlyField()
+
     class Meta:
         model = Chapter
-        fields = ['id', 'order', 'title', 'body']
+        fields = [
+            "id",
+            "book",
+            "title",
+            "order",
+            "body",
+            "auto_label",
+            "status",
+            "rejection_reason",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "status",
+            "rejection_reason",
+            "created_at",
+            "updated_at",
+        ]
+
+class BookChapterCreateSerializer(serializers.ModelSerializer):
+    """when creating/updating a book with chapters"""
+
+    class Meta:
+        model = Chapter
+        fields = ['title', 'order', 'body']
 
 
-class BookSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField(read_only=True)
-    chapters = ChapterSerializer(many=True)
+class BookSerializer(validate):
+    chapters = ChapterSerializer(many=True, read_only=True)
 
+    new_chapters = BookChapterCreateSerializer(many=True, write_only=True, required=False)
 
     class Meta:
         model = Book
         fields = [
-            'id',
-            'title',
-            'foreword',
-            'final_word',
-            'status',
-            'author',
-            'chapters',
-            'created_at',
-            'updated_at',
+            "id",
+            "title",
+            "description",
+            "foreword",
+            "afterword",
+            "numbering_style",
+            "source_type",
+            "upload_file",
+            "status",
+            "rejection_reason",
+            "created_at",
+            "updated_at",
+            "chapters",
+            "new_chapters",
+        ]
+        read_only_fields = [
+            "status",
+            "rejection_reason",
+            "created_at",
+            "updated_at",
         ]
 
-        read_only_fields = ['status', 'author', 'created_at', 'updated_at']
-
     def create(self, validated_data):
-        user = self.context['request'].user
-        chapter_data = validated_data.pop('chapters', [])
+        request = self.context.get('request')
+        author = request.user
 
-        if not chapter_data:
-            raise serializers.ValidationError("A book must have at least one chapter")
+        chapters_data = validated_data.pop('new_chapters', [])
+        book = Book.objects.create(author=author, **validated_data)
 
-        book = Book.objects.create(author=user, **validated_data)
-
-        for i, chapter_data in enumerate(chapter_data, start=1):
+        #if no chapter is create, it's ok. we can add later
+        for i, chapter_data in enumerate(chapters_data, start=1):
+            #if no order, auto
             chapter_data.setdefault('order', i)
-            chapter_data.objects.create(book=book, **chapter_data)
+            Chapter.objects.create(book=book, **chapter_data)
 
         return book
