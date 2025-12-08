@@ -15,7 +15,7 @@ class CustomRegisterSerializer(RegisterSerializer):
     def save(self, request):
         user = super().save(request)
 
-        reader_group, _ = Group.objects.get(name="Reader")
+        reader_group, _ = Group.objects.get_or_create(name="Reader")
         user.groups.add(reader_group)
 
         return user
@@ -38,6 +38,21 @@ class WriterApplicationSerializer(serializers.ModelSerializer):
             'reviewed_at',
             'review_comment',
         ]
+
+    def validate(self, attrs):
+        """
+        Require exactly one of sample_text or sample_file.
+        The user can choose either to paste text OR upload a file, but not both and not neither.
+        """
+        text = attrs.get('sample_text')
+        file = attrs.get('sample_file')
+
+        # XOR check: True if exactly one is provided
+        if bool(text) == bool(file):
+            raise serializers.ValidationError(
+                "Provide exactly one of 'sample_text' or 'sample_file'."
+            )
+        return attrs
     @override
     def create(self, validated_data):
         request = self.context.get('request')

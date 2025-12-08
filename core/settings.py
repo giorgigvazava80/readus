@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 from datetime import timedelta
+from operator import truediv
 from pathlib import Path
 from os import environ as env
 
@@ -151,9 +152,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_REQUIRED = False
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+
+
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "/"
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = "/"
 
 AUTHENTICATION_BACKENDS = {
     'django.contrib.auth.backends.ModelBackend',
@@ -162,11 +169,15 @@ AUTHENTICATION_BACKENDS = {
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = '587'
+EMAIL_PORT = 587
 EMAIL_HOST_USER = 'giorgigvazava80@gmail.com'
-EMAIL_HOST_PASSWORD = 'upeahymnmfapmdnp'
+EMAIL_HOST_PASSWORD = 'nwilgdqrdomkovoy'
 DEFAULT_FROM_EMAIL = 'giorgigvazava80@gmail.com'
+
+
+
 
 
 REST_FRAMEWORK = {
@@ -178,6 +189,10 @@ REST_FRAMEWORK = {
     ]
 }
 
+REST_AUTH_REGISTER_SERIALIZERS = {
+    "REGISTER_SERIALIZER": "accounts.serializers.CustomRegisterSerializer",
+}
+
 REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_HTTPONLY': False,
@@ -185,6 +200,8 @@ REST_AUTH = {
     'JWT_AUTH_REFRESH_COOKIE': 'core-refresh-refresh',
     "REGISTER_SERIALIZER": "accounts.serializers.CustomRegisterSerializer",
 }
+
+
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
