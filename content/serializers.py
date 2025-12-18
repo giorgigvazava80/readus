@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Story, Poem, Book, Chapter, SourceType
+from .models import Story, Poem, Book, Chapter, SourceType, StatusChoices
 
 
 class validate(serializers.ModelSerializer):
@@ -181,3 +181,21 @@ class BookSerializer(validate):
             Chapter.objects.create(book=book, **chapter_data)
 
         return book
+
+
+class ContentReviewSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=[
+        (StatusChoices.APPROVED, 'Approved'),
+        (StatusChoices.REJECTED, 'Rejected')
+    ])
+    rejection_reason = serializers.CharField(required=False, allow_blank=True)
+
+    def validate(self, attrs):
+        status = attrs.get('status')
+        rejection_reason = attrs.get('rejection_reason')
+
+        if status == StatusChoices.REJECTED and not rejection_reason:
+            raise serializers.ValidationError(
+                {"rejection_reason": "Rejection reason is required when status is 'rejected'."}
+            )
+        return attrs

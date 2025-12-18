@@ -1,4 +1,7 @@
 from rest_framework import viewsets, permissions
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from .permissions import IsRedactor
 
 from .models import Story, Poem, Book, Chapter
 
@@ -7,7 +10,22 @@ from .serializers import (
     PoemSerializer,
     BookSerializer,
     ChapterSerializer,
+    ContentReviewSerializer,
 )
+
+class ReviewActionMixin:
+    @action(detail=True, methods=['post'], permission_classes=[IsRedactor], serializer_class=ContentReviewSerializer)
+    def review(self, request, pk=None):
+        obj = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        status = serializer.validated_data['status']
+        reason = serializer.validated_data.get('rejection_reason', '')
+        
+        obj.set_status(status, user=request.user, reason=reason)
+        
+        return Response({'status': 'status updated'})
 
 class IsAuthorOrReadOnly(permissions.BasePermission):
 
@@ -22,7 +40,7 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
             return obj.book.author == request.user
         return False
 
-class AuthorContentViewSet(viewsets.ModelViewSet):
+class AuthorContentViewSet(ReviewActionMixin, viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
@@ -42,7 +60,7 @@ class BookViewSet(AuthorContentViewSet):
     queryset = Book.objects.all().prefetch_related('chapters')
     serializer_class = BookSerializer
 
-class ChapterViewSet(viewsets.ModelViewSet):
+class ChapterViewSet(ReviewActionMixin, viewsets.ModelViewSet):
     queryset = Chapter.objects.select_related('book', 'book__author')
     serializer_class = ChapterSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
