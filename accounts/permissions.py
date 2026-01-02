@@ -5,5 +5,5 @@ class IsRedactor(BasePermission):
         return (
             request.user
             and request.user.is_authenticated
-            and request.user.groups.filter(name='redactor').exists()
+            and request.user.groups.filter(name='Redactors').exists()
         )

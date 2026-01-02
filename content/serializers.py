@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Story, Poem, Book, Chapter, SourceType, StatusChoices
 
 
-class validate(serializers.ModelSerializer):
+class ContentValidationMixin(serializers.ModelSerializer):
     def validate(self, attrs):
         """
         Enforce:
@@ -48,7 +48,7 @@ class validate(serializers.ModelSerializer):
     class Meta:
         abstract = True
 
-class StorySerializer(validate):
+class StorySerializer(ContentValidationMixin):
     class Meta:
         model = Story
         fields = [
@@ -75,7 +75,7 @@ class StorySerializer(validate):
         validated_data['author'] = request.user
         return super().create(validated_data)
 
-class PoemSerializer(validate):
+class PoemSerializer(ContentValidationMixin):
     class Meta:
         model = Poem
         fields = [
@@ -137,7 +137,7 @@ class BookChapterCreateSerializer(serializers.ModelSerializer):
         fields = ['title', 'order', 'body']
 
 
-class BookSerializer(validate):
+class BookSerializer(ContentValidationMixin):
     chapters = ChapterSerializer(many=True, read_only=True)
 
     new_chapters = BookChapterCreateSerializer(many=True, write_only=True, required=False)

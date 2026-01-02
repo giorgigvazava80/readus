@@ -11,6 +11,7 @@ from drf_yasg.utils import swagger_auto_schema
 from .models import WriterApplication
 from .serializers import WriterApplicationSerializer, WriterApplicationReviewSerializer
 from .permissions import IsRedactor
+from drf_yasg import openapi
 
 
 class WriterApplicationCreateView(generics.CreateAPIView):
@@ -24,8 +25,12 @@ class WriterApplicationCreateView(generics.CreateAPIView):
 
     @swagger_auto_schema(
         operation_description="Create a writer application by providing exactly one of 'sample_text' or 'sample_file' (not both).",
-        request_body=WriterApplicationSerializer,
-        consumes=['multipart/form-data', 'application/json']
+        manual_parameters=[
+            openapi.Parameter('sample_text', openapi.IN_FORM, type=openapi.TYPE_STRING, description="Paste your sample text here"),
+            openapi.Parameter('sample_file', openapi.IN_FORM, type=openapi.TYPE_FILE, description="Upload your sample file here"),
+        ],
+        consumes=['multipart/form-data'],
+        responses={201: WriterApplicationSerializer()}
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
@@ -39,4 +44,11 @@ class ReviewWriterApplicationView(generics.UpdateAPIView):
     queryset = WriterApplication.objects.all()
     serializer_class = WriterApplicationReviewSerializer
     permission_classes = [IsAuthenticated, IsRedactor]
+
+class MyWriterApplicationListView(generics.ListAPIView):
+    serializer_class = WriterApplicationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return WriterApplication.objects.filter(user=self.request.user)
 
