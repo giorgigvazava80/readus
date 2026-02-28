@@ -1,8 +1,9 @@
-# Python
+# Python cache
 __pycache__/
 *.pyc
+*.pyo
 
-# Virtual environment
+# Venvs
 venv/
 .venv/
 
@@ -10,17 +11,24 @@ venv/
 .git/
 .gitignore
 
-# Environment variables
+# Secrets
 .env
 
-# Django stuff
-/staticfiles/
-media/
+# Local runtime files
 *.sqlite3
+media/
+static/
+staticfiles/
+postgres/pgdata/
 
-# IDE configs
+# Frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+
+# IDE
 .idea/
 .vscode/
 
-# OS files
+# OS
 .DS_Store
+Thumbs.db

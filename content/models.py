@@ -115,7 +115,7 @@ class BaseContent(StatusTrackedModel):
         blank=True,
         null=True,
     )
-
+    extracted_text = models.TextField(blank=True)
 
 
     class Meta:
