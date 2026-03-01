@@ -47,32 +47,53 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="book",
             name="public_slug",
-            field=models.SlugField(blank=True, db_index=True, max_length=255, null=True),
+            field=models.SlugField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
             model_name="poem",
             name="public_slug",
-            field=models.SlugField(blank=True, db_index=True, max_length=255, null=True),
+            field=models.SlugField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
             model_name="story",
             name="public_slug",
-            field=models.SlugField(blank=True, db_index=True, max_length=255, null=True),
+            field=models.SlugField(blank=True, max_length=255, null=True),
         ),
         migrations.RunPython(populate_public_slugs, migrations.RunPython.noop),
+        migrations.RunSQL(
+            sql="""
+            DO $$
+            DECLARE rec RECORD;
+            BEGIN
+                FOR rec IN
+                    SELECT indexname
+                    FROM pg_indexes
+                    WHERE schemaname = 'public'
+                      AND (
+                        indexname LIKE 'content_book_public_slug%_like'
+                        OR indexname LIKE 'content_poem_public_slug%_like'
+                        OR indexname LIKE 'content_story_public_slug%_like'
+                      )
+                LOOP
+                    EXECUTE format('DROP INDEX IF EXISTS %I', rec.indexname);
+                END LOOP;
+            END $$;
+            """,
+            reverse_sql=migrations.RunSQL.noop,
+        ),
         migrations.AlterField(
             model_name="book",
             name="public_slug",
-            field=models.SlugField(blank=True, db_index=True, max_length=255, unique=True),
+            field=models.SlugField(blank=True, max_length=255, unique=True),
         ),
         migrations.AlterField(
             model_name="poem",
             name="public_slug",
-            field=models.SlugField(blank=True, db_index=True, max_length=255, unique=True),
+            field=models.SlugField(blank=True, max_length=255, unique=True),
         ),
         migrations.AlterField(
             model_name="story",
             name="public_slug",
-            field=models.SlugField(blank=True, db_index=True, max_length=255, unique=True),
+            field=models.SlugField(blank=True, max_length=255, unique=True),
         ),
     ]
