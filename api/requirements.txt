@@ -14,3 +14,4 @@ bleach==6.2.0
 tinycss2==1.4.0
 pypdf==5.2.0
 Pillow==11.1.0
+cryptography>=44,<46

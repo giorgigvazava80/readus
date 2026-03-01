@@ -12,7 +12,7 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
-from accounts.auth_views import VerifyEmailAndLoginView
+from accounts.auth_views import FacebookLoginView, GoogleLoginView, VerifyEmailAndLoginView
 
 
 def healthcheck(_request):
@@ -33,6 +33,8 @@ urlpatterns = [
     path("health/", healthcheck, name="healthcheck"),
     path("admin/", admin.site.urls),
     path("auth/", include("dj_rest_auth.urls")),
+    path("auth/social/google/", GoogleLoginView.as_view(), name="google_login"),
+    path("auth/social/facebook/", FacebookLoginView.as_view(), name="facebook_login"),
     path(
         "auth/registration/verify-email/",
         VerifyEmailAndLoginView.as_view(),
