@@ -294,7 +294,7 @@ const PublicReadPage = () => {
               <Button
                 variant={currentPage === 0 ? "default" : "outline"}
                 onClick={() => navigateToPage(0)}
-                className="font-ui bg-background"
+                className={`font-ui ${currentPage !== 0 ? "bg-background" : ""}`}
               >
                 სარჩევი / Table of Contents
               </Button>
