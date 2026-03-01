@@ -180,10 +180,23 @@ const LoginPage = () => {
             </div>
           ) : null}
 
-          {!adminHost && googleClientId ? (
-            <Button type="button" variant="outline" className="mt-4 w-full" onClick={handleGoogleLogin} disabled={loading}>
-              Continue with Google
-            </Button>
+          {!adminHost ? (
+            <div className="mt-4 space-y-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleGoogleLogin}
+                disabled={loading || !googleClientId}
+              >
+                Continue with Google
+              </Button>
+              {!googleClientId ? (
+                <p className="text-center text-xs font-ui text-muted-foreground">
+                  Google login is not configured yet (`VITE_GOOGLE_CLIENT_ID` missing).
+                </p>
+              ) : null}
+            </div>
           ) : null}
         </section>
       </div>
