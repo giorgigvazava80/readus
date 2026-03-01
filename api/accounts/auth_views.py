@@ -69,6 +69,10 @@ def _infer_redirect_uri_from_request(request) -> str:
     return ""
 
 
+def _explicit_redirect_uri_from_request(request) -> str:
+    return _validated_redirect_uri(str(request.data.get("redirect_uri", "")))
+
+
 class VerifyEmailAndLoginView(VerifyEmailView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -107,9 +111,13 @@ class GoogleLoginView(SocialLoginView):
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
-        redirect_uri = _infer_redirect_uri_from_request(request)
-        if redirect_uri:
-            self.callback_url = redirect_uri
+        explicit_redirect_uri = _explicit_redirect_uri_from_request(request)
+        if explicit_redirect_uri:
+            self.callback_url = explicit_redirect_uri
+        elif not self.callback_url:
+            inferred_redirect_uri = _infer_redirect_uri_from_request(request)
+            if inferred_redirect_uri:
+                self.callback_url = inferred_redirect_uri
 
         try:
             return super().post(request, *args, **kwargs)
@@ -143,9 +151,13 @@ class FacebookLoginView(SocialLoginView):
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
-        redirect_uri = _infer_redirect_uri_from_request(request)
-        if redirect_uri:
-            self.callback_url = redirect_uri
+        explicit_redirect_uri = _explicit_redirect_uri_from_request(request)
+        if explicit_redirect_uri:
+            self.callback_url = explicit_redirect_uri
+        elif not self.callback_url:
+            inferred_redirect_uri = _infer_redirect_uri_from_request(request)
+            if inferred_redirect_uri:
+                self.callback_url = inferred_redirect_uri
 
         try:
             return super().post(request, *args, **kwargs)
