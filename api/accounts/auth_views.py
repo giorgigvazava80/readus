@@ -4,7 +4,6 @@ from urllib.parse import urlsplit
 from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.models import SocialApp
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
@@ -14,6 +13,8 @@ from dj_rest_auth.registration.views import SocialLoginView, VerifyEmailView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from .oauth_client import CompatOAuth2Client
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +97,7 @@ class VerifyEmailAndLoginView(VerifyEmailView):
 
 class GoogleLoginView(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
-    client_class = OAuth2Client
+    client_class = CompatOAuth2Client
     callback_url = settings.SOCIAL_AUTH_GOOGLE_CALLBACK_URL or None
 
     def post(self, request, *args, **kwargs):
@@ -136,7 +137,7 @@ class GoogleLoginView(SocialLoginView):
 
 class FacebookLoginView(SocialLoginView):
     adapter_class = FacebookOAuth2Adapter
-    client_class = OAuth2Client
+    client_class = CompatOAuth2Client
     callback_url = settings.SOCIAL_AUTH_FACEBOOK_CALLBACK_URL or None
 
     def post(self, request, *args, **kwargs):
