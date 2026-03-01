@@ -34,6 +34,26 @@ Copy-Item .env.example .env
 docker compose up --build -d
 ```
 
+## Render Quick Deploy (Easiest)
+
+This repo includes [`render.yaml`](./render.yaml) for Blueprint deploy.
+
+1. Push this project to GitHub.
+2. In Render, click **New +** -> **Blueprint**.
+3. Select your `giorgigvazava80/readus` repository and deploy.
+4. Render will create:
+   - `readus-db` (PostgreSQL)
+   - `readus-api` (Django API)
+   - `readus-public` (public frontend)
+   - `readus-admin` (admin frontend)
+
+After first deploy, verify these env vars:
+
+- On `readus-api`: `FRONTEND_BASE_URL` should be your actual public frontend URL (example: `https://readus-public.onrender.com`).
+- On both static sites: `VITE_API_BASE_URL` should be your actual API URL (example: `https://readus-api.onrender.com`).
+
+If you change any of them, redeploy the affected service.
+
 ## URLs
 
 - User frontend: `http://localhost:5173`
