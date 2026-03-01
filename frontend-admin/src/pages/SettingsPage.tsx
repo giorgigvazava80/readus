@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+﻿import { FormEvent, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Lock, UserRoundCog } from "lucide-react";
 import { toast } from "sonner";
@@ -48,9 +48,9 @@ const SettingsPage = () => {
           last_name: lastName,
         };
       });
-      toast.success("Profile updated.");
+      toast.success("პროფილი განახლდა.");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Profile update failed.";
+      const message = error instanceof Error ? error.message : "პროფილის განახლება ვერ მოხერხდა.";
       toast.error(message);
     } finally {
       setSavingProfile(false);
@@ -61,7 +61,7 @@ const SettingsPage = () => {
     event.preventDefault();
 
     if (!oldPassword || !newPassword1 || !newPassword2) {
-      toast.error("Fill all password fields.");
+      toast.error("შეავსე პაროლის ყველა ველი.");
       return;
     }
 
@@ -76,9 +76,9 @@ const SettingsPage = () => {
       setNewPassword1("");
       setNewPassword2("");
       await queryClient.invalidateQueries({ queryKey: ["me"] });
-      toast.success("Password changed.");
+      toast.success("პაროლი შეიცვალა.");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Password change failed.";
+      const message = error instanceof Error ? error.message : "პაროლის შეცვლა ვერ მოხერხდა.";
       toast.error(message);
     } finally {
       setSavingPassword(false);
@@ -90,24 +90,24 @@ const SettingsPage = () => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <div className="flex items-center gap-2">
           <UserRoundCog className="h-5 w-5 text-primary" />
-          <h1 className="font-display text-3xl font-semibold text-foreground">Profile Settings</h1>
+          <h1 className="font-display text-3xl font-semibold text-foreground">პროფილის პარამეტრები</h1>
         </div>
 
         <form onSubmit={handleProfileSave} className="mt-6 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="username" className="font-ui">Username</Label>
+            <Label htmlFor="username" className="font-ui">მომხმარებლის სახელი</Label>
             <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} className="font-ui" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="firstName" className="font-ui">First name</Label>
+            <Label htmlFor="firstName" className="font-ui">სახელი</Label>
             <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="font-ui" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="lastName" className="font-ui">Last name</Label>
+            <Label htmlFor="lastName" className="font-ui">გვარი</Label>
             <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} className="font-ui" />
           </div>
           <Button type="submit" disabled={savingProfile}>
-            {savingProfile ? "Saving..." : "Save Profile"}
+            {savingProfile ? "ინახება..." : "პროფილის შენახვა"}
           </Button>
         </form>
       </section>
@@ -115,17 +115,17 @@ const SettingsPage = () => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <div className="flex items-center gap-2">
           <Lock className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-3xl font-semibold text-foreground">Change Password</h2>
+          <h2 className="font-display text-3xl font-semibold text-foreground">პაროლის შეცვლა</h2>
         </div>
         {me?.forced_password_change ? (
           <p className="mt-4 rounded-lg border border-red-500/40 bg-red-500/10 p-3 font-ui text-sm text-red-700">
-            Password change is required for this account.
+            ამ ანგარიშისთვის პაროლის შეცვლა სავალდებულოა.
           </p>
         ) : null}
 
         <form onSubmit={handlePasswordChange} className="mt-6 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="oldPassword" className="font-ui">Current password</Label>
+            <Label htmlFor="oldPassword" className="font-ui">მიმდინარე პაროლი</Label>
             <Input
               id="oldPassword"
               type="password"
@@ -135,7 +135,7 @@ const SettingsPage = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="newPassword1" className="font-ui">New password</Label>
+            <Label htmlFor="newPassword1" className="font-ui">ახალი პაროლი</Label>
             <Input
               id="newPassword1"
               type="password"
@@ -145,7 +145,7 @@ const SettingsPage = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="newPassword2" className="font-ui">Repeat new password</Label>
+            <Label htmlFor="newPassword2" className="font-ui">ახალი პაროლის გამეორება</Label>
             <Input
               id="newPassword2"
               type="password"
@@ -164,3 +164,5 @@ const SettingsPage = () => {
 };
 
 export default SettingsPage;
+
+

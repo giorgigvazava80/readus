@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { BookOpen, FileText, PenLine, Clock, EyeOff } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -28,10 +28,10 @@ const categoryIcons = {
 };
 
 const categoryLabels = {
-  books: "Book",
-  stories: "Story",
-  poems: "Poetry",
-  chapters: "Chapter",
+  books: "წიგნი",
+  stories: "მოთხრობა",
+  poems: "პოეზია",
+  chapters: "თავი",
 };
 
 interface WorkCardProps {
@@ -104,7 +104,7 @@ const WorkCard = ({ work, index = 0 }: WorkCardProps) => {
                 )}
               </div>
 
-              {/* Title */}
+              {/* სათაური */}
               <h3 className="font-display text-lg sm:text-xl font-bold leading-tight text-foreground transition-colors group-hover:text-primary line-clamp-2 drop-shadow-sm">
                 {work.title}
               </h3>
@@ -134,3 +134,6 @@ const WorkCard = ({ work, index = 0 }: WorkCardProps) => {
 };
 
 export default WorkCard;
+
+
+

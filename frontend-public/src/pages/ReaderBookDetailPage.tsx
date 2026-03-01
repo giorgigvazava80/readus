@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+﻿import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, BookText, ListTree, EyeOff } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -41,7 +41,7 @@ const ReaderBookDetailPage = () => {
   if (!contentIdentifier) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">Invalid book link.</p>
+        <p className="font-ui text-sm text-muted-foreground">წიგნის ბმული არასწორია.</p>
       </div>
     );
   }
@@ -49,7 +49,7 @@ const ReaderBookDetailPage = () => {
   if (bookQuery.isLoading) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">Loading book...</p>
+        <p className="font-ui text-sm text-muted-foreground">წიგნი იტვირთება...</p>
       </div>
     );
   }
@@ -57,9 +57,9 @@ const ReaderBookDetailPage = () => {
   if (bookQuery.isError || !bookQuery.data) {
     return (
       <div className="container mx-auto px-6 py-10 space-y-4">
-        <p className="font-ui text-sm text-red-700">Book not found.</p>
+        <p className="font-ui text-sm text-red-700">წიგნი ვერ მოიძებნა.</p>
         <Link to="/books">
-          <Button variant="outline">Back to books</Button>
+          <Button variant="outline">წიგნებზე დაბრუნება</Button>
         </Link>
       </div>
     );
@@ -75,7 +75,7 @@ const ReaderBookDetailPage = () => {
         <Link to="/books">
           <Button variant="ghost" size="sm" className="gap-1.5 font-ui text-sm text-muted-foreground">
             <ArrowLeft className="h-4 w-4" />
-            Back to books
+            წიგნებზე დაბრუნება
           </Button>
         </Link>
 
@@ -89,7 +89,7 @@ const ReaderBookDetailPage = () => {
           )}
         </div>
         <p className="mt-1 font-ui text-sm text-muted-foreground">
-          by {book.author_name || book.author_username || "Unknown author"}
+          by {book.author_name || book.author_username || "უცნობი ავტორი"}
         </p>
 
         {book.description ? (
@@ -101,7 +101,7 @@ const ReaderBookDetailPage = () => {
         <aside className="rounded-2xl border border-border/70 bg-card/80 p-5 shadow-card lg:sticky lg:top-24 lg:h-fit">
           <div className="flex items-center gap-2">
             <ListTree className="h-4 w-4 text-primary" />
-            <h2 className="font-display text-2xl text-foreground">Contents</h2>
+            <h2 className="font-display text-2xl text-foreground">სარჩევი</h2>
           </div>
 
           <div className="mt-4 space-y-2">
@@ -117,7 +117,7 @@ const ReaderBookDetailPage = () => {
                 </Link>
               ))
             ) : (
-              <p className="font-ui text-sm text-muted-foreground">No chapters yet.</p>
+              <p className="font-ui text-sm text-muted-foreground">თავები ჯერ არ არის.</p>
             )}
           </div>
         </aside>
@@ -127,7 +127,7 @@ const ReaderBookDetailPage = () => {
             <>
               <div className="flex items-center gap-2">
                 <BookText className="h-4 w-4 text-primary" />
-                <h3 className="font-display text-2xl text-foreground">Foreword</h3>
+                <h3 className="font-display text-2xl text-foreground">წინასიტყვაობა</h3>
               </div>
               <div className="reader-html prose-literary mt-4 text-foreground/90" dangerouslySetInnerHTML={{ __html: book.foreword }} />
             </>
@@ -135,7 +135,7 @@ const ReaderBookDetailPage = () => {
             <>
               <div className="flex items-center gap-2">
                 <BookText className="h-4 w-4 text-primary" />
-                <h3 className="font-display text-2xl text-foreground">Uploaded Text</h3>
+                <h3 className="font-display text-2xl text-foreground">ატვირთული ტექსტი</h3>
               </div>
               <pre className="prose-literary mt-4 whitespace-pre-wrap text-foreground/90">{book.extracted_text}</pre>
             </>
@@ -148,7 +148,7 @@ const ReaderBookDetailPage = () => {
           {hasTextContent(book.afterword) ? (
             <>
               <Separator className="my-8" />
-              <h3 className="font-display text-2xl text-foreground">Afterword</h3>
+              <h3 className="font-display text-2xl text-foreground">ბოლოსიტყვაობა</h3>
               <div className="reader-html prose-literary mt-4 text-foreground/90" dangerouslySetInnerHTML={{ __html: book.afterword }} />
             </>
           ) : null}
@@ -159,3 +159,8 @@ const ReaderBookDetailPage = () => {
 };
 
 export default ReaderBookDetailPage;
+
+
+
+
+

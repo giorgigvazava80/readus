@@ -1,4 +1,4 @@
-import { Outlet, Link } from "react-router-dom";
+﻿import { Outlet, Link } from "react-router-dom";
 import { BookOpen, Twitter, Github, Mail, ArrowRight } from "lucide-react";
 
 import { useI18n } from "@/i18n";
@@ -85,9 +85,9 @@ const Layout = () => {
                   <ul className="space-y-3.5">
                     {[
                       { label: t("layout.footer.browseAll", "Browse All"), to: "/browse" },
-                      { label: t("layout.footer.books", "Books"), to: "/books" },
-                      { label: t("layout.footer.stories", "Stories"), to: "/stories" },
-                      { label: t("layout.footer.poetry", "Poetry"), to: "/poems" },
+                      { label: t("layout.footer.books", "წიგნები"), to: "/books" },
+                      { label: t("layout.footer.stories", "მოთხრობები"), to: "/stories" },
+                      { label: t("layout.footer.poetry", "პოეზია"), to: "/poems" },
                     ].map((item) => (
                       <li key={item.label}>
                         <Link
@@ -109,8 +109,8 @@ const Layout = () => {
                     {[
                       { label: t("nav.login", "Login"), to: "/login" },
                       { label: t("nav.register", "Register"), to: "/register" },
-                      { label: t("layout.footer.writerApplication", "Writer Application"), to: "/writer-application" },
-                      { label: t("layout.footer.myWorks", "My Works"), to: "/my-works" },
+                      { label: t("layout.footer.writerApplication", "ავტორის განაცხადი"), to: "/writer-application" },
+                      { label: t("layout.footer.myWorks", "ჩემი ნაშრომები"), to: "/my-works" },
                     ].map((item) => (
                       <li key={item.label}>
                         <Link
@@ -165,3 +165,5 @@ const Layout = () => {
 };
 
 export default Layout;
+
+

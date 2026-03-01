@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+﻿import { FormEvent, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { KeyRound } from "lucide-react";
 import { toast } from "sonner";
@@ -14,7 +14,7 @@ const ResetPasswordPage = () => {
   const tokenFromQuery = useMemo(() => searchParams.get("token") || "", [searchParams]);
 
   const [uid, setUid] = useState(uidFromQuery);
-  const [token, setToken] = useState(tokenFromQuery);
+  const [token, setტოკენი] = useState(tokenFromQuery);
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,7 +28,7 @@ const ResetPasswordPage = () => {
     }
 
     if (password1 !== password2) {
-      toast.error("Passwords do not match.");
+      toast.error("პაროლები არ ემთხვევა.");
       return;
     }
 
@@ -51,23 +51,23 @@ const ResetPasswordPage = () => {
         <div className="w-full max-w-lg rounded-2xl border border-border/70 bg-card/85 p-7 shadow-card backdrop-blur-sm">
           <div className="flex items-center gap-2">
             <KeyRound className="h-5 w-5 text-primary" />
-            <h1 className="font-display text-3xl font-semibold text-foreground">Reset Password</h1>
+            <h1 className="font-display text-3xl font-semibold text-foreground">პაროლის განახლება</h1>
           </div>
-          <p className="mt-1 font-ui text-sm text-muted-foreground">Use the values from your reset link.</p>
+          <p className="mt-1 font-ui text-sm text-muted-foreground">გამოიყენე აღდგენის ბმულიდან მიღებული მნიშვნელობები.</p>
 
           <form onSubmit={handleSubmit} className="mt-7 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="uid" className="font-ui">UID</Label>
+              <Label htmlFor="uid" className="font-ui">მომხმარებლის ID</Label>
               <Input id="uid" value={uid} onChange={(e) => setUid(e.target.value)} className="font-ui" />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="token" className="font-ui">Token</Label>
-              <Input id="token" value={token} onChange={(e) => setToken(e.target.value)} className="font-ui" />
+              <Label htmlFor="token" className="font-ui">ტოკენი</Label>
+              <Input id="token" value={token} onChange={(e) => setტოკენი(e.target.value)} className="font-ui" />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password1" className="font-ui">New password</Label>
+              <Label htmlFor="password1" className="font-ui">ახალი პაროლი</Label>
               <Input
                 id="password1"
                 type="password"
@@ -78,7 +78,7 @@ const ResetPasswordPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password2" className="font-ui">Repeat new password</Label>
+              <Label htmlFor="password2" className="font-ui">ახალი პაროლის გამეორება</Label>
               <Input
                 id="password2"
                 type="password"
@@ -89,7 +89,7 @@ const ResetPasswordPage = () => {
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Resetting..." : "Reset Password"}
+              {loading ? "Resetting..." : "პაროლის განახლება"}
             </Button>
           </form>
 
@@ -106,3 +106,5 @@ const ResetPasswordPage = () => {
 };
 
 export default ResetPasswordPage;
+
+

@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FileSearch, Search } from "lucide-react";
 
@@ -34,7 +34,7 @@ const AdminAuditLogsPage = () => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <div className="flex items-center gap-2">
           <FileSearch className="h-5 w-5 text-primary" />
-          <h1 className="font-display text-3xl font-semibold text-foreground">Audit Logs</h1>
+          <h1 className="font-display text-3xl font-semibold text-foreground">აუდიტის ჩანაწერები</h1>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-4">
@@ -46,7 +46,7 @@ const AdminAuditLogsPage = () => {
                 setQ(e.target.value);
                 setPage(1);
               }}
-              placeholder="Action or description"
+              placeholder="ქმედება ან აღწერა"
               className="pl-9 font-ui"
             />
           </div>
@@ -56,7 +56,7 @@ const AdminAuditLogsPage = () => {
               setActor(e.target.value);
               setPage(1);
             }}
-            placeholder="Actor email"
+            placeholder="შემსრულებლის ელფოსტა"
             className="font-ui"
           />
           <Input
@@ -107,7 +107,7 @@ const AdminAuditLogsPage = () => {
         )}
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-          <p className="font-ui text-xs text-muted-foreground">Total: {query.data?.count || 0}</p>
+          <p className="font-ui text-xs text-muted-foreground">სულ: {query.data?.count || 0}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setPage((prev) => prev - 1)} disabled={page <= 1}>
               Previous
@@ -123,3 +123,8 @@ const AdminAuditLogsPage = () => {
 };
 
 export default AdminAuditLogsPage;
+
+
+
+
+

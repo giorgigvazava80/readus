@@ -1,10 +1,10 @@
-import type { ContentCategory, ContentStatus } from "@/lib/types";
+﻿import type { ContentCategory, ContentStatus } from "@/lib/types";
 
 export const CONTENT_CATEGORY_LABELS: Record<ContentCategory, string> = {
-  books: "Books",
-  chapters: "Chapters",
+  books: "წიგნები",
+  chapters: "თავები",
   poems: "Poems",
-  stories: "Stories",
+  stories: "მოთხრობები",
 };
 
 export const CONTENT_STATUS_STYLES: Record<ContentStatus, string> = {
@@ -30,7 +30,7 @@ export function htmlToPlainText(value: string | undefined): string {
     .trim();
 }
 
-export function toExcerpt(html: string | undefined, fallback = "No preview available."): string {
+export function toExcerpt(html: string | undefined, fallback = "მიმოხილვა არ არის ხელმისაწვდომი."): string {
   const plain = htmlToPlainText(html);
   if (!plain) {
     return fallback;
@@ -45,5 +45,9 @@ export function estimateReadTimeFromHtml(value: string | undefined): string {
   const plain = htmlToPlainText(value);
   const words = plain.split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.ceil(words / 220));
-  return `${minutes} min read`;
+  return `${minutes} წთ კითხვის დრო`;
 }
+
+
+
+

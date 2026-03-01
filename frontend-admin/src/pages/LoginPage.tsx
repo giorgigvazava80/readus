@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+﻿import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BookOpen, Shield } from "lucide-react";
 import { toast } from "sonner";
@@ -44,18 +44,18 @@ const LoginPage = () => {
         await loginWithGoogleCode(code, googleRedirectUri);
         const me = await fetchMe();
         if (!me) {
-          throw new Error(t("login.error.loadUser", "Failed to load current user."));
+          throw new Error(t("login.error.loadUser", "მიმდინარე მომხმარებლის ჩატვირთვა ვერ მოხერხდა."));
         }
 
         if (adminHost && !(me.is_admin || me.is_redactor)) {
           await logout();
-          throw new Error(t("login.error.noAdminAccess", "You do not have admin portal access."));
+          throw new Error(t("login.error.noAdminAccess", "ადმინ პორტალზე წვდომა არ გაქვს."));
         }
 
         navigate(adminHost ? "/admin" : "/dashboard", { replace: true });
-        toast.success("Logged in with Google.");
+        toast.success("Google-ით წარმატებით შეხვედი.");
       } catch (error) {
-        const message = error instanceof Error ? error.message : t("login.error.failed", "Login failed.");
+        const message = error instanceof Error ? error.message : t("login.error.failed", "შესვლა ვერ მოხერხდა.");
         toast.error(message);
         navigate(adminHost ? "/admin/login" : "/login", { replace: true });
       } finally {
@@ -68,7 +68,7 @@ const LoginPage = () => {
 
   const handleGoogleLogin = () => {
     if (!googleClientId) {
-      toast.error("Google login is not configured.");
+      toast.error("Google ავტორიზაცია კონფიგურირებული არ არის.");
       return;
     }
 
@@ -88,7 +88,7 @@ const LoginPage = () => {
     event.preventDefault();
 
     if (!username || !password) {
-      toast.error(t("login.error.missing", "Enter username or email and password."));
+      toast.error(t("login.error.missing", "შეიყვანე მომხმარებლის სახელი ან ელფოსტა და პაროლი."));
       return;
     }
 
@@ -97,18 +97,18 @@ const LoginPage = () => {
       await login(username, password);
       const me = await fetchMe();
       if (!me) {
-        throw new Error(t("login.error.loadUser", "Failed to load current user."));
+        throw new Error(t("login.error.loadUser", "მიმდინარე მომხმარებლის ჩატვირთვა ვერ მოხერხდა."));
       }
 
       if (adminHost && !(me.is_admin || me.is_redactor)) {
         await logout();
-        throw new Error(t("login.error.noAdminAccess", "You do not have admin portal access."));
+        throw new Error(t("login.error.noAdminAccess", "ადმინ პორტალზე წვდომა არ გაქვს."));
       }
 
       navigate(adminHost ? "/admin" : "/dashboard");
-      toast.success(t("login.success", "Logged in."));
+      toast.success(t("login.success", "შესვლა წარმატებულია."));
     } catch (error) {
-      const message = error instanceof Error ? error.message : t("login.error.failed", "Login failed.");
+      const message = error instanceof Error ? error.message : t("login.error.failed", "შესვლა ვერ მოხერხდა.");
       toast.error(message);
     } finally {
       setLoading(false);
@@ -130,12 +130,12 @@ const LoginPage = () => {
               </span>
             </div>
             <h1 className="mt-6 font-display text-4xl font-bold leading-tight text-foreground md:text-5xl">
-              {adminHost ? t("login.adminTitle", "Moderate Content with Precision") : t("login.userTitle", "Continue Your Literary Journey")}
+              {adminHost ? t("login.adminTitle", "კონტენტის ზუსტი მოდერაცია") : t("login.userTitle", "გააგრძელე შენი ლიტერატურული გზა")}
             </h1>
             <p className="mt-4 font-body text-lg leading-relaxed text-muted-foreground">
               {adminHost
-                ? t("login.adminSubtitle", "Sign in with a redactor or admin account to review writer applications and submissions.")
-                : t("login.userSubtitle", "Sign in to browse stories, engage with authors, and manage your writing workflow.")}
+                ? t("login.adminSubtitle", "შედი რედაქტორის ან ადმინის ანგარიშით ავტორის განაცხადებისა და ნაშრომების განსახილველად.")
+                : t("login.userSubtitle", "შედი, რომ დაათვალიერო ნაშრომები, იურთიერთო ავტორებთან და მართო შენი სამუშაო პროცესი.")}
             </p>
           </div>
         </section>
@@ -150,7 +150,7 @@ const LoginPage = () => {
 
           <form onSubmit={handleSubmit} className="mt-7 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username" className="font-ui">{t("login.username", "Username or email")}</Label>
+              <Label htmlFor="username" className="font-ui">{t("login.username", "მომხმარებლის სახელი ან ელფოსტა")}</Label>
               <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} className="font-ui" />
             </div>
             <div className="space-y-2">
@@ -175,7 +175,7 @@ const LoginPage = () => {
                 {t("login.createAccount", "Create account")}
               </Link>
               <Link className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline" to="/forgot-password">
-                {t("login.forgotPassword", "Forgot password")}
+                {t("login.forgotPassword", "პაროლი დაგავიწყდა")}
               </Link>
             </div>
           ) : null}
@@ -189,11 +189,11 @@ const LoginPage = () => {
                 onClick={handleGoogleLogin}
                 disabled={loading || !googleClientId}
               >
-                Continue with Google
+                გაგრძელება Google-ით
               </Button>
               {!googleClientId ? (
                 <p className="text-center text-xs font-ui text-muted-foreground">
-                  Google login is not configured yet (`VITE_GOOGLE_CLIENT_ID` missing).
+                  Google ავტორიზაცია ჯერ არ არის გამართული (`VITE_GOOGLE_CLIENT_ID` არ არის მითითებული).
                 </p>
               ) : null}
             </div>
@@ -205,3 +205,8 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+
+
+
+
+

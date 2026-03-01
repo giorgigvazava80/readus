@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
@@ -15,9 +15,9 @@ interface ReaderWorksListPageProps {
 }
 
 const titles = {
-  books: "Books",
+  books: "წიგნები",
   poems: "Poems",
-  stories: "Stories",
+  stories: "მოთხრობები",
 };
 
 const paths = {
@@ -47,7 +47,7 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <h1 className="font-display text-4xl font-semibold text-foreground">{titles[category]}</h1>
         <p className="mt-2 font-body text-base text-muted-foreground">
-          Approved works optimized for reading.
+          დამტკიცებული ნაშრომები კითხვისთვის.
         </p>
 
         <div className="mt-5 relative max-w-md">
@@ -58,18 +58,18 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
               setSearch(event.target.value);
               setPage(1);
             }}
-            placeholder={`Search ${titles[category].toLowerCase()}...`}
+            placeholder={`ძებნა ${titles[category].toLowerCase()}...`}
             className="pl-9 font-ui"
           />
         </div>
       </section>
 
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {worksQuery.isLoading ? <p className="font-ui text-sm text-muted-foreground">Loading...</p> : null}
+        {worksQuery.isLoading ? <p className="font-ui text-sm text-muted-foreground">იტვირთება...</p> : null}
 
         {!worksQuery.isLoading && !items.length ? (
           <div className="rounded-xl border border-dashed border-border/80 bg-background/65 p-6 font-ui text-sm text-muted-foreground">
-            No published works found.
+            გამოქვეყნებული ნაშრომები ვერ მოიძებნა.
           </div>
         ) : null}
 
@@ -87,7 +87,7 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
                 )}
               </div>
               <p className="mt-1 font-ui text-sm text-muted-foreground">
-                by {item.author_name || item.author_username || "Unknown author"}
+                by {item.author_name || item.author_username || "უცნობი ავტორი"}
               </p>
               <p className="mt-3 font-body text-sm leading-relaxed text-foreground/80">
                 {toExcerpt(item.body || item.extracted_text || item.description)}
@@ -102,7 +102,7 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
       </section>
 
       <section className="flex items-center justify-between">
-        <p className="font-ui text-xs text-muted-foreground">Total: {worksQuery.data?.count || 0}</p>
+        <p className="font-ui text-xs text-muted-foreground">სულ: {worksQuery.data?.count || 0}</p>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((prev) => prev - 1)}>
             Previous
@@ -122,3 +122,7 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
 };
 
 export default ReaderWorksListPage;
+
+
+
+

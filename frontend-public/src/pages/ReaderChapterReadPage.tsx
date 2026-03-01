@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+﻿import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useEffect, useMemo } from "react";
@@ -45,7 +45,7 @@ const ReaderChapterReadPage = () => {
   if (!bookIdentifier || !Number.isFinite(currentChapterId)) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">Invalid chapter link.</p>
+        <p className="font-ui text-sm text-muted-foreground">თავის ბმული არასწორია.</p>
       </div>
     );
   }
@@ -53,7 +53,7 @@ const ReaderChapterReadPage = () => {
   if (bookQuery.isLoading) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">Loading chapter...</p>
+        <p className="font-ui text-sm text-muted-foreground">თავი იტვირთება...</p>
       </div>
     );
   }
@@ -61,9 +61,9 @@ const ReaderChapterReadPage = () => {
   if (bookQuery.isError || !book) {
     return (
       <div className="container mx-auto px-6 py-10 space-y-4">
-        <p className="font-ui text-sm text-red-700">Could not load chapter.</p>
+        <p className="font-ui text-sm text-red-700">თავის ჩატვირთვა ვერ მოხერხდა.</p>
         <Link to="/books">
-          <Button variant="outline">Back to books</Button>
+          <Button variant="outline">წიგნებზე დაბრუნება</Button>
         </Link>
       </div>
     );
@@ -72,9 +72,9 @@ const ReaderChapterReadPage = () => {
   if (!chapter) {
     return (
       <div className="container mx-auto px-6 py-10 space-y-4">
-        <p className="font-ui text-sm text-red-700">Chapter not found in this book.</p>
+        <p className="font-ui text-sm text-red-700">ამ წიგნში ეს თავი ვერ მოიძებნა.</p>
         <Link to={`/books/${book.public_slug || bookIdentifier}`}>
-          <Button variant="outline">Back to contents</Button>
+          <Button variant="outline">სარჩევზე დაბრუნება</Button>
         </Link>
       </div>
     );
@@ -90,7 +90,7 @@ const ReaderChapterReadPage = () => {
         <Link to={`/books/${canonicalBookIdentifier}`}>
           <Button variant="ghost" size="sm" className="gap-1.5 font-ui text-sm text-muted-foreground">
             <ArrowLeft className="h-4 w-4" />
-            Back to contents
+            სარჩევზე დაბრუნება
           </Button>
         </Link>
 
@@ -101,7 +101,7 @@ const ReaderChapterReadPage = () => {
       </section>
 
       <article className="reader-html prose-literary rounded-2xl border border-border/70 bg-card/80 p-8 text-foreground/90 shadow-card">
-        <div dangerouslySetInnerHTML={{ __html: chapter.body || "<p>No chapter content yet.</p>" }} />
+        <div dangerouslySetInnerHTML={{ __html: chapter.body || "<p>თავის ტექსტი ჯერ არ არის.</p>" }} />
       </article>
 
       <section className="flex flex-wrap items-center justify-between gap-3">
@@ -128,3 +128,5 @@ const ReaderChapterReadPage = () => {
 };
 
 export default ReaderChapterReadPage;
+
+

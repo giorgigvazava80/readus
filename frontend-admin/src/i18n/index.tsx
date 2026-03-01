@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+﻿import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { isAdminAppHost } from "@/lib/runtime";
 
@@ -21,16 +21,16 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
     "brand.admin": "Readus Admin",
 
     "nav.home": "Home",
-    "nav.browse": "Library",
+    "nav.browse": "ბიბლიოთეკა",
     "nav.dashboard": "Dashboard",
-    "nav.newWork": "New Work",
+    "nav.newWork": "ახალი ნაშრომი",
     "nav.writerApp": "Writer App",
-    "nav.myWorks": "My Works",
+    "nav.myWorks": "ჩემი ნაშრომები",
     "nav.settings": "Settings",
     "nav.redactors": "Redactors",
-    "nav.writerApps": "Writer Apps",
-    "nav.contentReview": "Content Review",
-    "nav.auditLogs": "Audit Logs",
+    "nav.writerApps": "ავტორის განაცხადები",
+    "nav.contentReview": "კონტენტის განხილვა",
+    "nav.auditLogs": "აუდიტის ჩანაწერები",
     "nav.login": "Login",
     "nav.register": "Register",
     "nav.logout": "Logout",
@@ -41,13 +41,13 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
     "layout.cta.button": "Join Free",
     "layout.footer.brandDesc": "A curated home for novels, short stories, and poetry. Quality writing, carefully crafted.",
     "layout.footer.explore": "Explore",
-    "layout.footer.browseAll": "Library",
+    "layout.footer.browseAll": "ბიბლიოთეკა",
     "layout.footer.books": "Books",
     "layout.footer.stories": "Stories",
     "layout.footer.poetry": "Poetry",
     "layout.footer.account": "Account",
-    "layout.footer.writerApplication": "Writer Application",
-    "layout.footer.myWorks": "My Works",
+    "layout.footer.writerApplication": "ავტორის განაცხადი",
+    "layout.footer.myWorks": "ჩემი ნაშრომები",
     "layout.footer.about": "About",
     "layout.footer.ourStory": "Our Story",
     "layout.footer.editorialProcess": "Editorial Process",
@@ -58,24 +58,24 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
 
     "login.portal": "Editorial Management Portal",
     "login.welcome": "Welcome to Readus",
-    "login.adminTitle": "Moderate Content with Precision",
-    "login.userTitle": "Continue Your Literary Journey",
-    "login.adminSubtitle": "Sign in with a redactor or admin account to review writer applications and submissions.",
-    "login.userSubtitle": "Sign in to browse stories, engage with authors, and manage your writing workflow.",
+    "login.adminTitle": "კონტენტის ზუსტი მოდერაცია",
+    "login.userTitle": "გააგრძელე შენი ლიტერატურული გზა",
+    "login.adminSubtitle": "შედი რედაქტორის ან ადმინის ანგარიშით ავტორის განაცხადებისა და ნაშრომების განსახილველად.",
+    "login.userSubtitle": "შედი, რომ დაათვალიერო ნაშრომები, იურთიერთო ავტორებთან და მართო შენი სამუშაო პროცესი.",
     "login.adminHeading": "Admin Login",
     "login.heading": "Login",
     "login.adminNote": "Restricted to redactor/admin roles.",
     "login.note": "Sign in to your account.",
-    "login.username": "Username or email",
+    "login.username": "მომხმარებლის სახელი ან ელფოსტა",
     "login.password": "Password",
     "login.signIn": "Sign In",
     "login.signingIn": "Signing in...",
     "login.createAccount": "Create account",
     "login.forgotPassword": "Forgot password",
-    "login.error.missing": "Enter username or email and password.",
-    "login.error.loadUser": "Failed to load current user.",
-    "login.error.noAdminAccess": "You do not have admin portal access.",
-    "login.success": "Logged in.",
+    "login.error.missing": "შეიყვანე მომხმარებლის სახელი ან ელფოსტა და პაროლი.",
+    "login.error.loadUser": "მიმდინარე მომხმარებლის ჩატვირთვა ვერ მოხერხდა.",
+    "login.error.noAdminAccess": "ადმინ პორტალზე წვდომა არ გაქვს.",
+    "login.success": "შესვლა წარმატებულია.",
     "login.error.failed": "Login failed.",
 
     "register.badge": "Create your Readus account",
@@ -86,10 +86,10 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
     "register.writerCardTitle": "Writer Track",
     "register.writerCardDesc": "Submit writing proof after verification and wait for editorial review.",
     "register.heading": "Register",
-    "register.note": "All accounts require email verification before access.",
-    "register.firstName": "First name",
-    "register.lastName": "Last name",
-    "register.username": "Username",
+    "register.note": "წვდომამდე ყველა ანგარიში საჭიროებს ელფოსტის ვერიფიკაციას.",
+    "register.firstName": "სახელი",
+    "register.lastName": "გვარი",
+    "register.username": "მომხმარებლის სახელი",
     "register.email": "Email",
     "register.role": "Role",
     "register.roleReader": "Reader",
@@ -101,25 +101,25 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
     "register.haveAccount": "Already have an account?",
     "register.resend": "Resend verification",
     "register.error.required": "Fill all required fields.",
-    "register.error.passwordMatch": "Passwords do not match.",
-    "register.success": "Registration successful. Verify your email to activate account.",
+    "register.error.passwordMatch": "პაროლები არ ემთხვევა.",
+    "register.success": "რეგისტრაცია წარმატებულია. ანგარიშის გასააქტიურებლად დაადასტურე ელფოსტა.",
     "register.error.failed": "Registration failed.",
-    "register.error.resendBefore": "Register first to resend verification.",
-    "register.success.resent": "Verification email resent.",
+    "register.error.resendBefore": "ვერიფიკაციის ხელახლა გასაგზავნად ჯერ დარეგისტრირდი.",
+    "register.success.resent": "ვერიფიკაციის ელფოსტა ხელახლა გაიგზავნა.",
     "register.error.resendFailed": "Failed to resend verification.",
 
     "dashboard.workspace": "Personal Workspace",
     "dashboard.title": "Dashboard",
     "dashboard.signedInAs": "Signed in as",
-    "dashboard.writerApplication": "Writer Application",
+    "dashboard.writerApplication": "ავტორის განაცხადი",
     "dashboard.verifyEmail": "Verify your email before using protected features.",
     "dashboard.forcePassword": "Password change is required before continuing.",
     "dashboard.books": "Books",
-    "dashboard.chapters": "Chapters",
+    "dashboard.chapters": "თავები",
     "dashboard.poems": "Poems",
     "dashboard.stories": "Stories",
-    "dashboard.writerStatus": "Writer Application Status",
-    "dashboard.status": "Status",
+    "dashboard.writerStatus": "ავტორის განაცხადი სტატუსი",
+    "dashboard.status": "სტატუსი",
     "dashboard.submitted": "Submitted",
     "dashboard.reviewerComment": "Reviewer comment",
     "dashboard.noWriterApp": "No writer application yet. Submit one to unlock writer privileges after approval.",
@@ -129,7 +129,7 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
     "dashboard.partialError": "Some dashboard sections failed to load.",
     "dashboard.writerMode": "Writer mode active",
     "dashboard.writerModeDesc": "You are approved as writer. Start publishing books from your writer workspace.",
-    "dashboard.newWork": "New Work",
+    "dashboard.newWork": "ახალი ნაშრომი",
 
     "role.anonymous": "anonymous",
     "role.reader": "reader",
@@ -281,13 +281,7 @@ interface I18nContextValue {
 const I18nContext = createContext<I18nContextValue | undefined>(undefined);
 
 function resolveInitialLanguage(): AppLanguage {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === "en" || stored === "ka") {
-    return stored;
-  }
-
-  const browserLang = (navigator.language || "en").toLowerCase();
-  return browserLang.startsWith("ka") ? "ka" : "en";
+  return "ka";
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
@@ -334,3 +328,8 @@ export function useI18n() {
   }
   return context;
 }
+
+
+
+
+

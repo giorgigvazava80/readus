@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+﻿import { useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
@@ -16,7 +16,7 @@ const WriterCreateWorkRedirectPage = ({ type }: WriterCreateWorkRedirectPageProp
     mutationFn: async () => {
       if (type === "books") {
         const created = await createBook({
-          title: "Untitled Book",
+          title: "უსათაურო წიგნი",
           description: "",
           foreword: "<p></p>",
           afterword: "<p></p>",
@@ -28,18 +28,18 @@ const WriterCreateWorkRedirectPage = ({ type }: WriterCreateWorkRedirectPageProp
 
       if (type === "poems") {
         const created = await createPoem({
-          title: "Untitled Poem",
+          title: "უსათაურო ლექსი",
           description: "",
-          body: "<p>Start writing your poem...</p>",
+          body: "<p>დაიწყე ლექსის წერა...</p>",
           source_type: "manual",
         });
         return `/writer/poems/${created.id}/edit`;
       }
 
       const created = await createStory({
-        title: "Untitled Story",
+        title: "უსათაურო მოთხრობა",
         description: "",
-        body: "<p>Start writing your story...</p>",
+        body: "<p>დაიწყე მოთხრობის წერა...</p>",
         source_type: "manual",
       });
       return `/writer/stories/${created.id}/edit`;
@@ -50,8 +50,8 @@ const WriterCreateWorkRedirectPage = ({ type }: WriterCreateWorkRedirectPageProp
     onError: (error) => {
       toast({
         variant: "destructive",
-        title: "Unable to create draft",
-        description: error instanceof Error ? error.message : "Try again.",
+        title: "შავი ვერსიის შექმნა ვერ მოხერხდა",
+        description: error instanceof Error ? error.message : "სცადე ხელახლა.",
       });
       navigate("/writer/new", { replace: true });
     },
@@ -65,9 +65,11 @@ const WriterCreateWorkRedirectPage = ({ type }: WriterCreateWorkRedirectPageProp
 
   return (
     <div className="container mx-auto px-6 py-10">
-      <p className="font-ui text-sm text-muted-foreground">Creating draft editor...</p>
+      <p className="font-ui text-sm text-muted-foreground">შავი ვერსიის რედაქტორი იქმნება...</p>
     </div>
   );
 };
 
 export default WriterCreateWorkRedirectPage;
+
+

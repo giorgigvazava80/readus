@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+﻿import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, Clock, Share2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -12,10 +12,10 @@ import { useReadChapters } from "@/hooks/useReadChapters";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
 const categoryLabels: Record<ContentCategory, string> = {
-  books: "Book",
-  chapters: "Chapter",
-  poems: "Poetry",
-  stories: "Short Story",
+  books: "წიგნი",
+  chapters: "თავი",
+  poems: "პოეზია",
+  stories: "მოკლე მოთხრობა",
 };
 
 const allowedCategories: ContentCategory[] = ["books", "chapters", "poems", "stories"];
@@ -41,7 +41,7 @@ function estimateReadTime(content: ContentDetail): string {
 
   const words = stripHtml(parts.join(" ")).split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.ceil(words / 220));
-  return `${minutes} min read`;
+  return `${minutes} წთ კითხვის დრო`;
 }
 
 const PublicReadPage = () => {
@@ -96,17 +96,17 @@ const PublicReadPage = () => {
     const s: { id: string; title: string; html: string }[] = [];
 
     if (hasTextContent(content.foreword)) {
-      s.push({ id: 'foreword', title: 'Foreword', html: content.foreword! });
+      s.push({ id: 'foreword', title: 'წინასიტყვაობა', html: content.foreword! });
     }
     chapters.forEach((ch) => {
       s.push({
         id: `chapter-${ch.id}`,
         title: ch.title || `Chapter ${ch.auto_label || ch.order}`,
-        html: ch.body || "<p>No chapter content.</p>"
+        html: ch.body || "<p>თავის ტექსტი არ არის.</p>"
       });
     });
     if (hasTextContent(content.afterword)) {
-      s.push({ id: 'afterword', title: 'Afterword', html: content.afterword! });
+      s.push({ id: 'afterword', title: 'ბოლოსიტყვაობა', html: content.afterword! });
     }
     return s;
   }, [content, category]);
@@ -167,24 +167,24 @@ const PublicReadPage = () => {
   if (!category || !identifier) {
     return (
       <div className="container mx-auto px-6 py-24 text-center">
-        <h1 className="font-display text-2xl font-bold text-foreground">Invalid Content Link</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground">კონტენტის ბმული არასწორია</h1>
         <Link to="/browse">
-          <Button variant="outline" className="mt-4">Back to Library</Button>
+          <Button variant="outline" className="mt-4">ბიბლიოთეკაში დაბრუნება</Button>
         </Link>
       </div>
     );
   }
 
   if (detailQuery.isLoading) {
-    return <div className="container mx-auto px-6 py-24 text-center text-sm text-muted-foreground">Loading...</div>;
+    return <div className="container mx-auto px-6 py-24 text-center text-sm text-muted-foreground">იტვირთება...</div>;
   }
 
   if (detailQuery.isError || !detailQuery.data) {
     return (
       <div className="container mx-auto px-6 py-24 text-center">
-        <h1 className="font-display text-2xl font-bold text-foreground">Work Not Found</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground">ნაშრომი ვერ მოიძებნა</h1>
         <Link to="/browse">
-          <Button variant="outline" className="mt-4">Back to Library</Button>
+          <Button variant="outline" className="mt-4">ბიბლიოთეკაში დაბრუნება</Button>
         </Link>
       </div>
     );
@@ -214,7 +214,7 @@ const PublicReadPage = () => {
         <div className="container relative mx-auto px-6 py-8 md:py-12">
           <Link to="/browse">
             <Button variant="ghost" size="sm" className="mb-6 gap-1.5 font-ui text-sm text-muted-foreground -ml-3">
-              <ArrowLeft className="h-3.5 w-3.5" /> Back to Library
+              <ArrowLeft className="h-3.5 w-3.5" /> ბიბლიოთეკაში დაბრუნება
             </Button>
           </Link>
 
@@ -240,7 +240,7 @@ const PublicReadPage = () => {
                 {content.title}
               </h1>
               <p className="mt-4 font-ui text-lg text-muted-foreground">
-                by {content.author_name || content.author_username || "Unknown author"}
+                by {content.author_name || content.author_username || "უცნობი ავტორი"}
               </p>
 
               {content.description ? (
@@ -278,7 +278,7 @@ const PublicReadPage = () => {
 
           {content.upload_file ? (
             <p className="mb-6 text-sm text-muted-foreground">
-              Uploaded file: <a className="underline" href={content.upload_file} target="_blank" rel="noreferrer">Open file</a>
+              ატვირთული ფაილი: <a className="underline" href={content.upload_file} target="_blank" rel="noreferrer">ფაილის გახსნა</a>
             </p>
           ) : null}
 
@@ -287,7 +287,7 @@ const PublicReadPage = () => {
               {sections.length > 0 ? (
                 currentPage === 0 ? (
                   <section className="animate-in fade-in duration-500">
-                    <h2 className="font-display text-3xl font-semibold text-foreground mb-6">სარჩევი / Table of Contents</h2>
+                    <h2 className="font-display text-3xl font-semibold text-foreground mb-6">სარჩევი</h2>
                     <div className="flex flex-col gap-3">
                       {sections.map((sec, idx) => {
                         const isChapter = sec.id.startsWith("chapter-");
@@ -322,15 +322,15 @@ const PublicReadPage = () => {
                     />
                   </section>
                 ) : (
-                  <p className="font-ui text-sm text-muted-foreground">Page not found.</p>
+                  <p className="font-ui text-sm text-muted-foreground">გვერდი ვერ მოიძებნა.</p>
                 )
               ) : content.extracted_text ? (
                 <section>
-                  <h2 className="font-display text-2xl font-semibold text-foreground">Uploaded Text</h2>
+                  <h2 className="font-display text-2xl font-semibold text-foreground">ატვირთული ტექსტი</h2>
                   <pre className="prose-literary mt-3 whitespace-pre-wrap text-foreground/90">{content.extracted_text}</pre>
                 </section>
               ) : (
-                <p className="font-ui text-sm text-muted-foreground">No readable text available.</p>
+                <p className="font-ui text-sm text-muted-foreground">წაკითხვადი ტექსტი ხელმისაწვდომი არ არის.</p>
               )}
             </div>
           ) : content.body ? (
@@ -341,7 +341,7 @@ const PublicReadPage = () => {
           ) : content.extracted_text ? (
             <pre className="prose-literary whitespace-pre-wrap text-foreground/90">{content.extracted_text}</pre>
           ) : (
-            <p className="font-ui text-sm text-muted-foreground">No readable text available.</p>
+            <p className="font-ui text-sm text-muted-foreground">წაკითხვადი ტექსტი ხელმისაწვდომი არ არის.</p>
           )}
 
           {category === "books" && sections.length > 0 && (
@@ -351,7 +351,7 @@ const PublicReadPage = () => {
                 onClick={() => navigateToPage(0)}
                 className={`font-ui ${currentPage !== 0 ? "bg-background" : ""}`}
               >
-                სარჩევი / Table of Contents
+                სარჩევი
               </Button>
               {sections.map((sec, idx) => (
                 <Button
@@ -369,9 +369,9 @@ const PublicReadPage = () => {
           <Separator className="my-12" />
 
           <div className="text-center">
-            <p className="font-display text-lg italic text-muted-foreground">End of preview</p>
+            <p className="font-display text-lg italic text-muted-foreground">პრევიუს დასასრული</p>
             <p className="mt-2 font-ui text-sm text-muted-foreground">
-              Join as reader to like, comment, and follow authors.
+              შემოუერთდი როგორც მკითხველი, რომ მოიწონო, დააკომენტარო და გამოიწერო ავტორები.
             </p>
           </div>
         </div>
@@ -381,3 +381,7 @@ const PublicReadPage = () => {
 };
 
 export default PublicReadPage;
+
+
+
+

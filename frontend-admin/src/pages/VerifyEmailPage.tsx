@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+﻿import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { MailCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -22,9 +22,9 @@ const VerifyEmailPage = () => {
   const completeVerification = useCallback(
     async (verificationKey: string) => {
       const response = await verifyEmail(verificationKey);
-      const hasAuthToken = Boolean(response.access || response.key);
+      const hasAuthტოკენი = Boolean(response.access || response.key);
 
-      if (hasAuthToken) {
+      if (hasAuthტოკენი) {
         await fetchMe();
         toast.success("Email verified. Redirecting to dashboard.");
         navigate(adminHost ? "/admin" : "/dashboard", { replace: true });
@@ -70,7 +70,7 @@ const VerifyEmailPage = () => {
   const handleVerify = async (event: FormEvent) => {
     event.preventDefault();
     if (!key) {
-      toast.error("Verification key is required.");
+      toast.error("დადასტურების გასაღები is required.");
       return;
     }
 
@@ -87,7 +87,7 @@ const VerifyEmailPage = () => {
 
   const handleResend = async () => {
     if (!email) {
-      toast.error("Email is required.");
+      toast.error("ელფოსტა სავალდებულოა.");
       return;
     }
 
@@ -110,7 +110,7 @@ const VerifyEmailPage = () => {
         <div className="w-full max-w-xl rounded-2xl border border-border/70 bg-card/85 p-7 shadow-card backdrop-blur-sm">
           <div className="flex items-center gap-2">
             <MailCheck className="h-5 w-5 text-primary" />
-            <h1 className="font-display text-3xl font-semibold text-foreground">Verify Email</h1>
+            <h1 className="font-display text-3xl font-semibold text-foreground">ელფოსტის დადასტურება</h1>
           </div>
           <p className="mt-1 font-ui text-sm text-muted-foreground">
             Paste your verification key or open the link you received by email.
@@ -118,7 +118,7 @@ const VerifyEmailPage = () => {
 
           <form onSubmit={handleVerify} className="mt-7 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="key" className="font-ui">Verification key</Label>
+              <Label htmlFor="key" className="font-ui">დადასტურების გასაღები</Label>
               <Input id="key" value={key} onChange={(e) => setKey(e.target.value)} className="font-ui" />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
@@ -127,7 +127,7 @@ const VerifyEmailPage = () => {
           </form>
 
           <div className="mt-6 border-t border-border/70 pt-5">
-            <p className="font-ui text-sm text-muted-foreground">Didn&apos;t receive the email?</p>
+            <p className="font-ui text-sm text-muted-foreground">ელფოსტა ვერ მიიღე?</p>
             <div className="mt-2 flex flex-col gap-2 sm:flex-row">
               <Input
                 placeholder="you@example.com"
@@ -155,3 +155,6 @@ const VerifyEmailPage = () => {
 };
 
 export default VerifyEmailPage;
+
+
+

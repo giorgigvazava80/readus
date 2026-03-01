@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+﻿import { FormEvent, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ShieldPlus, UserMinus } from "lucide-react";
 import { toast } from "sonner";
@@ -17,7 +17,7 @@ const AdminRedactorsPage = () => {
   const redactorsErrorMessage =
     redactorsQuery.error instanceof Error
       ? redactorsQuery.error.message
-      : "Could not load redactors. Check your permissions.";
+      : "რედაქტორების ჩატვირთვა ვერ მოხერხდა. გადაამოწმე წვდომები.";
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -36,7 +36,7 @@ const AdminRedactorsPage = () => {
     event.preventDefault();
 
     if (!email) {
-      toast.error("Email is required.");
+      toast.error("ელფოსტა სავალდებულოა.");
       return;
     }
 
@@ -60,7 +60,7 @@ const AdminRedactorsPage = () => {
       setFirstName("");
       setLastName("");
       await reload();
-      toast.success("Redactor created/updated.");
+      toast.success("რედაქტორი წარმატებით შეიქმნა/განახლდა.");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to create redactor.";
       toast.error(message);
@@ -83,7 +83,7 @@ const AdminRedactorsPage = () => {
     try {
       await deleteRedactor(id);
       await reload();
-      toast.success("Redactor removed.");
+      toast.success("რედაქტორი წაიშალა.");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to remove redactor.";
       toast.error(message);
@@ -95,41 +95,41 @@ const AdminRedactorsPage = () => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <div className="flex items-center gap-2">
           <ShieldPlus className="h-5 w-5 text-primary" />
-          <h1 className="font-display text-3xl font-semibold text-foreground">Redactor Management</h1>
+          <h1 className="font-display text-3xl font-semibold text-foreground">რედაქტორების მართვა</h1>
         </div>
 
         <form onSubmit={handleCreate} className="mt-6 grid gap-3 md:grid-cols-3">
           <div className="space-y-1">
-            <Label className="font-ui">Email (required)</Label>
+            <Label className="font-ui">ელფოსტა (სავალდებულო)</Label>
             <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="font-ui" />
           </div>
           <div className="space-y-1">
-            <Label className="font-ui">Username (new user only)</Label>
+            <Label className="font-ui">მომხმარებლის სახელი (მხოლოდ ახალი მომხმარებელი)</Label>
             <Input value={username} onChange={(e) => setUsername(e.target.value)} className="font-ui" />
           </div>
           <div className="space-y-1">
-            <Label className="font-ui">Password (new user only)</Label>
+            <Label className="font-ui">პაროლი (მხოლოდ ახალი მომხმარებელი)</Label>
             <Input value={password} onChange={(e) => setPassword(e.target.value)} type="password" className="font-ui" />
           </div>
           <div className="space-y-1">
-            <Label className="font-ui">First name</Label>
+            <Label className="font-ui">სახელი</Label>
             <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} className="font-ui" />
           </div>
           <div className="space-y-1">
-            <Label className="font-ui">Last name</Label>
+            <Label className="font-ui">გვარი</Label>
             <Input value={lastName} onChange={(e) => setLastName(e.target.value)} className="font-ui" />
           </div>
           <div className="flex items-end">
             <Button type="submit" disabled={isCreating}>
-              {isCreating ? "Saving..." : "Create/Promote"}
+              {isCreating ? "ინახება..." : "შექმნა/დაწინაურება"}
             </Button>
           </div>
         </form>
       </section>
 
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
-        <h2 className="font-display text-2xl font-semibold text-foreground">Current Redactors</h2>
-        {redactorsQuery.isLoading ? <p className="mt-3 font-ui text-sm text-muted-foreground">Loading redactors...</p> : null}
+        <h2 className="font-display text-2xl font-semibold text-foreground">მიმდინარე რედაქტორები</h2>
+        {redactorsQuery.isLoading ? <p className="mt-3 font-ui text-sm text-muted-foreground">რედაქტორები იტვირთება...</p> : null}
         {redactorsQuery.isError ? (
           <div className="mt-4 rounded-xl border border-red-500/40 bg-red-500/10 p-5 font-ui text-sm text-red-700">
             {redactorsErrorMessage}
@@ -137,7 +137,7 @@ const AdminRedactorsPage = () => {
         ) : null}
         {redactors.length === 0 && !redactorsQuery.isLoading && !redactorsQuery.isError ? (
           <div className="mt-4 rounded-xl border border-dashed border-border/80 bg-background/65 p-5 font-ui text-sm text-muted-foreground">
-            No redactors yet.
+            რედაქტორები ჯერ არ არის.
           </div>
         ) : null}
 
@@ -160,10 +160,10 @@ const AdminRedactorsPage = () => {
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                 {[
                   ["is_active", "Active"],
-                  ["can_review_writer_applications", "Review Apps"],
-                  ["can_review_content", "Review Content"],
-                  ["can_manage_content", "Manage Content"],
-                  ["can_manage_redactors", "Manage Redactors"],
+                  ["can_review_writer_applications", "განაცხადების განხილვა"],
+                  ["can_review_content", "კონტენტის განხილვა"],
+                  ["can_manage_content", "კონტენტის მართვა"],
+                  ["can_manage_redactors", "რედაქტორების მართვა"],
                 ].map(([field, label]) => (
                   <label key={field} className="flex items-center gap-2 rounded-lg border border-border/70 bg-card/70 p-2">
                     <input
@@ -184,3 +184,5 @@ const AdminRedactorsPage = () => {
 };
 
 export default AdminRedactorsPage;
+
+

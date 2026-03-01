@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+﻿import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, EyeOff } from "lucide-react";
 import { useEffect } from "react";
@@ -14,7 +14,7 @@ interface ReaderTextWorkPageProps {
 
 const labels = {
   poems: "Poem",
-  stories: "Story",
+  stories: "მოთხრობა",
 };
 
 const listPath = {
@@ -47,7 +47,7 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
   if (!contentIdentifier) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">Invalid link.</p>
+        <p className="font-ui text-sm text-muted-foreground">ბმული არასწორია.</p>
       </div>
     );
   }
@@ -55,7 +55,7 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
   if (detailQuery.isLoading) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">Loading...</p>
+        <p className="font-ui text-sm text-muted-foreground">იტვირთება...</p>
       </div>
     );
   }
@@ -63,9 +63,9 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
   if (detailQuery.isError || !detailQuery.data) {
     return (
       <div className="container mx-auto px-6 py-10 space-y-4">
-        <p className="font-ui text-sm text-red-700">Work not found.</p>
+        <p className="font-ui text-sm text-red-700">ნაშრომი ვერ მოიძებნა.</p>
         <Link to={listPath[type]}>
-          <Button variant="outline">Back to list</Button>
+          <Button variant="outline">სიაზე დაბრუნება</Button>
         </Link>
       </div>
     );
@@ -94,7 +94,7 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
           )}
         </div>
         <p className="mt-2 font-ui text-sm text-muted-foreground">
-          by {work.author_name || work.author_username || "Unknown author"} - {estimateReadTimeFromHtml(work.body || work.extracted_text || work.description)}
+          by {work.author_name || work.author_username || "უცნობი ავტორი"} - {estimateReadTimeFromHtml(work.body || work.extracted_text || work.description)}
         </p>
       </section>
 
@@ -108,7 +108,7 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
         ) : work.extracted_text ? (
           <pre className="prose-literary whitespace-pre-wrap">{work.extracted_text}</pre>
         ) : (
-          <p className="font-ui text-sm text-muted-foreground">No text available.</p>
+          <p className="font-ui text-sm text-muted-foreground">ტექსტი ხელმისაწვდომი არ არის.</p>
         )}
       </article>
     </div>
@@ -116,3 +116,6 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
 };
 
 export default ReaderTextWorkPage;
+
+
+

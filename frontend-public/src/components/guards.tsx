@@ -1,10 +1,10 @@
-import { Navigate, useLocation } from "react-router-dom";
+﻿import { Navigate, useLocation } from "react-router-dom";
 
 import { useSession } from "@/hooks/useSession";
 import { isAdminAppHost } from "@/lib/runtime";
 
 function LoadingScreen() {
-  return <div className="p-8 text-sm text-muted-foreground">Loading...</div>;
+  return <div className="p-8 text-sm text-muted-foreground">იტვირთება...</div>;
 }
 
 export function UserAppOnly({ children }: { children: JSX.Element }) {
@@ -83,3 +83,6 @@ export function RequireWriterApproved({ children }: { children: JSX.Element }) {
 
   return children;
 }
+
+
+

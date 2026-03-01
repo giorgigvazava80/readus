@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useRef } from "react";
+﻿import { useMemo, useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { BookOpen, LogOut, Shield, Menu, X, Languages } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,15 +17,15 @@ interface NavItem {
 
 const publicUserNav: NavItem[] = [
   { labelKey: "nav.home", defaultLabel: "Home", path: "/" },
-  { labelKey: "nav.browse", defaultLabel: "Library", path: "/browse" },
+  { labelKey: "nav.browse", defaultLabel: "ბიბლიოთეკა", path: "/browse" },
 ];
 
 const adminNav: NavItem[] = [
   { labelKey: "nav.home", defaultLabel: "Home", path: "/admin" },
   { labelKey: "nav.redactors", defaultLabel: "Redactors", path: "/admin/redactors" },
-  { labelKey: "nav.writerApps", defaultLabel: "Writer Apps", path: "/admin/writer-applications" },
-  { labelKey: "nav.contentReview", defaultLabel: "Content Review", path: "/admin/content-review" },
-  { labelKey: "nav.auditLogs", defaultLabel: "Audit Logs", path: "/admin/audit-logs" },
+  { labelKey: "nav.writerApps", defaultLabel: "ავტორის განაცხადები", path: "/admin/writer-applications" },
+  { labelKey: "nav.contentReview", defaultLabel: "კონტენტის განხილვა", path: "/admin/content-review" },
+  { labelKey: "nav.auditLogs", defaultLabel: "აუდიტის ჟურნალი", path: "/admin/audit-logs" },
   { labelKey: "nav.settings", defaultLabel: "Settings", path: "/admin/settings" },
 ];
 
@@ -85,12 +85,12 @@ const Navbar = () => {
     ];
 
     if (me.is_writer_approved) {
-      dashboardNav.push({ labelKey: "nav.newWork", defaultLabel: "New Work", path: "/writer/new" });
+      dashboardNav.push({ labelKey: "nav.newWork", defaultLabel: "ახალი ნაშრომი", path: "/writer/new" });
     } else {
       dashboardNav.push({ labelKey: "nav.writerApp", defaultLabel: "Writer App", path: "/writer-application" });
     }
 
-    dashboardNav.push({ labelKey: "nav.myWorks", defaultLabel: "My Works", path: "/my-works" });
+    dashboardNav.push({ labelKey: "nav.myWorks", defaultLabel: "ჩემი ნაშრომები", path: "/my-works" });
     dashboardNav.push({ labelKey: "nav.settings", defaultLabel: "Settings", path: "/settings" });
 
     return [...publicUserNav, ...dashboardNav];
@@ -288,3 +288,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

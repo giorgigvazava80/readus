@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+﻿import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, BookOpenText, ClipboardCheck, Feather, ShieldAlert, UserCircle2 } from "lucide-react";
@@ -60,10 +60,10 @@ const DashboardPage = () => {
   }, [latestApplication?.status, me, queryClient]);
 
   const workCards = [
-    { key: "books", label: t("dashboard.books", "Books"), value: worksSummaryQuery.data?.books ?? 0 },
-    { key: "chapters", label: t("dashboard.chapters", "Chapters"), value: worksSummaryQuery.data?.chapters ?? 0 },
+    { key: "books", label: t("dashboard.books", "წიგნები"), value: worksSummaryQuery.data?.books ?? 0 },
+    { key: "chapters", label: t("dashboard.chapters", "თავები"), value: worksSummaryQuery.data?.chapters ?? 0 },
     { key: "poems", label: t("dashboard.poems", "Poems"), value: worksSummaryQuery.data?.poems ?? 0 },
-    { key: "stories", label: t("dashboard.stories", "Stories"), value: worksSummaryQuery.data?.stories ?? 0 },
+    { key: "stories", label: t("dashboard.stories", "მოთხრობები"), value: worksSummaryQuery.data?.stories ?? 0 },
   ];
 
   const roleLabel = me ? t(`role.${me.effective_role}`, me.effective_role) : "";
@@ -85,15 +85,15 @@ const DashboardPage = () => {
           <div className="flex flex-wrap gap-3">
             {me?.is_writer_approved ? (
               <Link to="/writer/new">
-                <Button>{t("dashboard.newWork", "New Work")}</Button>
+                <Button>{t("dashboard.newWork", "ახალი ნაშრომი")}</Button>
               </Link>
             ) : (
               <Link to="/writer-application">
-                <Button>{t("dashboard.writerApplication", "Writer Application")}</Button>
+                <Button>{t("dashboard.writerApplication", "ავტორის განაცხადი")}</Button>
               </Link>
             )}
             <Link to="/my-works">
-              <Button variant="outline">{t("nav.myWorks", "My Works")}</Button>
+              <Button variant="outline">{t("nav.myWorks", "ჩემი ნაშრომები")}</Button>
             </Link>
             <Link to="/settings">
               <Button variant="outline">{t("nav.settings", "Settings")}</Button>
@@ -127,12 +127,12 @@ const DashboardPage = () => {
         <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
           <div className="flex items-center gap-2">
             <ClipboardCheck className="h-5 w-5 text-primary" />
-            <h2 className="font-display text-2xl font-semibold text-foreground">{t("dashboard.writerStatus", "Writer Application Status")}</h2>
+            <h2 className="font-display text-2xl font-semibold text-foreground">{t("dashboard.writerStatus", "ავტორის განაცხადი სტატუსი")}</h2>
           </div>
           {latestApplication ? (
             <div className="mt-4 rounded-xl border border-border/70 bg-background/70 p-4 font-ui text-sm">
               <p>
-                {t("dashboard.status", "Status")}: {" "}
+                {t("dashboard.status", "სტატუსი")}: {" "}
                 <span
                   className={`rounded-full border px-2 py-0.5 text-xs font-medium ${statusStyles[latestApplication.status] || "border-border bg-muted text-foreground"}`}
                 >
@@ -201,7 +201,7 @@ const DashboardPage = () => {
           </p>
           <div className="mt-4">
             <Link to="/writer/new">
-              <Button className="gap-2">{t("dashboard.newWork", "New Work")}</Button>
+              <Button className="gap-2">{t("dashboard.newWork", "ახალი ნაშრომი")}</Button>
             </Link>
           </div>
         </section>
@@ -211,3 +211,7 @@ const DashboardPage = () => {
 };
 
 export default DashboardPage;
+
+
+
+

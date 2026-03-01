@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Search, BookOpen } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -20,7 +20,7 @@ function toExcerpt(item: ContentItem): string {
   // Remove HTML tags using regex and clean up extra spaces
   const raw = rawHtml.replace(/<[^>]*>?/gm, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 
-  if (!raw) return "No preview available yet.";
+  if (!raw) return "მიმოხილვა ჯერ ხელმისაწვდომი არ არის.";
   if (raw.length <= 190) return raw;
   return `${raw.slice(0, 187)}...`;
 }
@@ -29,7 +29,7 @@ function estimateReadTime(item: ContentItem): string {
   const text = [item.body, item.extracted_text, item.description].filter(Boolean).join(" ");
   const words = text.trim().split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.ceil(words / 220));
-  return `${minutes} min read`;
+  return `${minutes} წთ კითხვის დრო`;
 }
 
 function colorFor(category: "books" | "stories" | "poems", id: number): string {
@@ -43,7 +43,7 @@ function toCardItem(category: "books" | "stories" | "poems", item: ContentItem):
     publicSlug: item.public_slug || String(item.id),
     category,
     title: item.title,
-    author: item.author_name || item.author_username || "Unknown author",
+    author: item.author_name || item.author_username || "უცნობი ავტორი",
     excerpt: toExcerpt(item),
     coverColor: colorFor(category, item.id),
     coverImageUrl: resolveMediaUrl(item.cover_image),
@@ -94,7 +94,7 @@ const PublicBrowsePage = () => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         {/* Page header */}
         <div className="mb-8">
-          <h1 className="font-display text-3xl font-bold text-foreground md:text-4xl">Library</h1>
+          <h1 className="font-display text-3xl font-bold text-foreground md:text-4xl">ბიბლიოთეკა</h1>
           <p className="mt-1.5 font-ui text-sm text-muted-foreground">
             Discover books, stories, and poetry from the community
           </p>
@@ -112,7 +112,7 @@ const PublicBrowsePage = () => {
             <div className="relative w-full sm:w-72">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search by title or author..."
+                placeholder="ძიება სათაურით ან ავტორით..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9 font-ui h-10 text-sm bg-background/50 border-white/10 focus:border-primary/30 transition-colors"
@@ -154,15 +154,15 @@ const PublicBrowsePage = () => {
             >
               <BookOpen className="h-7 w-7 text-primary/60" />
             </div>
-            <h3 className="font-display text-lg font-semibold text-foreground">No works found</h3>
+            <h3 className="font-display text-lg font-semibold text-foreground">ნამუშევრები ვერ მოიძებნა</h3>
             <p className="mt-1.5 font-body text-sm text-muted-foreground max-w-xs">
-              Try adjusting your search or category filter.
+              სცადე ძიების ან კატეგორიის ფილტრის შეცვლა.
             </p>
             <button
               onClick={() => { setSearch(""); setCategory("all"); }}
               className="mt-4 font-ui text-sm text-primary hover:underline"
             >
-              Clear filters
+              ფილტრების გასუფთავება
             </button>
           </motion.div>
         )}
@@ -172,3 +172,6 @@ const PublicBrowsePage = () => {
 };
 
 export default PublicBrowsePage;
+
+
+

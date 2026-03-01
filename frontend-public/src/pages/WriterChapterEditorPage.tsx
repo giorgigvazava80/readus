@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ListTree, Save, ScrollText } from "lucide-react";
@@ -90,7 +90,7 @@ const WriterChapterEditorPage = () => {
   if (!Number.isFinite(chapterId)) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">Invalid chapter id.</p>
+        <p className="font-ui text-sm text-muted-foreground">თავის ID არასწორია.</p>
       </div>
     );
   }
@@ -98,7 +98,7 @@ const WriterChapterEditorPage = () => {
   if (detailQuery.isLoading) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">Loading chapter editor...</p>
+        <p className="font-ui text-sm text-muted-foreground">თავის რედაქტორი იტვირთება...</p>
       </div>
     );
   }
@@ -106,8 +106,8 @@ const WriterChapterEditorPage = () => {
   if (detailQuery.isError || !detailQuery.data) {
     return (
       <div className="container mx-auto space-y-3 px-6 py-10">
-        <p className="font-ui text-sm text-red-700">Could not load chapter.</p>
-        <Button variant="outline" onClick={() => navigate("/writer/new")}>Create New Work</Button>
+        <p className="font-ui text-sm text-red-700">თავის ჩატვირთვა ვერ მოხერხდა.</p>
+        <Button variant="outline" onClick={() => navigate("/writer/new")}>ახალი ნაშრომის შექმნა</Button>
       </div>
     );
   }
@@ -119,9 +119,9 @@ const WriterChapterEditorPage = () => {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1">
               <ScrollText className="h-3.5 w-3.5 text-primary" />
-              <span className="font-ui text-xs text-muted-foreground">Chapter Editor</span>
+              <span className="font-ui text-xs text-muted-foreground">თავის რედაქტორი</span>
             </div>
-            <h1 className="mt-3 font-display text-3xl font-semibold text-foreground">Edit Chapter</h1>
+            <h1 className="mt-3 font-display text-3xl font-semibold text-foreground">თავის რედაქტირება</h1>
           </div>
 
           <div className="flex items-center gap-2">
@@ -129,7 +129,7 @@ const WriterChapterEditorPage = () => {
               <Link to={`/writer/books/${draft.book}/chapters`}>
                 <Button variant="outline" className="gap-2">
                   <ListTree className="h-4 w-4" />
-                  Back to Chapters
+                  Back to თავები
                 </Button>
               </Link>
             ) : null}
@@ -138,15 +138,15 @@ const WriterChapterEditorPage = () => {
               onClick={async () => {
                 try {
                   await autosave.saveNow();
-                  toast({ title: "Chapter saved" });
+                  toast({ title: "თავი შენახულია" });
                 } catch {
-                  toast({ variant: "destructive", title: "Save failed" });
+                  toast({ variant: "destructive", title: "შენახვა ვერ მოხერხდა" });
                 }
               }}
               disabled={autosave.isSaving}
             >
               <Save className="h-4 w-4" />
-              Save Now
+              შენახვა ახლავე
             </Button>
           </div>
         </div>
@@ -163,14 +163,14 @@ const WriterChapterEditorPage = () => {
 
         {detailQuery.data.rejection_reason ? (
           <p className="mt-4 rounded-lg border border-red-500/35 bg-red-500/10 p-3 font-ui text-sm text-red-700">
-            Rejection reason: {detailQuery.data.rejection_reason}
+            უარყოფის reason: {detailQuery.data.rejection_reason}
           </p>
         ) : null}
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2 space-y-2">
-          <Label className="font-ui">Title (optional)</Label>
+          <Label className="font-ui">სათაური (არასავალდებულო)</Label>
           <Input
             value={draft.title}
             onChange={(event) => setDraft((prev) => ({ ...prev, title: event.target.value }))}
@@ -179,7 +179,7 @@ const WriterChapterEditorPage = () => {
         </div>
 
         <div className="space-y-2">
-          <Label className="font-ui">Order</Label>
+          <Label className="font-ui">რიგი</Label>
           <Input
             type="number"
             min={1}
@@ -191,7 +191,7 @@ const WriterChapterEditorPage = () => {
       </section>
 
       <section>
-        <Label className="font-ui">Chapter body</Label>
+        <Label className="font-ui">თავის ტექსტი</Label>
         <RichTextEditor
           value={draft.body}
           onChange={(body) => setDraft((prev) => ({ ...prev, body }))}
@@ -204,3 +204,8 @@ const WriterChapterEditorPage = () => {
 };
 
 export default WriterChapterEditorPage;
+
+
+
+
+

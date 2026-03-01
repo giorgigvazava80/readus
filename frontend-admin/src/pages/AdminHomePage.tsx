@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ClipboardCheck, FileClock, PenSquare, Shield } from "lucide-react";
 
@@ -55,24 +55,24 @@ const AdminHomePage = () => {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1">
               <Shield className="h-4 w-4 text-primary" />
-              <span className="font-ui text-xs text-muted-foreground">Admin Portal</span>
+              <span className="font-ui text-xs text-muted-foreground">ადმინის პორტალი</span>
             </div>
-            <h1 className="mt-4 font-display text-4xl font-semibold text-foreground">Moderation Dashboard</h1>
+            <h1 className="mt-4 font-display text-4xl font-semibold text-foreground">მოდერაციის პანელი</h1>
             <p className="mt-2 font-body text-base text-muted-foreground">
-              Review queues and moderation workload overview.
+              განხილვის რიგები და მოდერაციის დატვირთვის მიმოხილვა.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link to="/admin/writer-applications">
               <Button variant="outline" className="gap-2">
                 <ClipboardCheck className="h-4 w-4" />
-                Writer Apps
+                ავტორის განაცხადები
               </Button>
             </Link>
             <Link to="/admin/content-review">
               <Button className="gap-2">
                 <PenSquare className="h-4 w-4" />
-                Content Review
+                კონტენტის განხილვა
               </Button>
             </Link>
           </div>
@@ -98,3 +98,6 @@ const AdminHomePage = () => {
 };
 
 export default AdminHomePage;
+
+
+

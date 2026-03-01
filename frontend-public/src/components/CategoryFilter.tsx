@@ -1,13 +1,13 @@
-import { motion } from "framer-motion";
+﻿import { motion } from "framer-motion";
 import { BookOpen, FileText, Layers, PenLine } from "lucide-react";
 
 export type PublicBrowseCategory = "all" | "books" | "stories" | "poems";
 
 const categories = [
-  { key: "all", label: "All Works", icon: Layers },
-  { key: "books", label: "Books", icon: BookOpen },
-  { key: "stories", label: "Stories", icon: FileText },
-  { key: "poems", label: "Poetry", icon: PenLine },
+  { key: "all", label: "ყველა ნაშრომი", icon: Layers },
+  { key: "books", label: "წიგნები", icon: BookOpen },
+  { key: "stories", label: "მოთხრობები", icon: FileText },
+  { key: "poems", label: "პოეზია", icon: PenLine },
 ] as const;
 
 interface CategoryFilterProps {
@@ -48,3 +48,5 @@ const CategoryFilter = ({ active, onChange }: CategoryFilterProps) => (
 );
 
 export default CategoryFilter;
+
+

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BookOpenCheck, Search } from "lucide-react";
@@ -66,7 +66,7 @@ const AdminContentReviewPage = () => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <div className="flex items-center gap-2">
           <BookOpenCheck className="h-5 w-5 text-primary" />
-          <h1 className="font-display text-3xl font-semibold text-foreground">Content Review</h1>
+          <h1 className="font-display text-3xl font-semibold text-foreground">კონტენტის განხილვა</h1>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-3">
@@ -98,16 +98,16 @@ const AdminContentReviewPage = () => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">all</SelectItem>
-              <SelectItem value="draft">draft</SelectItem>
-              <SelectItem value="approved">approved</SelectItem>
-              <SelectItem value="rejected">rejected</SelectItem>
+              <SelectItem value="all">ყველა</SelectItem>
+              <SelectItem value="draft">შავი ვერსია</SelectItem>
+              <SelectItem value="approved">დამტკიცებული</SelectItem>
+              <SelectItem value="rejected">უარყოფილი</SelectItem>
             </SelectContent>
           </Select>
 
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search" className="pl-9 font-ui" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="ძებნა" className="pl-9 font-ui" />
           </div>
         </div>
       </section>
@@ -122,7 +122,7 @@ const AdminContentReviewPage = () => {
                   <div className="flex items-center gap-2">
                     {category === "books" && item.has_draft_chapters && (
                       <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-blue-600 no-underline shadow-sm animate-pulse">
-                        New Chapter
+                        ახალი თავი
                       </span>
                     )}
                     <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${statusStyles[item.status]}`}>
@@ -130,23 +130,23 @@ const AdminContentReviewPage = () => {
                     </span>
                   </div>
                 </div>
-                <p className="mt-1 text-muted-foreground">Created: {new Date(item.created_at).toLocaleString()}</p>
+                <p className="mt-1 text-muted-foreground">შექმნის დრო: {new Date(item.created_at).toLocaleString()}</p>
                 {item.description ? <p className="mt-2 text-foreground">{toExcerpt(item.description)}</p> : null}
-                {item.rejection_reason ? <p className="mt-2 text-red-700">Current rejection: {item.rejection_reason}</p> : null}
+                {item.rejection_reason ? <p className="mt-2 text-red-700">მიმდინარე უარყოფის მიზეზი: {item.rejection_reason}</p> : null}
 
                 <Textarea
                   className="mt-3 font-ui"
-                  placeholder="Rejection reason"
+                  placeholder="უარყოფის reason"
                   value={reasonById[item.id] || ""}
                   onChange={(e) => setReasonById((prev) => ({ ...prev, [item.id]: e.target.value }))}
                 />
 
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Link to={`/admin/content-review/${category}/${item.id}`}>
-                    <Button variant="outline">Open & Read</Button>
+                    <Button variant="outline">გახსნა და წაკითხვა</Button>
                   </Link>
-                  <Button onClick={() => handleReview(item.id, "approved")}>Approve</Button>
-                  <Button variant="destructive" onClick={() => handleReview(item.id, "rejected")}>Reject</Button>
+                  <Button onClick={() => handleReview(item.id, "approved")}>დამტკიცება</Button>
+                  <Button variant="destructive" onClick={() => handleReview(item.id, "rejected")}>უარყოფა</Button>
                 </div>
               </div>
             ))}
@@ -157,12 +157,12 @@ const AdminContentReviewPage = () => {
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-border/80 bg-background/65 p-5 font-ui text-sm text-muted-foreground">
-            {query.isLoading ? "Loading content queue..." : "No items found."}
+            {query.isLoading ? "კონტენტის რიგი იტვირთება..." : "ჩანაწერები ვერ მოიძებნა."}
           </div>
         )}
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-          <p className="font-ui text-xs text-muted-foreground">Total: {query.data?.count || 0}</p>
+          <p className="font-ui text-xs text-muted-foreground">სულ: {query.data?.count || 0}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setPage((prev) => prev - 1)} disabled={page <= 1}>
               Previous
@@ -178,3 +178,9 @@ const AdminContentReviewPage = () => {
 };
 
 export default AdminContentReviewPage;
+
+
+
+
+
+

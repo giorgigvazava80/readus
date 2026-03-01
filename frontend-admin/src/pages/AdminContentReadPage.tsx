@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ListTree } from "lucide-react";
@@ -19,10 +19,10 @@ const statusStyles: Record<string, string> = {
 };
 
 const categoryLabels: Record<ContentCategory, string> = {
-  books: "Book",
-  chapters: "Chapter",
+  books: "წიგნი",
+  chapters: "თავი",
   poems: "Poem",
-  stories: "Story",
+  stories: "მოთხრობა",
 };
 
 interface BookContentSection {
@@ -100,8 +100,8 @@ const AdminContentReadPage = () => {
     if (content.foreword?.trim()) {
       items.push({
         key: "foreword",
-        label: "Foreword",
-        heading: "Foreword",
+        label: "წინასიტყვაობა",
+        heading: "წინასიტყვაობა",
         html: content.foreword,
         kind: "foreword",
       });
@@ -113,7 +113,7 @@ const AdminContentReadPage = () => {
         key: `chapter-${chapter.id}`,
         label: chapterLabel,
         heading: chapterLabel,
-        html: chapter.body || "<p>No chapter content yet.</p>",
+        html: chapter.body || "<p>თავის ტექსტი ჯერ არ არის.</p>",
         kind: "chapter",
         chapter,
       });
@@ -122,8 +122,8 @@ const AdminContentReadPage = () => {
     if (content.afterword?.trim()) {
       items.push({
         key: "afterword",
-        label: "Afterword",
-        heading: "Afterword",
+        label: "ბოლოსიტყვაობა",
+        heading: "ბოლოსიტყვაობა",
         html: content.afterword,
         kind: "afterword",
       });
@@ -132,8 +132,8 @@ const AdminContentReadPage = () => {
     if (content.source_type === "upload" && content.extracted_text?.trim()) {
       items.push({
         key: "uploaded-text",
-        label: "Uploaded Text",
-        heading: "Uploaded Text",
+        label: "ატვირთული ტექსტი",
+        heading: "ატვირთული ტექსტი",
         html: content.extracted_text,
         kind: "uploaded_text",
       });
@@ -191,7 +191,7 @@ const AdminContentReadPage = () => {
   if (!category || !Number.isFinite(contentId)) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">Invalid content path.</p>
+        <p className="font-ui text-sm text-muted-foreground">კონტენტის მისამართი არასწორია.</p>
       </div>
     );
   }
@@ -199,7 +199,7 @@ const AdminContentReadPage = () => {
   if (detailQuery.isLoading) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">Loading content...</p>
+        <p className="font-ui text-sm text-muted-foreground">კონტენტი იტვირთება...</p>
       </div>
     );
   }
@@ -207,15 +207,15 @@ const AdminContentReadPage = () => {
   if (detailQuery.isError || !content) {
     return (
       <div className="container mx-auto space-y-3 px-6 py-10">
-        <p className="font-ui text-sm text-red-700">Could not load this content.</p>
+        <p className="font-ui text-sm text-red-700">ამ კონტენტის ჩატვირთვა ვერ მოხერხდა.</p>
         <Link to="/admin/content-review">
-          <Button variant="outline">Back to review queue</Button>
+          <Button variant="outline">დაბრუნება განხილვის რიგში</Button>
         </Link>
       </div>
     );
   }
 
-  const canApproveBook = chapterStats.total === 0 || (chapterStats.pending === 0 && chapterStats.rejected === 0);
+  const canდამტკიცებაBook = chapterStats.total === 0 || (chapterStats.pending === 0 && chapterStats.rejected === 0);
 
   return (
     <div className="container mx-auto max-w-6xl space-y-8 px-6 py-10">
@@ -223,7 +223,7 @@ const AdminContentReadPage = () => {
         <Link to="/admin/content-review">
           <Button variant="ghost" size="sm" className="gap-1.5 font-ui text-sm text-muted-foreground">
             <ArrowLeft className="h-4 w-4" />
-            Back to review queue
+            დაბრუნება განხილვის რიგში
           </Button>
         </Link>
 
@@ -238,12 +238,12 @@ const AdminContentReadPage = () => {
 
         <h1 className="mt-3 font-display text-4xl font-semibold text-foreground">{content.title}</h1>
         <p className="mt-2 font-ui text-sm text-muted-foreground">
-          by {content.author_name || content.author_username || "Unknown author"}  Created {new Date(content.created_at).toLocaleString()}
+          by {content.author_name || content.author_username || "უცნობი ავტორი"}  Created {new Date(content.created_at).toLocaleString()}
         </p>
 
         {content.rejection_reason ? (
           <p className="mt-4 rounded-lg border border-red-500/35 bg-red-500/10 p-3 font-ui text-sm text-red-700">
-            Rejection reason: {content.rejection_reason}
+            უარყოფის reason: {content.rejection_reason}
           </p>
         ) : null}
       </section>
@@ -257,24 +257,24 @@ const AdminContentReadPage = () => {
       {category === "books" ? (
         <>
           <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card">
-            <h2 className="font-display text-2xl text-foreground">Book Approval Steps</h2>
+            <h2 className="font-display text-2xl text-foreground">წიგნის დამტკიცების ნაბიჯები</h2>
             <p className="mt-1 font-ui text-sm text-muted-foreground">
-              1) Review Foreword and every chapter, 2) fix rejected chapters, 3) approve the book when everything is approved.
+              1) Review წინასიტყვაობა and every chapter, 2) fix rejected chapters, 3) approve the book when everything is approved.
             </p>
 
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-ui text-emerald-700">
-                Approved chapters: {chapterStats.approved}
+                დამტკიცებული chapters: {chapterStats.approved}
               </span>
               <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs font-ui text-amber-700">
                 Draft chapters: {chapterStats.pending}
               </span>
               <span className="rounded-full border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-xs font-ui text-red-700">
-                Rejected chapters: {chapterStats.rejected}
+                უარყოფილი chapters: {chapterStats.rejected}
               </span>
             </div>
 
-            {!canApproveBook ? (
+            {!canდამტკიცებაBook ? (
               <p className="mt-3 rounded-lg border border-amber-500/35 bg-amber-500/10 p-3 font-ui text-sm text-amber-800">
                 You cannot approve this book yet. First make all chapters approved.
               </p>
@@ -297,9 +297,9 @@ const AdminContentReadPage = () => {
                     reasonKey: "book",
                   })
                 }
-                disabled={reviewMutation.isPending || !canApproveBook}
+                disabled={reviewMutation.isPending || !canდამტკიცებაBook}
               >
-                Approve Book
+                დამტკიცება Book
               </Button>
               <Button
                 variant="destructive"
@@ -313,7 +313,7 @@ const AdminContentReadPage = () => {
                 }
                 disabled={reviewMutation.isPending}
               >
-                Reject Book
+                უარყოფა Book
               </Button>
             </div>
           </section>
@@ -322,7 +322,7 @@ const AdminContentReadPage = () => {
             <aside className="rounded-2xl border border-border/70 bg-card/80 p-5 shadow-card lg:sticky lg:top-24 lg:h-fit">
               <div className="flex items-center gap-2">
                 <ListTree className="h-4 w-4 text-primary" />
-                <h2 className="font-display text-2xl text-foreground">Chapters</h2>
+                <h2 className="font-display text-2xl text-foreground">თავები</h2>
               </div>
 
               <div className="mt-4 space-y-2">
@@ -349,7 +349,7 @@ const AdminContentReadPage = () => {
                     </button>
                   ))
                 ) : (
-                  <p className="font-ui text-sm text-muted-foreground">No readable sections yet.</p>
+                  <p className="font-ui text-sm text-muted-foreground">წაკითხვადი სექციები ჯერ არ არის.</p>
                 )}
               </div>
             </aside>
@@ -357,7 +357,7 @@ const AdminContentReadPage = () => {
             <article className="space-y-6 rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card lg:col-span-2">
               {content.upload_file ? (
                 <p className="font-ui text-sm text-muted-foreground">
-                  Uploaded file: <a className="underline" href={content.upload_file} target="_blank" rel="noreferrer">Open file</a>
+                  ატვირთული ფაილი: <a className="underline" href={content.upload_file} target="_blank" rel="noreferrer">ფაილის გახსნა</a>
                 </p>
               ) : null}
 
@@ -374,13 +374,13 @@ const AdminContentReadPage = () => {
                   )}
                 </div>
               ) : (
-                <p className="font-ui text-sm text-muted-foreground">No readable sections yet.</p>
+                <p className="font-ui text-sm text-muted-foreground">წაკითხვადი სექციები ჯერ არ არის.</p>
               )}
 
               {activeBookSection?.kind === "chapter" && activeBookSection.chapter ? (
                 <div className="rounded-xl border border-border/70 bg-background/70 p-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-ui text-sm text-muted-foreground">Chapter status:</span>
+                    <span className="font-ui text-sm text-muted-foreground">თავის სტატუსი:</span>
                     <Badge variant="outline" className={statusStyles[activeBookSection.chapter.status]}>
                       {activeBookSection.chapter.status}
                     </Badge>
@@ -388,7 +388,7 @@ const AdminContentReadPage = () => {
 
                   {activeBookSection.chapter.rejection_reason ? (
                     <p className="mt-3 rounded-lg border border-red-500/35 bg-red-500/10 p-3 font-ui text-sm text-red-700">
-                      Current rejection: {activeBookSection.chapter.rejection_reason}
+                      მიმდინარე უარყოფის მიზეზი: {activeBookSection.chapter.rejection_reason}
                     </p>
                   ) : null}
 
@@ -416,7 +416,7 @@ const AdminContentReadPage = () => {
                       }
                       disabled={reviewMutation.isPending}
                     >
-                      Approve Chapter
+                      დამტკიცება Chapter
                     </Button>
                     <Button
                       variant="destructive"
@@ -430,7 +430,7 @@ const AdminContentReadPage = () => {
                       }
                       disabled={reviewMutation.isPending}
                     >
-                      Reject Chapter
+                      უარყოფა Chapter
                     </Button>
                   </div>
                 </div>
@@ -443,7 +443,7 @@ const AdminContentReadPage = () => {
           <article className="rounded-2xl border border-border/70 bg-card/80 p-8 text-foreground/90 shadow-card">
             {content.upload_file ? (
               <p className="mb-4 font-ui text-sm text-muted-foreground">
-                Uploaded file: <a className="underline" href={content.upload_file} target="_blank" rel="noreferrer">Open file</a>
+                ატვირთული ფაილი: <a className="underline" href={content.upload_file} target="_blank" rel="noreferrer">ფაილის გახსნა</a>
               </p>
             ) : null}
 
@@ -452,15 +452,15 @@ const AdminContentReadPage = () => {
             ) : content.extracted_text ? (
               <pre className="prose-literary whitespace-pre-wrap">{content.extracted_text}</pre>
             ) : (
-              <p className="font-ui text-sm text-muted-foreground">No text available.</p>
+              <p className="font-ui text-sm text-muted-foreground">ტექსტი ხელმისაწვდომი არ არის.</p>
             )}
           </article>
 
           <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card">
-            <h2 className="font-display text-2xl text-foreground">Review Decision</h2>
+            <h2 className="font-display text-2xl text-foreground">განხილვის გადაწყვეტილება</h2>
             <Textarea
               className="mt-3 font-ui"
-              placeholder="Rejection reason (required only for reject)"
+              placeholder="უარყოფის reason (required only for reject)"
               value={reasonByKey.content || ""}
               onChange={(event) => setReasonByKey((prev) => ({ ...prev, content: event.target.value }))}
             />
@@ -477,7 +477,7 @@ const AdminContentReadPage = () => {
                 }
                 disabled={reviewMutation.isPending}
               >
-                Approve
+                დამტკიცება
               </Button>
               <Button
                 variant="destructive"
@@ -491,7 +491,7 @@ const AdminContentReadPage = () => {
                 }
                 disabled={reviewMutation.isPending}
               >
-                Reject
+                უარყოფა
               </Button>
             </div>
           </section>
@@ -502,3 +502,6 @@ const AdminContentReadPage = () => {
 };
 
 export default AdminContentReadPage;
+
+
+

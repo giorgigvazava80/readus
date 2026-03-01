@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, BookOpen, Feather, Users, Sparkles } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -20,7 +20,7 @@ function toExcerpt(item: ContentItem): string {
   // Remove HTML tags using regex and clean up extra spaces
   const raw = rawHtml.replace(/<[^>]*>?/gm, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 
-  if (!raw) return "No preview available yet.";
+  if (!raw) return "მიმოხილვა ჯერ ხელმისაწვდომი არ არის.";
   if (raw.length <= 190) return raw;
   return `${raw.slice(0, 187)}...`;
 }
@@ -29,7 +29,7 @@ function estimateReadTime(item: ContentItem): string {
   const text = [item.body, item.extracted_text, item.description].filter(Boolean).join(" ");
   const words = text.trim().split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.ceil(words / 220));
-  return `${minutes} min read`;
+  return `${minutes} წთ კითხვის დრო`;
 }
 
 function colorFor(category: "books" | "stories" | "poems", id: number): string {
@@ -43,7 +43,7 @@ function toCardItem(category: "books" | "stories" | "poems", item: ContentItem):
     publicSlug: item.public_slug || String(item.id),
     category,
     title: item.title,
-    author: item.author_name || item.author_username || "Unknown author",
+    author: item.author_name || item.author_username || "უცნობი ავტორი",
     excerpt: toExcerpt(item),
     coverColor: colorFor(category, item.id),
     coverImageUrl: resolveMediaUrl(item.cover_image),
@@ -61,18 +61,18 @@ function toCardItem(category: "books" | "stories" | "poems", item: ContentItem):
 const steps = [
   {
     step: "01",
-    title: "Read Publicly",
-    desc: "Anyone can browse and read approved books, stories, and poetry without creating an account.",
+    title: "იკითხე საჯაროდ",
+    desc: "ნებისმიერ მომხმარებელს შეუძლია დამტკიცებული წიგნების, მოთხრობებისა და პოეზიის კითხვა ანგარიშის შექმნის გარეშე.",
   },
   {
     step: "02",
-    title: "Join as Reader",
-    desc: "Create a reader account to interact through reviews, likes, comments, bookmarks and profile activity.",
+    title: "შემოუერთდი როგორც მკითხველი",
+    desc: "შექმენი მკითხველის ანგარიში, რათა დატოვო შეფასებები, მოწონებები, კომენტარები, სანიშნები და აწარმოო პროფილის აქტივობა.",
   },
   {
     step: "03",
-    title: "Become Writer",
-    desc: "Apply as writer with sample proof. After approval, submit works and manage your publishing queue.",
+    title: "გახდი ავტორი",
+    desc: "შეავსე ავტორის განაცხადი ნიმუშით. დამტკიცების შემდეგ შეძლებ ნაშრომების გაგზავნას და გამოქვეყნების რიგის მართვას.",
   },
 ];
 
@@ -120,9 +120,9 @@ const PublicHomePage = () => {
   }).length;
 
   const stats = [
-    { icon: BookOpen, value: `${publishedCount}+`, label: "Published Works", color: "hsl(24 60% 55%)", bg: "hsl(24 60% 55% / 0.15)", border: "hsl(24 60% 55% / 0.2)" },
-    { icon: Users, value: `${authorsCount}+`, label: "Authors", color: "hsl(215 40% 45%)", bg: "hsl(215 40% 45% / 0.15)", border: "hsl(215 40% 45% / 0.2)" },
-    { icon: Feather, value: `${newThisMonth}+`, label: "New This Month", color: "hsl(150 25% 45%)", bg: "hsl(150 25% 45% / 0.15)", border: "hsl(150 25% 45% / 0.2)" },
+    { icon: BookOpen, value: `${publishedCount}+`, label: "გამოქვეყნებული ნაშრომები", color: "hsl(24 60% 55%)", bg: "hsl(24 60% 55% / 0.15)", border: "hsl(24 60% 55% / 0.2)" },
+    { icon: Users, value: `${authorsCount}+`, label: "ავტორები", color: "hsl(215 40% 45%)", bg: "hsl(215 40% 45% / 0.15)", border: "hsl(215 40% 45% / 0.2)" },
+    { icon: Feather, value: `${newThisMonth}+`, label: "ახალი ამ თვეში", color: "hsl(150 25% 45%)", bg: "hsl(150 25% 45% / 0.15)", border: "hsl(150 25% 45% / 0.2)" },
   ];
 
   return (
@@ -155,7 +155,7 @@ const PublicHomePage = () => {
           >
             <Sparkles className="h-3.5 w-3.5 text-primary" />
             <span className="font-ui text-xs font-medium text-primary">
-              Open platform — read freely, no account needed
+              ღია პლატფორმა — იკითხე თავისუფლად, ანგარიში არ გჭირდება
             </span>
           </motion.div>
 
@@ -167,10 +167,10 @@ const PublicHomePage = () => {
             className="max-w-4xl"
           >
             <h1 className="font-display text-5xl font-bold leading-[1.15] tracking-tight text-foreground sm:text-6xl md:text-7xl lg:text-[5rem]">
-              Where Words Find <span className="text-gradient-primary">Their Home</span>
+              სიტყვები პოულობენ <span className="text-gradient-primary">თავიანთ სახლს</span>
             </h1>
             <p className="mt-6 font-body text-lg leading-relaxed text-muted-foreground md:text-xl max-w-2xl">
-              Public pages are open for everyone. Reader accounts unlock interaction features like reviews, likes, and comments. Writers publish after editorial approval.
+              საჯარო გვერდები ყველასთვის ღიაა. მკითხველის ანგარიში გაძლევს შეფასებების, მოწონებებისა და კომენტარების დატოვების შესაძლებლობას. ავტორები ნაშრომებს აქვეყნებენ სარედაქციო დამტკიცების შემდეგ.
             </p>
 
             <div className="mt-10 flex flex-wrap gap-4">
@@ -179,7 +179,7 @@ const PublicHomePage = () => {
                   size="lg"
                   className="gap-2 font-ui font-semibold shadow-warm hover:shadow-lg hover:scale-[1.02] transition-all duration-300 h-12 px-8"
                 >
-                  Go to Library
+                  ბიბლიოთეკაში გადასვლა
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
@@ -189,7 +189,7 @@ const PublicHomePage = () => {
                   variant="outline"
                   className="gap-2 font-ui hover:bg-primary/5 hover:border-primary/40 transition-all duration-300 h-12 px-8 border-border/80"
                 >
-                  Join as Reader or Writer
+                  შემოუერთდი როგორც მკითხველი ან ავტორი
                 </Button>
               </Link>
             </div>
@@ -224,7 +224,7 @@ const PublicHomePage = () => {
         </div>
       </section>
 
-      {/* ── How It Works ─────────────────────────────── */}
+      {/* ── როგორ მუშაობს ─────────────────────────────── */}
       <section className="border-y border-border/40 bg-muted/30 py-20 md:py-28">
         <div className="container mx-auto px-4 sm:px-6">
           <motion.div
@@ -234,8 +234,8 @@ const PublicHomePage = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">How It Works</h2>
-            <p className="mt-3 font-ui text-base text-muted-foreground">Three ways to be part of Readus</p>
+            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">როგორ მუშაობს</h2>
+            <p className="mt-3 font-ui text-base text-muted-foreground">Readus-ის ნაწილი გახდომის სამი გზა</p>
           </motion.div>
 
           <div className="grid gap-8 md:grid-cols-3">
@@ -262,7 +262,7 @@ const PublicHomePage = () => {
         </div>
       </section>
 
-      {/* ── Featured Works ────────────────────────────── */}
+      {/* ── რჩეული ნაშრომები ────────────────────────────── */}
       <section className="py-16 md:py-20">
         <div className="container mx-auto px-4 sm:px-6">
           <motion.div
@@ -272,12 +272,12 @@ const PublicHomePage = () => {
             className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between mb-8"
           >
             <div>
-              <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">Featured Works</h2>
-              <p className="mt-1 font-ui text-sm text-muted-foreground">Recently approved and published works</p>
+              <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">რჩეული ნაშრომები</h2>
+              <p className="mt-1 font-ui text-sm text-muted-foreground">ბოლო დროს დამტკიცებული და გამოქვეყნებული ნაშრომები</p>
             </div>
             <Link to="/browse">
               <Button variant="ghost" className="gap-1.5 text-sm font-ui group">
-                View All
+                ყველას ნახვა
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
@@ -306,7 +306,7 @@ const PublicHomePage = () => {
           )}
 
           {!worksQuery.isLoading && works.length === 0 ? (
-            <p className="mt-8 text-center font-body text-sm text-muted-foreground">No published works yet.</p>
+            <p className="mt-8 text-center font-body text-sm text-muted-foreground">გამოქვეყნებული ნაშრომები ჯერ არ არის.</p>
           ) : null}
         </div>
       </section>
@@ -315,3 +315,4 @@ const PublicHomePage = () => {
 };
 
 export default PublicHomePage;
+

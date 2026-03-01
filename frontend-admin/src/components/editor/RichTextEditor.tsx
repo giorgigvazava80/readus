@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+﻿import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   AlignCenter,
   AlignJustify,
@@ -109,7 +109,7 @@ export default function RichTextEditor({
       { label: "Italic", icon: Italic, command: "italic" },
       { label: "Underline", icon: Underline, command: "underline" },
       { label: "Strike", icon: Strikethrough, command: "strikeThrough" },
-      { label: "Quote", icon: Quote, command: "formatBlock", value: "blockquote" },
+      { label: "ციტატა", icon: Quote, command: "formatBlock", value: "blockquote" },
       { label: "Rule", icon: Minus, command: "insertHorizontalRule" },
       { label: "Bullets", icon: List, command: "insertUnorderedList" },
       { label: "Numbers", icon: ListOrdered, command: "insertOrderedList" },
@@ -131,13 +131,13 @@ export default function RichTextEditor({
           className="h-8 rounded-md border border-border/70 bg-background px-2 text-xs font-ui"
           onChange={(event) => runCommand("formatBlock", event.target.value)}
           disabled={disabled}
-          aria-label="Paragraph style"
+          aria-label="პარაგრაფი style"
         >
-          <option value="p">Paragraph</option>
-          <option value="h1">Heading 1</option>
-          <option value="h2">Heading 2</option>
-          <option value="h3">Heading 3</option>
-          <option value="blockquote">Quote</option>
+          <option value="p">პარაგრაფი</option>
+          <option value="h1">სათაური 1</option>
+          <option value="h2">სათაური 2</option>
+          <option value="h3">სათაური 3</option>
+          <option value="blockquote">ციტატა</option>
         </select>
 
         <select
@@ -189,7 +189,7 @@ export default function RichTextEditor({
 
         <label className="flex items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui">
           <Pilcrow className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="text-muted-foreground">Text</span>
+          <span className="text-muted-foreground">ტექსტი</span>
           <Input
             type="color"
             className="h-6 w-8 border-none p-0"
@@ -200,7 +200,7 @@ export default function RichTextEditor({
 
         <label className="flex items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui">
           <Highlighter className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="text-muted-foreground">Mark</span>
+          <span className="text-muted-foreground">მონიშვნა</span>
           <Input
             type="color"
             className="h-6 w-8 border-none p-0"
@@ -251,7 +251,7 @@ export default function RichTextEditor({
           onClick={() =>
             runCommand(
               "insertHTML",
-              "<table><tbody><tr><td>Cell</td><td>Cell</td></tr><tr><td>Cell</td><td>Cell</td></tr></tbody></table><p></p>",
+              "<table><tbody><tr><td>უჯრა</td><td>უჯრა</td></tr><tr><td>უჯრა</td><td>უჯრა</td></tr></tbody></table><p></p>",
             )
           }
           disabled={disabled}
@@ -280,3 +280,9 @@ export default function RichTextEditor({
     </div>
   );
 }
+
+
+
+
+
+
