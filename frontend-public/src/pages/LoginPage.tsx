@@ -41,7 +41,7 @@ const LoginPage = () => {
     const run = async () => {
       setLoading(true);
       try {
-        await loginWithGoogleCode(code);
+        await loginWithGoogleCode(code, googleRedirectUri);
         const me = await fetchMe();
         if (!me) {
           throw new Error(t("login.error.loadUser", "Failed to load current user."));
@@ -64,7 +64,7 @@ const LoginPage = () => {
     };
 
     void run();
-  }, [adminHost, navigate, t]);
+  }, [adminHost, googleRedirectUri, navigate, t]);
 
   const handleGoogleLogin = () => {
     if (!googleClientId) {

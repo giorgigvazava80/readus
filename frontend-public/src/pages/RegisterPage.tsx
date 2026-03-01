@@ -30,6 +30,8 @@ const RegisterPage = () => {
   const [role, setRole] = useState<RegisteredRole>("reader");
   const [loading, setLoading] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+  const googleRedirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI || `${window.location.origin}/login`;
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -70,6 +72,24 @@ const RegisterPage = () => {
       const message = error instanceof Error ? error.message : t("register.error.resendFailed", "Failed to resend verification.");
       toast.error(message);
     }
+  };
+
+  const handleGoogleRegister = () => {
+    if (!googleClientId) {
+      toast.error("Google login is not configured.");
+      return;
+    }
+
+    const params = new URLSearchParams({
+      client_id: googleClientId,
+      redirect_uri: googleRedirectUri,
+      response_type: "code",
+      scope: "openid email profile",
+      access_type: "offline",
+      include_granted_scopes: "true",
+      prompt: "select_account",
+    });
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
   };
 
   return (
@@ -174,6 +194,23 @@ const RegisterPage = () => {
               {loading ? t("register.creating", "Creating account...") : t("register.create", "Create Account")}
             </Button>
           </form>
+
+          <div className="mt-4 space-y-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={handleGoogleRegister}
+              disabled={loading || !googleClientId}
+            >
+              Continue with Google
+            </Button>
+            {!googleClientId ? (
+              <p className="text-center text-xs font-ui text-muted-foreground">
+                Google login is not configured yet (`VITE_GOOGLE_CLIENT_ID` missing).
+              </p>
+            ) : null}
+          </div>
 
           <div className="mt-5 flex items-center justify-between text-sm font-ui">
             <Link className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline" to="/login">

@@ -2,6 +2,8 @@ from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 from django.utils.translation import gettext_lazy as _
 from dj_rest_auth.registration.views import SocialLoginView, VerifyEmailView
 from rest_framework import status
@@ -35,8 +37,31 @@ class GoogleLoginView(SocialLoginView):
     client_class = OAuth2Client
     callback_url = settings.SOCIAL_AUTH_GOOGLE_CALLBACK_URL or None
 
+    def post(self, request, *args, **kwargs):
+        redirect_uri = str(request.data.get("redirect_uri", "")).strip()
+        if redirect_uri:
+            validator = URLValidator(schemes=["http", "https"])
+            try:
+                validator(redirect_uri)
+                self.callback_url = redirect_uri
+            except ValidationError:
+                # Keep configured callback_url if client sends invalid redirect_uri.
+                pass
+        return super().post(request, *args, **kwargs)
+
 
 class FacebookLoginView(SocialLoginView):
     adapter_class = FacebookOAuth2Adapter
     client_class = OAuth2Client
     callback_url = settings.SOCIAL_AUTH_FACEBOOK_CALLBACK_URL or None
+
+    def post(self, request, *args, **kwargs):
+        redirect_uri = str(request.data.get("redirect_uri", "")).strip()
+        if redirect_uri:
+            validator = URLValidator(schemes=["http", "https"])
+            try:
+                validator(redirect_uri)
+                self.callback_url = redirect_uri
+            except ValidationError:
+                pass
+        return super().post(request, *args, **kwargs)

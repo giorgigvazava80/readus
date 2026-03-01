@@ -387,10 +387,15 @@ export async function login(username: string, password: string): Promise<void> {
   dispatchAuthChanged();
 }
 
-export async function loginWithGoogleCode(code: string): Promise<void> {
+export async function loginWithGoogleCode(code: string, redirectUri?: string): Promise<void> {
+  const payload: { code: string; redirect_uri?: string } = { code };
+  if (redirectUri) {
+    payload.redirect_uri = redirectUri;
+  }
+
   const response = await apiRequest<LoginResponse>("/auth/social/google/", {
     method: "POST",
-    body: JSON.stringify({ code }),
+    body: JSON.stringify(payload),
   });
 
   const access = response.access || response.key;
