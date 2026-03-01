@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Navbar from "@/components/Navbar";
 import { useI18n } from "@/i18n";
 import { fetchMe, login, logout } from "@/lib/api";
 import { isAdminAppHost } from "@/lib/runtime";
@@ -53,7 +54,9 @@ const LoginPage = () => {
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,hsl(var(--primary)/0.14),transparent_36%),radial-gradient(circle_at_80%_0%,hsl(var(--accent)/0.12),transparent_30%)]" />
-      <div className="container relative mx-auto grid min-h-screen items-center gap-12 px-6 py-12 md:grid-cols-2">
+      <Navbar />
+
+      <div className="container relative mx-auto grid min-h-[calc(100vh-4rem)] items-center gap-12 px-6 py-12 md:grid-cols-2">
         <section className="hidden md:block">
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/70 px-4 py-1.5">

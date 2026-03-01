@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { BookOpen, Feather } from "lucide-react";
 import { toast } from "sonner";
 
+import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -74,7 +75,8 @@ const RegisterPage = () => {
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_5%_0%,hsl(var(--primary)/0.14),transparent_36%),radial-gradient(circle_at_92%_10%,hsl(var(--accent)/0.1),transparent_32%)]" />
-      <div className="container relative mx-auto grid min-h-screen items-center gap-12 px-6 py-12 lg:grid-cols-[1.1fr_1fr]">
+      <Navbar />
+      <div className="container relative mx-auto grid min-h-[calc(100vh-4rem)] items-center gap-12 px-6 py-12 lg:grid-cols-[1.1fr_1fr]">
         <section className="hidden lg:block">
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/75 px-4 py-1.5">
