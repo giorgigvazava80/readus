@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { fetchContentDetail } from "@/lib/api";
+import { useI18n } from "@/i18n";
 import { estimateReadTimeFromHtml } from "@/lib/content";
 
 interface ReaderTextWorkPageProps {
@@ -23,6 +24,7 @@ const listPath = {
 };
 
 const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
+  const { t } = useI18n();
   const { identifier } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -79,22 +81,22 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
         <Link to={listPath[type]}>
           <Button variant="ghost" size="sm" className="gap-1.5 font-ui text-sm text-muted-foreground">
             <ArrowLeft className="h-4 w-4" />
-            Back to {type}
+            {t("reader.backTo", "Back to ")} {t(`dashboard.${type}`, type)}
           </Button>
         </Link>
 
-        <p className="mt-4 font-ui text-xs uppercase tracking-wide text-muted-foreground">{labels[type]}</p>
+        <p className="mt-4 font-ui text-xs uppercase tracking-wide text-muted-foreground">{t(`dashboard.${type}`, labels[type])}</p>
         <div className="flex items-center justify-between gap-4 mt-2">
           <h1 className="font-display text-4xl font-semibold text-foreground">{work.title}</h1>
           {work.is_hidden && (
             <Badge variant="outline" className="border-amber-500/50 bg-amber-500/10 text-amber-700 gap-1.5 px-3 py-1">
               <EyeOff className="h-4 w-4" />
-              Hidden from Public
+              {t("workcard.hidden", "Hidden from Public")}
             </Badge>
           )}
         </div>
         <p className="mt-2 font-ui text-sm text-muted-foreground">
-          by {work.author_name || work.author_username || "უცნობი ავტორი"} - {estimateReadTimeFromHtml(work.body || work.extracted_text || work.description)}
+          {t("workcard.by", "by ")}{work.author_name || work.author_username || t("workcard.anonymous", "anonymous")} - {estimateReadTimeFromHtml(work.body || work.extracted_text || work.description)}
         </p>
       </section>
 

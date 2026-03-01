@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { fetchContentDetail, reviewContent } from "@/lib/api";
+import { useI18n } from "@/i18n";
 import type { ChapterDetail, ContentCategory } from "@/lib/types";
 
 const allowedCategories: ContentCategory[] = ["books", "chapters", "poems", "stories"];
@@ -35,6 +36,7 @@ interface BookContentSection {
 }
 
 const AdminContentReadPage = () => {
+  const { t } = useI18n();
   const { category: rawCategory, id: rawId } = useParams();
   const contentId = Number(rawId);
   const queryClient = useQueryClient();
@@ -238,7 +240,7 @@ const AdminContentReadPage = () => {
 
         <h1 className="mt-3 font-display text-4xl font-semibold text-foreground">{content.title}</h1>
         <p className="mt-2 font-ui text-sm text-muted-foreground">
-          by {content.author_name || content.author_username || "უცნობი ავტორი"}  Created {new Date(content.created_at).toLocaleString()}
+          {t("workcard.by", "by ")}{content.author_name || content.author_username || t("workcard.anonymous", "anonymous")}  Created {new Date(content.created_at).toLocaleString()}
         </p>
 
         {content.rejection_reason ? (
@@ -332,11 +334,10 @@ const AdminContentReadPage = () => {
                       key={section.key}
                       type="button"
                       onClick={() => setActiveSectionKey(section.key)}
-                      className={`block w-full rounded-lg border px-3 py-2 text-left font-ui text-sm transition-colors ${
-                        activeBookSection?.key === section.key
+                      className={`block w-full rounded-lg border px-3 py-2 text-left font-ui text-sm transition-colors ${activeBookSection?.key === section.key
                           ? "border-primary/45 bg-primary/10 text-primary"
                           : "border-border/60 bg-background/65 text-foreground hover:border-primary/40 hover:text-primary"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span>{section.label}</span>

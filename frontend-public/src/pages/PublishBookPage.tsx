@@ -21,8 +21,8 @@ const PublishBookPage = () => {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [foreword, setწინასიტყვაობა] = useState("");
-  const [afterword, setბოლოსიტყვაობა] = useState("");
+  const [foreword, setForeword] = useState("");
+  const [afterword, setAfterword] = useState("");
   const [numberingStyle, setNumberingStyle] = useState<"arabic" | "roman" | "separator">("separator");
   const [sourceType, setSourceType] = useState<"manual" | "upload">("manual");
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -71,7 +71,7 @@ const PublishBookPage = () => {
           <h1 className="font-display text-4xl font-semibold text-foreground">წიგნის გამოქვეყნება</h1>
         </div>
         <p className="mt-2 font-body text-base text-muted-foreground">
-          Create a new book submission. სტატუსი and moderation updates are managed by the existing content review API.
+          Create a new book submission. Status and moderation updates are managed by the existing content review API.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-7 space-y-5">
@@ -137,7 +137,7 @@ const PublishBookPage = () => {
             <Textarea
               id="foreword"
               value={foreword}
-              onChange={(e) => setწინასიტყვაობა(e.target.value)}
+              onChange={(e) => setForeword(e.target.value)}
               rows={4}
               className="font-body"
             />
@@ -148,7 +148,7 @@ const PublishBookPage = () => {
             <Textarea
               id="afterword"
               value={afterword}
-              onChange={(e) => setბოლოსიტყვაობა(e.target.value)}
+              onChange={(e) => setAfterword(e.target.value)}
               rows={4}
               className="font-body"
             />

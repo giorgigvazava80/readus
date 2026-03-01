@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import WorkCard, { type PublicWorkCardItem } from "@/components/WorkCard";
 import CategoryFilter, { type PublicBrowseCategory } from "@/components/CategoryFilter";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/i18n";
 import { fetchContent, resolveMediaUrl } from "@/lib/api";
 import type { ContentItem } from "@/lib/types";
 
@@ -43,7 +44,7 @@ function toCardItem(category: "books" | "stories" | "poems", item: ContentItem):
     publicSlug: item.public_slug || String(item.id),
     category,
     title: item.title,
-    author: item.author_name || item.author_username || "უცნობი ავტორი",
+    author: item.author_name || item.author_username || "",
     excerpt: toExcerpt(item),
     coverColor: colorFor(category, item.id),
     coverImageUrl: resolveMediaUrl(item.cover_image),
@@ -59,6 +60,7 @@ function toCardItem(category: "books" | "stories" | "poems", item: ContentItem):
 }
 
 const PublicBrowsePage = () => {
+  const { t } = useI18n();
   const [category, setCategory] = useState<PublicBrowseCategory>("all");
   const [search, setSearch] = useState("");
 
@@ -96,7 +98,7 @@ const PublicBrowsePage = () => {
         <div className="mb-8">
           <h1 className="font-display text-3xl font-bold text-foreground md:text-4xl">ბიბლიოთეკა</h1>
           <p className="mt-1.5 font-ui text-sm text-muted-foreground">
-            Discover books, stories, and poetry from the community
+            {t("browse.subtitle", "Discover books, stories, and poetry from the community")}
           </p>
         </div>
 
@@ -106,7 +108,7 @@ const PublicBrowsePage = () => {
             <div className="flex items-center gap-3 flex-wrap">
               <CategoryFilter active={category} onChange={setCategory} />
               <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-ui font-medium text-muted-foreground border border-white/10 bg-black/5">
-                {worksQuery.isLoading ? "..." : `${filtered.length} ${filtered.length === 1 ? "work" : "works"}`}
+                {worksQuery.isLoading ? "..." : t("browse.worksCount", "{count} {plural}").replace("{count}", String(filtered.length)).replace("{plural}", filtered.length === 1 ? t("browse.work", "work") : t("browse.works", "works"))}
               </span>
             </div>
             <div className="relative w-full sm:w-72">

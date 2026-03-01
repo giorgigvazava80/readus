@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { fetchContentDetail, resolveMediaUrl } from "@/lib/api";
+import { useI18n } from "@/i18n";
 import type { ContentCategory, ContentDetail } from "@/lib/types";
 import { useReadChapters } from "@/hooks/useReadChapters";
 import { useCallback, useEffect, useMemo, useRef } from "react";
@@ -45,6 +46,7 @@ function estimateReadTime(content: ContentDetail): string {
 }
 
 const PublicReadPage = () => {
+  const { t } = useI18n();
   const { category: rawCategory, identifier: rawIdentifier, page: rawPage } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -240,7 +242,7 @@ const PublicReadPage = () => {
                 {content.title}
               </h1>
               <p className="mt-4 font-ui text-lg text-muted-foreground">
-                by {content.author_name || content.author_username || "უცნობი ავტორი"}
+                {t("workcard.by", "by ")}{content.author_name || content.author_username || t("workcard.anonymous", "anonymous")}
               </p>
 
               {content.description ? (

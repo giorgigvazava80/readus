@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { fetchContent } from "@/lib/api";
+import { useI18n } from "@/i18n";
 import { estimateReadTimeFromHtml, toExcerpt } from "@/lib/content";
 import type { ContentCategory } from "@/lib/types";
 
@@ -27,6 +28,7 @@ const paths = {
 };
 
 const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
+  const { t } = useI18n();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
 
@@ -82,12 +84,12 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
                 </p>
                 {item.is_hidden && (
                   <Badge variant="outline" className="border-amber-500/50 bg-amber-500/10 text-amber-700 text-[10px] uppercase tracking-wider">
-                    Hidden
+                    {t("workcard.hidden", "Hidden")}
                   </Badge>
                 )}
               </div>
               <p className="mt-1 font-ui text-sm text-muted-foreground">
-                by {item.author_name || item.author_username || "უცნობი ავტორი"}
+                {t("workcard.by", "by ")}{item.author_name || item.author_username || t("workcard.anonymous", "anonymous")}
               </p>
               <p className="mt-3 font-body text-sm leading-relaxed text-foreground/80">
                 {toExcerpt(item.body || item.extracted_text || item.description)}
@@ -105,7 +107,7 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
         <p className="font-ui text-xs text-muted-foreground">სულ: {worksQuery.data?.count || 0}</p>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((prev) => prev - 1)}>
-            Previous
+            {t("pagination.prev", "Previous")}
           </Button>
           <Button
             variant="outline"
@@ -113,7 +115,7 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
             disabled={!worksQuery.data?.next}
             onClick={() => setPage((prev) => prev + 1)}
           >
-            Next
+            {t("pagination.next", "Next")}
           </Button>
         </div>
       </section>

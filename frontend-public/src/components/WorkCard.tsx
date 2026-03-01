@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { BookOpen, FileText, PenLine, Clock, EyeOff } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useI18n } from "@/i18n";
 
 import type { ContentCategory } from "@/lib/types";
 
@@ -40,6 +41,7 @@ interface WorkCardProps {
 }
 
 const WorkCard = ({ work, index = 0 }: WorkCardProps) => {
+  const { t } = useI18n();
   const Icon = categoryIcons[work.category];
 
   return (
@@ -99,7 +101,7 @@ const WorkCard = ({ work, index = 0 }: WorkCardProps) => {
                 {work.isHidden && (
                   <Badge variant="outline" className="font-ui text-[10px] uppercase tracking-wider px-2 py-0 border-amber-500/40 text-amber-900 bg-amber-500/20 backdrop-blur-md shadow-sm flex items-center gap-1">
                     <EyeOff className="h-2.5 w-2.5" />
-                    Hidden
+                    {t("workcard.hidden", "Hidden")}
                   </Badge>
                 )}
               </div>
@@ -110,7 +112,7 @@ const WorkCard = ({ work, index = 0 }: WorkCardProps) => {
               </h3>
 
               <p className="mt-1.5 font-ui text-sm text-foreground/70 font-medium drop-shadow-sm">
-                by <span className="text-foreground/90">{work.author}</span>
+                {t("workcard.by", "by ")}<span className="text-foreground/90">{work.author || t("workcard.anonymous", "anonymous")}</span>
               </p>
 
               {/* Excerpt */}
@@ -122,7 +124,7 @@ const WorkCard = ({ work, index = 0 }: WorkCardProps) => {
               <div className="mt-5 border-t border-black/10 pt-4 flex flex-row items-center justify-between">
                 <span className="font-ui text-xs font-medium text-foreground/60">{work.date}</span>
                 <span className="flex items-center gap-1 font-ui text-xs font-bold text-primary transition-all duration-300 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 drop-shadow-sm">
-                  Read now <span className="text-lg leading-none">→</span>
+                  {t("workcard.readNow", "Read now")} <span className="text-lg leading-none">→</span>
                 </span>
               </div>
             </div>

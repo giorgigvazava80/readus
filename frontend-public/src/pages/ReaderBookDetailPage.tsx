@@ -6,6 +6,7 @@ import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useI18n } from "@/i18n";
 import { fetchContentDetail } from "@/lib/api";
 import { useReadChapters } from "@/hooks/useReadChapters";
 
@@ -16,6 +17,7 @@ const hasTextContent = (html?: string | null) => {
 };
 
 const ReaderBookDetailPage = () => {
+  const { t } = useI18n();
   const { identifier } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -84,12 +86,12 @@ const ReaderBookDetailPage = () => {
           {book.is_hidden && (
             <Badge variant="outline" className="border-amber-500/50 bg-amber-500/10 text-amber-700 gap-1.5 px-3 py-1">
               <EyeOff className="h-4 w-4" />
-              Hidden from Public
+              {t("workcard.hidden", "Hidden from Public")}
             </Badge>
           )}
         </div>
         <p className="mt-1 font-ui text-sm text-muted-foreground">
-          by {book.author_name || book.author_username || "უცნობი ავტორი"}
+          {t("workcard.by", "by ")}{book.author_name || book.author_username || t("workcard.anonymous", "anonymous")}
         </p>
 
         {book.description ? (
@@ -111,7 +113,7 @@ const ReaderBookDetailPage = () => {
                   <span>{chapter.title || `Chapter ${chapter.auto_label || chapter.order}`}</span>
                   {!isRead(chapter.id) && (
                     <span className="flex-shrink-0 ml-2 rounded-full px-1.5 py-0.5 text-[10px] uppercase font-bold tracking-wider bg-blue-500/20 text-blue-500">
-                      New
+                      {t("reader.new", "New")}
                     </span>
                   )}
                 </Link>
@@ -141,7 +143,7 @@ const ReaderBookDetailPage = () => {
             </>
           ) : (
             <p className="font-ui text-sm text-muted-foreground">
-              This book has no foreword. Open a chapter from the table of contents.
+              {t("reader.noForeword", "This book has no foreword. Open a chapter from the table of contents.")}
             </p>
           )}
 

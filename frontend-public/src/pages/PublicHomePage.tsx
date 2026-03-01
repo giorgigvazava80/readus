@@ -43,7 +43,7 @@ function toCardItem(category: "books" | "stories" | "poems", item: ContentItem):
     publicSlug: item.public_slug || String(item.id),
     category,
     title: item.title,
-    author: item.author_name || item.author_username || "უცნობი ავტორი",
+    author: item.author_name || item.author_username || "",
     excerpt: toExcerpt(item),
     coverColor: colorFor(category, item.id),
     coverImageUrl: resolveMediaUrl(item.cover_image),
