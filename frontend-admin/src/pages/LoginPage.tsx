@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BookOpen, Shield } from "lucide-react";
 import { toast } from "sonner";
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import { useI18n } from "@/i18n";
-import { fetchMe, login, logout } from "@/lib/api";
+import { fetchMe, login, loginWithGoogleCode, logout } from "@/lib/api";
 import { isAdminAppHost } from "@/lib/runtime";
 
 const LoginPage = () => {
@@ -19,6 +19,70 @@ const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+  const googleRedirectUri =
+    import.meta.env.VITE_GOOGLE_REDIRECT_URI || `${window.location.origin}${adminHost ? "/admin/login" : "/login"}`;
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const oauthError = params.get("error");
+
+    if (oauthError) {
+      toast.error(`Google login failed: ${oauthError}`);
+      navigate(adminHost ? "/admin/login" : "/login", { replace: true });
+      return;
+    }
+
+    if (!code) {
+      return;
+    }
+
+    const run = async () => {
+      setLoading(true);
+      try {
+        await loginWithGoogleCode(code);
+        const me = await fetchMe();
+        if (!me) {
+          throw new Error(t("login.error.loadUser", "Failed to load current user."));
+        }
+
+        if (adminHost && !(me.is_admin || me.is_redactor)) {
+          await logout();
+          throw new Error(t("login.error.noAdminAccess", "You do not have admin portal access."));
+        }
+
+        navigate(adminHost ? "/admin" : "/dashboard", { replace: true });
+        toast.success("Logged in with Google.");
+      } catch (error) {
+        const message = error instanceof Error ? error.message : t("login.error.failed", "Login failed.");
+        toast.error(message);
+        navigate(adminHost ? "/admin/login" : "/login", { replace: true });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void run();
+  }, [adminHost, navigate, t]);
+
+  const handleGoogleLogin = () => {
+    if (!googleClientId) {
+      toast.error("Google login is not configured.");
+      return;
+    }
+
+    const params = new URLSearchParams({
+      client_id: googleClientId,
+      redirect_uri: googleRedirectUri,
+      response_type: "code",
+      scope: "openid email profile",
+      access_type: "offline",
+      include_granted_scopes: "true",
+      prompt: "select_account",
+    });
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+  };
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -114,6 +178,12 @@ const LoginPage = () => {
                 {t("login.forgotPassword", "Forgot password")}
               </Link>
             </div>
+          ) : null}
+
+          {!adminHost && googleClientId ? (
+            <Button type="button" variant="outline" className="mt-4 w-full" onClick={handleGoogleLogin} disabled={loading}>
+              Continue with Google
+            </Button>
           ) : null}
         </section>
       </div>

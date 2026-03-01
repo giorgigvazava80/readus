@@ -387,6 +387,25 @@ export async function login(username: string, password: string): Promise<void> {
   dispatchAuthChanged();
 }
 
+export async function loginWithGoogleCode(code: string): Promise<void> {
+  const response = await apiRequest<LoginResponse>("/auth/social/google/", {
+    method: "POST",
+    body: JSON.stringify({ code }),
+  });
+
+  const access = response.access || response.key;
+  if (!access) {
+    throw new Error("Google login succeeded but no access token was returned.");
+  }
+
+  setAccessToken(access);
+  if (response.refresh) {
+    setRefreshToken(response.refresh);
+  }
+
+  dispatchAuthChanged();
+}
+
 export async function register(payload: RegisterPayload): Promise<void> {
   await apiRequest("/auth/registration/", {
     method: "POST",

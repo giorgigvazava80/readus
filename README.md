@@ -75,6 +75,7 @@ First login requires password change. After changing password, privileged endpoi
 ## Important Environment Variables
 
 - `VITE_API_BASE_URL`
+- `VITE_GOOGLE_CLIENT_ID`, `VITE_GOOGLE_REDIRECT_URI` (frontend Google OAuth)
 - `ROOT_EMAIL`, `ROOT_USERNAME`, `ROOT_PASSWORD`
 - `BOOTSTRAP_ROOT`, `BOOTSTRAP_FORCE_PASSWORD_CHANGE`, `BOOTSTRAP_ROOT_RESET_PASSWORD`
 - `THROTTLE_ANON`, `THROTTLE_USER`
