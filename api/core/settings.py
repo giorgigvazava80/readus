@@ -90,6 +90,10 @@ SITE_ID = env.int("SITE_ID", default=1)
 FRONTEND_BASE_URL = env("FRONTEND_BASE_URL", default="http://localhost:5173").rstrip("/")
 SOCIAL_AUTH_GOOGLE_CALLBACK_URL = env("SOCIAL_AUTH_GOOGLE_CALLBACK_URL", default="").strip()
 SOCIAL_AUTH_FACEBOOK_CALLBACK_URL = env("SOCIAL_AUTH_FACEBOOK_CALLBACK_URL", default="").strip()
+GOOGLE_OAUTH_CLIENT_ID = env("GOOGLE_OAUTH_CLIENT_ID", default=env("GOOGLE_CLIENT_ID", default="")).strip()
+GOOGLE_OAUTH_CLIENT_SECRET = env("GOOGLE_OAUTH_CLIENT_SECRET", default=env("GOOGLE_CLIENT_SECRET", default="")).strip()
+FACEBOOK_OAUTH_CLIENT_ID = env("FACEBOOK_OAUTH_CLIENT_ID", default=env("FACEBOOK_CLIENT_ID", default="")).strip()
+FACEBOOK_OAUTH_CLIENT_SECRET = env("FACEBOOK_OAUTH_CLIENT_SECRET", default=env("FACEBOOK_CLIENT_SECRET", default="")).strip()
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -188,11 +192,33 @@ ACCOUNT_ADAPTER = "accounts.adapters.ReadusAccountAdapter"
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "SCOPE": ["profile", "email"],
+        **(
+            {
+                "APP": {
+                    "client_id": GOOGLE_OAUTH_CLIENT_ID,
+                    "secret": GOOGLE_OAUTH_CLIENT_SECRET,
+                    "key": "",
+                }
+            }
+            if GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET
+            else {}
+        ),
     },
     "facebook": {
         "METHOD": "oauth2",
         "SCOPE": ["email", "public_profile"],
         "FIELDS": ["id", "email", "first_name", "last_name", "name"],
+        **(
+            {
+                "APP": {
+                    "client_id": FACEBOOK_OAUTH_CLIENT_ID,
+                    "secret": FACEBOOK_OAUTH_CLIENT_SECRET,
+                    "key": "",
+                }
+            }
+            if FACEBOOK_OAUTH_CLIENT_ID and FACEBOOK_OAUTH_CLIENT_SECRET
+            else {}
+        ),
     },
 }
 
