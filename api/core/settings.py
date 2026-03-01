@@ -72,6 +72,8 @@ INSTALLED_APPS = [
 
 SITE_ID = env.int("SITE_ID", default=1)
 FRONTEND_BASE_URL = env("FRONTEND_BASE_URL", default="http://localhost:5173").rstrip("/")
+SOCIAL_AUTH_GOOGLE_CALLBACK_URL = env("SOCIAL_AUTH_GOOGLE_CALLBACK_URL", default="").strip()
+SOCIAL_AUTH_FACEBOOK_CALLBACK_URL = env("SOCIAL_AUTH_FACEBOOK_CALLBACK_URL", default="").strip()
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
