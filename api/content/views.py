@@ -1,10 +1,10 @@
-from django.core.mail import send_mail
 from django.db.models import Q
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
+from accounts.emailing import send_mail_safe
 from accounts.models import Notification
 from accounts.permissions import PasswordChangeNotForced
 from accounts.utils import can_manage_content, can_review_content, create_audit_log, create_notification
@@ -30,7 +30,7 @@ def _send_review_email(user, status_value):
         subject = "Your content was rejected"
         body = "One of your submissions was rejected. Check rejection reason in your dashboard."
 
-    send_mail(subject, body, None, [user.email], fail_silently=True)
+    send_mail_safe(subject, body, None, [user.email], fail_silently=True)
 
 
 class ReviewActionMixin:

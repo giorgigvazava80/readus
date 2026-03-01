@@ -78,6 +78,7 @@ First login requires password change. After changing password, privileged endpoi
 - `ROOT_EMAIL`, `ROOT_USERNAME`, `ROOT_PASSWORD`
 - `BOOTSTRAP_ROOT`, `BOOTSTRAP_FORCE_PASSWORD_CHANGE`, `BOOTSTRAP_ROOT_RESET_PASSWORD`
 - `THROTTLE_ANON`, `THROTTLE_USER`
+- `EMAIL_SEND_ASYNC` (set `1` in production so signup does not wait on SMTP)
 
 ## API Surfaces
 

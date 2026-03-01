@@ -183,6 +183,7 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@example.com")
 EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=30)
+EMAIL_SEND_ASYNC = env.bool("EMAIL_SEND_ASYNC", default=not DEBUG)
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [

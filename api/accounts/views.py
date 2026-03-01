@@ -2,13 +2,13 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.utils import timezone
-from django.core.mail import send_mail
 from rest_framework import generics, permissions, status
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .constants import GROUP_REDACTORS
+from .emailing import send_mail_safe
 from .models import AuditLog, Notification, RedactorPermission, WriterApplication, WriterApplicationStatus
 from .permissions import (
     CanManageRedactors,
@@ -40,7 +40,7 @@ User = get_user_model()
 def _send_outcome_email(user, subject, body):
     if not user.email:
         return
-    send_mail(subject, body, None, [user.email], fail_silently=True)
+    send_mail_safe(subject, body, None, [user.email], fail_silently=True)
 
 
 class CurrentUserStateView(generics.RetrieveAPIView):

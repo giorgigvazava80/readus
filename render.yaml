@@ -41,6 +41,10 @@ services:
         value: "1"
       - key: BOOTSTRAP_FORCE_PASSWORD_CHANGE
         value: "1"
+      - key: EMAIL_SEND_ASYNC
+        value: "1"
+      - key: EMAIL_TIMEOUT
+        value: "10"
       - key: RUN_COLLECTSTATIC
         value: "1"
 
