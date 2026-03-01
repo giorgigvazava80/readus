@@ -3,7 +3,7 @@
 <p>{% trans "Welcome" %},</p>
 <p>{% trans "Please verify your email address to activate your account." %}</p>
 <p>
-  <a href="https://{{ current_site }}/verify-email?key={{ key }}">{% trans "Verify Email" %}</a>
+  <a href="{{ activate_url }}">{% trans "Verify Email" %}</a>
 </p>
-<p>{% trans "If the button does not work, use this key:" %} {{ key }}</p>
+<p>{% trans "If the button does not work, use this link:" %} {{ activate_url }}</p>
 {% endautoescape %}

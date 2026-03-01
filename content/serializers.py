@@ -5,12 +5,15 @@ import bleach
 from bleach.css_sanitizer import CSSSanitizer
 from rest_framework import serializers
 
+from accounts.utils import is_admin_user
 from .file_extract import extract_text_from_upload
 from .models import Book, Chapter, Poem, SourceType, StatusChoices, Story
 
 
 ALLOWED_UPLOAD_EXTENSIONS = {".pdf", ".doc", ".docx", ".txt"}
+ALLOWED_COVER_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 MAX_UPLOAD_SIZE_BYTES = 20 * 1024 * 1024
+MAX_COVER_SIZE_BYTES = 5 * 1024 * 1024
 
 ALLOWED_RICH_TEXT_TAGS = [
     "p",
@@ -94,6 +97,19 @@ class ContentValidationMixin(serializers.ModelSerializer):
 
         return value
 
+    def validate_cover_image(self, value):
+        if not value:
+            return value
+
+        ext = os.path.splitext(value.name)[1].lower()
+        if ext not in ALLOWED_COVER_EXTENSIONS:
+            raise serializers.ValidationError("Unsupported image type. Allowed: JPG, PNG, WEBP, GIF.")
+
+        if value.size > MAX_COVER_SIZE_BYTES:
+            raise serializers.ValidationError("Cover image is too large. Maximum size is 5MB.")
+
+        return value
+
     def validate(self, attrs):
         """
         Enforce:
@@ -141,12 +157,23 @@ class ContentValidationMixin(serializers.ModelSerializer):
             instance.extracted_text = next_value
             instance.save(update_fields=["extracted_text", "updated_at"])
 
+    def _can_view_real_author(self, obj):
+        if not getattr(obj, "is_anonymous", False):
+            return True
+
+        request = self.context.get("request")
+        user = getattr(request, "user", None) if request else None
+        return bool(user and user.is_authenticated and is_admin_user(user))
+
+    def _public_author_name(self):
+        return "Anonymous"
+
     class Meta:
         abstract = True
 
 
 class StorySerializer(ContentValidationMixin):
-    author_username = serializers.CharField(source="author.username", read_only=True)
+    author_username = serializers.SerializerMethodField()
     author_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -155,9 +182,12 @@ class StorySerializer(ContentValidationMixin):
             "id",
             "title",
             "description",
+            "is_anonymous",
+            "is_hidden",
             "body",
             "source_type",
             "upload_file",
+            "cover_image",
             "extracted_text",
             "author_username",
             "author_name",
@@ -176,7 +206,14 @@ class StorySerializer(ContentValidationMixin):
             "updated_at",
         ]
 
+    def get_author_username(self, obj):
+        if not self._can_view_real_author(obj):
+            return self._public_author_name()
+        return obj.author.username
+
     def get_author_name(self, obj):
+        if not self._can_view_real_author(obj):
+            return self._public_author_name()
         full_name = f"{obj.author.first_name} {obj.author.last_name}".strip()
         return full_name or obj.author.username
 
@@ -203,7 +240,7 @@ class StorySerializer(ContentValidationMixin):
 
 
 class PoemSerializer(ContentValidationMixin):
-    author_username = serializers.CharField(source="author.username", read_only=True)
+    author_username = serializers.SerializerMethodField()
     author_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -212,9 +249,12 @@ class PoemSerializer(ContentValidationMixin):
             "id",
             "title",
             "description",
+            "is_anonymous",
+            "is_hidden",
             "body",
             "source_type",
             "upload_file",
+            "cover_image",
             "extracted_text",
             "author_username",
             "author_name",
@@ -233,7 +273,14 @@ class PoemSerializer(ContentValidationMixin):
             "updated_at",
         ]
 
+    def get_author_username(self, obj):
+        if not self._can_view_real_author(obj):
+            return self._public_author_name()
+        return obj.author.username
+
     def get_author_name(self, obj):
+        if not self._can_view_real_author(obj):
+            return self._public_author_name()
         full_name = f"{obj.author.first_name} {obj.author.last_name}".strip()
         return full_name or obj.author.username
 
@@ -303,9 +350,10 @@ class BookChapterCreateSerializer(serializers.ModelSerializer):
 
 
 class BookSerializer(ContentValidationMixin):
-    author_username = serializers.CharField(source="author.username", read_only=True)
+    author_username = serializers.SerializerMethodField()
     author_name = serializers.SerializerMethodField()
-    chapters = ChapterSerializer(many=True, read_only=True)
+    chapters = serializers.SerializerMethodField()
+    has_draft_chapters = serializers.SerializerMethodField()
     new_chapters = BookChapterCreateSerializer(many=True, write_only=True, required=False)
 
     class Meta:
@@ -314,11 +362,14 @@ class BookSerializer(ContentValidationMixin):
             "id",
             "title",
             "description",
+            "is_anonymous",
+            "is_hidden",
             "foreword",
             "afterword",
             "numbering_style",
             "source_type",
             "upload_file",
+            "cover_image",
             "extracted_text",
             "author_username",
             "author_name",
@@ -327,6 +378,7 @@ class BookSerializer(ContentValidationMixin):
             "created_at",
             "updated_at",
             "chapters",
+            "has_draft_chapters",
             "new_chapters",
         ]
         read_only_fields = [
@@ -339,9 +391,32 @@ class BookSerializer(ContentValidationMixin):
             "updated_at",
         ]
 
+    def get_author_username(self, obj):
+        if not self._can_view_real_author(obj):
+            return self._public_author_name()
+        return obj.author.username
+
     def get_author_name(self, obj):
+        if not self._can_view_real_author(obj):
+            return self._public_author_name()
         full_name = f"{obj.author.first_name} {obj.author.last_name}".strip()
         return full_name or obj.author.username
+
+    def get_chapters(self, obj):
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        chapters = obj.chapters.all()
+
+        if user and user.is_authenticated:
+            from accounts.utils import can_manage_content, can_review_content
+            if can_manage_content(user) or can_review_content(user) or obj.author == user:
+                return ChapterSerializer(chapters, many=True, context=self.context).data
+
+        approved_chapters = [c for c in chapters if c.status == StatusChoices.APPROVED]
+        return ChapterSerializer(approved_chapters, many=True, context=self.context).data
+
+    def get_has_draft_chapters(self, obj):
+        return obj.chapters.filter(status=StatusChoices.DRAFT).exists()
 
     def validate_title(self, value):
         return sanitize_plain_text(value)
@@ -395,5 +470,4 @@ class ContentReviewSerializer(serializers.Serializer):
 
         attrs["rejection_reason"] = rejection_reason
         return attrs
-
 

@@ -1,20 +1,71 @@
-import { FormEvent, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { MailCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { resendVerification, verifyEmail } from "@/lib/api";
+import { fetchMe, resendVerification, verifyEmail } from "@/lib/api";
+import { isAdminAppHost } from "@/lib/runtime";
 
 const VerifyEmailPage = () => {
+  const navigate = useNavigate();
+  const adminHost = isAdminAppHost();
   const [searchParams] = useSearchParams();
   const keyFromQuery = useMemo(() => searchParams.get("key") || "", [searchParams]);
 
   const [key, setKey] = useState(keyFromQuery);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const completeVerification = useCallback(
+    async (verificationKey: string) => {
+      const response = await verifyEmail(verificationKey);
+      const hasAuthToken = Boolean(response.access || response.key);
+
+      if (hasAuthToken) {
+        await fetchMe();
+        toast.success("Email verified. Redirecting to dashboard.");
+        navigate(adminHost ? "/admin" : "/dashboard", { replace: true });
+        return;
+      }
+
+      toast.success("Email verified. You can now sign in.");
+      navigate(adminHost ? "/admin/login" : "/login", { replace: true });
+    },
+    [adminHost, navigate],
+  );
+
+  useEffect(() => {
+    if (!keyFromQuery) {
+      return;
+    }
+
+    let active = true;
+    const run = async () => {
+      setLoading(true);
+      try {
+        await completeVerification(keyFromQuery);
+      } catch (error) {
+        if (!active) {
+          return;
+        }
+        const message = error instanceof Error ? error.message : "Verification failed.";
+        toast.error(message);
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void run();
+
+    return () => {
+      active = false;
+    };
+  }, [completeVerification, keyFromQuery]);
 
   const handleVerify = async (event: FormEvent) => {
     event.preventDefault();
@@ -25,8 +76,7 @@ const VerifyEmailPage = () => {
 
     setLoading(true);
     try {
-      await verifyEmail(key);
-      toast.success("Email verified. You can now sign in.");
+      await completeVerification(key);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Verification failed.";
       toast.error(message);

@@ -71,12 +71,16 @@ export interface ContentItem {
   id: number;
   title: string;
   description: string;
+  is_anonymous: boolean;
+  is_hidden: boolean;
   source_type: "manual" | "upload";
   upload_file: string | null;
+  cover_image: string | null;
   status: ContentStatus;
   rejection_reason: string;
   created_at: string;
   updated_at: string;
+  has_draft_chapters?: boolean;
   body?: string;
   extracted_text?: string;
   author_username?: string;

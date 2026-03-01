@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { Feather, FileText, Save } from "lucide-react";
+import { Feather, FileText, ImagePlus, Save, X, Trash } from "lucide-react";
 
 import RichTextEditor from "@/components/editor/RichTextEditor";
 import SaveStateBadge from "@/components/editor/SaveStateBadge";
@@ -16,7 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchContentDetail, updatePoem, updateStory } from "@/lib/api";
+import { Switch } from "@/components/ui/switch";
+import { fetchContentDetail, resolveMediaUrl, updatePoem, updateStory, deleteContentItem } from "@/lib/api";
 import { CONTENT_STATUS_STYLES } from "@/lib/content";
 import { useAutosave } from "@/hooks/useAutosave";
 import { toast } from "@/hooks/use-toast";
@@ -32,6 +33,8 @@ interface TextWorkDraft {
   description: string;
   body: string;
   source_type: SourceType;
+  is_anonymous: boolean;
+  is_hidden: boolean;
 }
 
 const writerMeta = {
@@ -47,12 +50,21 @@ const writerMeta = {
   },
 };
 
-function toDraft(data: { title?: string; description?: string; body?: string; source_type?: SourceType }): TextWorkDraft {
+function toDraft(data: {
+  title?: string;
+  description?: string;
+  body?: string;
+  source_type?: SourceType;
+  is_anonymous?: boolean;
+  is_hidden?: boolean;
+}): TextWorkDraft {
   return {
     title: data.title || "Untitled",
     description: data.description || "",
     body: data.body || "",
     source_type: data.source_type || "manual",
+    is_anonymous: Boolean(data.is_anonymous),
+    is_hidden: Boolean(data.is_hidden),
   };
 }
 
@@ -74,8 +86,14 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
     description: "",
     body: "",
     source_type: "manual",
+    is_anonymous: false,
+    is_hidden: false,
   });
   const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [coverImage, setCoverImage] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [coverRevision, setCoverRevision] = useState(0);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   const saveMutation = useMutation({
     mutationFn: async (payload: TextWorkDraft) => {
@@ -88,7 +106,10 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
         description: payload.description,
         body: payload.body,
         source_type: payload.source_type,
+        is_anonymous: payload.is_anonymous,
+        is_hidden: payload.is_hidden,
         upload_file: payload.source_type === "upload" ? uploadFile : null,
+        cover_image: coverImage,
       });
     },
     onSuccess: (saved) => {
@@ -96,13 +117,15 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
       queryClient.invalidateQueries({ queryKey: ["my-works"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard", "works-summary"] });
       setUploadFile(null);
+      setCoverImage(null);
+      setCoverPreview(null);
     },
   });
 
-  const autosave = useAutosave<TextWorkDraft>({
-    value: draft,
+  const autosave = useAutosave<{ draft: TextWorkDraft; coverRevision: number }>({
+    value: { draft, coverRevision },
     enabled: detailQuery.isSuccess,
-    onSave: async (payload) => {
+    onSave: async ({ draft: payload }) => {
       await saveMutation.mutateAsync(payload);
     },
   });
@@ -114,13 +137,18 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
     const nextDraft = toDraft(detailQuery.data);
     setDraft(nextDraft);
     setUploadFile(null);
-    autosave.markSaved(nextDraft);
+    setCoverImage(null);
+    setCoverPreview(null);
+    setCoverRevision(0);
+    autosave.markSaved({ draft: nextDraft, coverRevision: 0 });
   }, [detailQuery.data, autosave.markSaved]);
 
   const statusClass = useMemo(() => {
     const status = detailQuery.data?.status;
     return status ? CONTENT_STATUS_STYLES[status] : "";
   }, [detailQuery.data?.status]);
+
+  const currentCoverUrl = coverPreview || resolveMediaUrl(detailQuery.data?.cover_image) || null;
 
   if (!Number.isFinite(contentId)) {
     return (
@@ -180,6 +208,25 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
             <Save className="h-4 w-4" />
             Save Now
           </Button>
+          <Button
+            variant="destructive"
+            size="icon"
+            className="h-10 w-10 shrink-0"
+            onClick={async () => {
+              const label = type === "stories" ? "story" : "poem";
+              if (window.confirm(`Are you sure you want to delete this ${label}? This action cannot be undone.`)) {
+                try {
+                  await deleteContentItem(type, contentId);
+                  toast({ title: "Work deleted" });
+                  navigate("/writer/new");
+                } catch (error) {
+                  toast({ variant: "destructive", title: "Delete failed" });
+                }
+              }
+            }}
+          >
+            <Trash className="h-4 w-4" />
+          </Button>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -199,7 +246,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
         ) : null}
       </section>
 
-      <section className="grid gap-5 md:grid-cols-2">
+      <section className="grid gap-5 md:grid-cols-3">
         <div className="space-y-2">
           <Label className="font-ui">Title</Label>
           <Input
@@ -227,10 +274,116 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
             </SelectContent>
           </Select>
         </div>
+
+        <div className="flex flex-col gap-4 md:flex-row md:items-center">
+          <div className="flex-1 space-y-2 rounded-xl border border-border/70 bg-background/70 p-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="textAnonymousToggle" className="font-ui text-sm">Post as Anonymous</Label>
+                <p className="font-ui text-[11px] text-muted-foreground">
+                  Hidden from readers. Visible to admins.
+                </p>
+              </div>
+              <Switch
+                id="textAnonymousToggle"
+                checked={draft.is_anonymous}
+                onCheckedChange={(checked) => setDraft((prev) => ({ ...prev, is_anonymous: checked }))}
+              />
+            </div>
+          </div>
+
+          <div className="flex-1 space-y-2 rounded-xl border border-border/70 bg-background/70 p-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="textHiddenToggle" className="font-ui text-sm">Hide from Public</Label>
+                <p className="font-ui text-[11px] text-muted-foreground">
+                  Only you (and staff) can see it in your library.
+                </p>
+              </div>
+              <Switch
+                id="textHiddenToggle"
+                checked={draft.is_hidden}
+                onCheckedChange={(checked) => setDraft((prev) => ({ ...prev, is_hidden: checked }))}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card">
+        <h2 className="mb-1 font-display text-base font-semibold text-foreground">Cover Image</h2>
+        <p className="mb-4 font-ui text-xs text-muted-foreground">
+          Optional. Displayed on the work card. JPG, PNG, WEBP or GIF - max 5MB.
+        </p>
+        <div className="flex flex-wrap items-start gap-5">
+          {currentCoverUrl ? (
+            <div className="group relative flex-shrink-0">
+              <img
+                src={currentCoverUrl || ""}
+                alt="Cover preview"
+                className="h-36 w-28 rounded-xl border object-cover shadow-card"
+              />
+              <button
+                onClick={() => {
+                  setCoverImage(null);
+                  setCoverPreview(null);
+                  if (coverInputRef.current) coverInputRef.current.value = "";
+                  setCoverRevision((prev) => prev + 1);
+                }}
+                className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-white opacity-0 shadow transition-opacity group-hover:opacity-100"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : (
+            <div
+              className="flex h-36 w-28 flex-shrink-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+              onClick={() => coverInputRef.current?.click()}
+            >
+              <ImagePlus className="h-6 w-6" />
+              <span className="px-2 text-center font-ui text-xs">Add cover</span>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-3 pt-1">
+            <input
+              ref={coverInputRef}
+              id="coverImageInput"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setCoverImage(file);
+                if (file) {
+                  const url = URL.createObjectURL(file);
+                  setCoverPreview(url);
+                } else {
+                  setCoverPreview(null);
+                }
+                setCoverRevision((prev) => prev + 1);
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => coverInputRef.current?.click()}
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium font-ui transition-colors hover:border-primary/40 hover:text-primary"
+            >
+              <ImagePlus className="h-4 w-4" />
+              {currentCoverUrl ? "Change cover" : "Upload cover"}
+            </button>
+            {coverImage && (
+              <p className="font-ui text-xs text-muted-foreground">Selected: {coverImage.name} - will be saved on next save.</p>
+            )}
+            {!coverImage && detailQuery.data?.cover_image && (
+              <p className="font-ui text-xs text-muted-foreground">Current cover saved on server.</p>
+            )}
+          </div>
+        </div>
       </section>
 
       {draft.source_type === "upload" ? (
-        <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card space-y-3">
+        <section className="space-y-3 rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card">
           <div>
             <Label htmlFor="textWorkUpload" className="font-ui">Upload file</Label>
             <Input
@@ -244,7 +397,10 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
 
           {detailQuery.data.upload_file ? (
             <p className="font-ui text-sm text-muted-foreground">
-              Current file: <a className="underline" href={detailQuery.data.upload_file} target="_blank" rel="noreferrer">Open file</a>
+              Current file:{" "}
+              <a className="underline" href={detailQuery.data.upload_file} target="_blank" rel="noreferrer">
+                Open file
+              </a>
             </p>
           ) : null}
 

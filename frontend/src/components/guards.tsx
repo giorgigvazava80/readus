@@ -40,7 +40,7 @@ export function RequireAuth({ children }: { children: JSX.Element }) {
   }
 
   const settingsPath = adminHost ? "/admin/settings" : "/settings";
-  if (me.forced_password_change && location.pathname !== settingsPath) {
+  if (!adminHost && me.forced_password_change && location.pathname !== settingsPath) {
     return <Navigate to={settingsPath} replace />;
   }
 

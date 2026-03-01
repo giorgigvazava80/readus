@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { fetchContent } from "@/lib/api";
 import { estimateReadTimeFromHtml, toExcerpt } from "@/lib/content";
 import type { ContentCategory } from "@/lib/types";
@@ -75,9 +76,16 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
         {items.map((item) => (
           <Link key={item.id} to={`${paths[category]}/${item.id}`} className="group block">
             <article className="rounded-xl border border-border/70 bg-card/85 p-5 shadow-card transition-all hover:-translate-y-1 hover:shadow-card-hover">
-              <p className="font-display text-2xl font-semibold text-foreground transition-colors group-hover:text-primary">
-                {item.title}
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-display text-2xl font-semibold text-foreground transition-colors group-hover:text-primary">
+                  {item.title}
+                </p>
+                {item.is_hidden && (
+                  <Badge variant="outline" className="border-amber-500/50 bg-amber-500/10 text-amber-700 text-[10px] uppercase tracking-wider">
+                    Hidden
+                  </Badge>
+                )}
+              </div>
               <p className="mt-1 font-ui text-sm text-muted-foreground">
                 by {item.author_name || item.author_username || "Unknown author"}
               </p>

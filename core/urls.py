@@ -12,6 +12,8 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
+from accounts.auth_views import VerifyEmailAndLoginView
+
 
 def healthcheck(_request):
     return JsonResponse({"status": "ok"})
@@ -31,6 +33,11 @@ urlpatterns = [
     path("health/", healthcheck, name="healthcheck"),
     path("admin/", admin.site.urls),
     path("auth/", include("dj_rest_auth.urls")),
+    path(
+        "auth/registration/verify-email/",
+        VerifyEmailAndLoginView.as_view(),
+        name="rest_verify_email",
+    ),
     path("auth/registration/", include("dj_rest_auth.registration.urls")),
     path("auth/password/reset/", PasswordResetView.as_view(), name="password_reset"),
     path(

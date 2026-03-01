@@ -13,7 +13,14 @@ import type {
   WriterApplicationStatus,
 } from "@/lib/types";
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:9000").replace(/\/$/, "");
+const defaultApiUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:9000` : "http://localhost:9000";
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || defaultApiUrl).replace(/\/$/, "");
+
+export function resolveMediaUrl(path: string | null | undefined): string | null {
+  if (!path) return null;
+  if (/^(https?:|blob:|data:)/i.test(path)) return path;
+  return `${API_BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+}
 
 const ACCESS_TOKEN_KEY = "qa_access_token";
 const REFRESH_TOKEN_KEY = "qa_refresh_token";
@@ -27,6 +34,13 @@ interface QueryParams {
 }
 
 interface LoginResponse {
+  access?: string;
+  refresh?: string;
+  key?: string;
+}
+
+interface VerifyEmailResponse {
+  detail?: string;
   access?: string;
   refresh?: string;
   key?: string;
@@ -80,6 +94,9 @@ export interface BookCreatePayload {
   numbering_style?: "arabic" | "roman" | "separator";
   source_type?: "manual" | "upload";
   upload_file?: File | null;
+  cover_image?: File | null;
+  is_anonymous?: boolean;
+  is_hidden?: boolean;
 }
 
 export interface TextContentPayload {
@@ -88,6 +105,9 @@ export interface TextContentPayload {
   body?: string;
   source_type?: "manual" | "upload";
   upload_file?: File | null;
+  cover_image?: File | null;
+  is_anonymous?: boolean;
+  is_hidden?: boolean;
 }
 
 export interface ChapterPayload {
@@ -344,9 +364,14 @@ function asPaginated<T>(payload: PaginatedResponse<T> | T[]): PaginatedResponse<
 }
 
 export async function login(username: string, password: string): Promise<void> {
+  const normalized = username.trim();
+  const loginPayload = normalized.includes("@")
+    ? { email: normalized, password }
+    : { username: normalized, password };
+
   const response = await apiRequest<LoginResponse>("/auth/login/", {
     method: "POST",
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify(loginPayload),
   });
 
   const access = response.access || response.key;
@@ -377,11 +402,22 @@ export async function register(payload: RegisterPayload): Promise<void> {
   });
 }
 
-export async function verifyEmail(key: string): Promise<void> {
-  await apiRequest("/auth/registration/verify-email/", {
+export async function verifyEmail(key: string): Promise<VerifyEmailResponse> {
+  const response = await apiRequest<VerifyEmailResponse>("/auth/registration/verify-email/", {
     method: "POST",
     body: JSON.stringify({ key }),
   });
+
+  const access = response.access || response.key;
+  if (access) {
+    setAccessToken(access);
+    if (response.refresh) {
+      setRefreshToken(response.refresh);
+    }
+    dispatchAuthChanged();
+  }
+
+  return response;
 }
 
 export async function resendVerification(email: string): Promise<void> {
@@ -532,7 +568,7 @@ export async function reviewWriterApplication(
 }
 
 
-function appendFormValue(form: FormData, key: string, value: string | number | File | null | undefined) {
+function appendFormValue(form: FormData, key: string, value: string | number | boolean | File | null | undefined) {
   if (value === undefined || value === null) {
     return;
   }
@@ -558,49 +594,44 @@ function sanitizeEditableHtmlForTransport(value: string | undefined): string {
   return value.trim();
 }
 
-function buildTextContentBody(payload: TextContentPayload): FormData | string {
+function buildTextContentBody(payload: TextContentPayload): FormData {
   const sourceType = resolveTextSourceType(payload);
-
+  const form = new FormData();
+  appendFormValue(form, "title", payload.title);
+  appendFormValue(form, "description", payload.description || "");
+  appendFormValue(form, "source_type", sourceType);
+  if (payload.is_anonymous !== undefined) appendFormValue(form, "is_anonymous", payload.is_anonymous);
   if (sourceType === "upload") {
-    const form = new FormData();
-    appendFormValue(form, "title", payload.title);
-    appendFormValue(form, "description", payload.description || "");
-    appendFormValue(form, "source_type", "upload");
     appendFormValue(form, "upload_file", payload.upload_file || null);
-    return form;
+  } else {
+    appendFormValue(form, "body", sanitizeEditableHtmlForTransport(payload.body));
   }
-
-  return JSON.stringify({
-    title: payload.title,
-    description: payload.description || "",
-    body: sanitizeEditableHtmlForTransport(payload.body),
-    source_type: "manual",
-  });
+  if (payload.cover_image) {
+    appendFormValue(form, "cover_image", payload.cover_image);
+  }
+  return form;
 }
 
-function buildBookBody(payload: Partial<BookCreatePayload>): FormData | string {
+function buildBookBody(payload: Partial<BookCreatePayload>): FormData {
   const sourceType = resolveBookSourceType(payload);
-
+  const form = new FormData();
+  appendFormValue(form, "title", payload.title);
+  appendFormValue(form, "description", payload.description || "");
+  appendFormValue(form, "foreword", payload.foreword || "");
+  appendFormValue(form, "afterword", payload.afterword || "");
+  appendFormValue(form, "numbering_style", payload.numbering_style || "separator");
+  appendFormValue(form, "source_type", sourceType);
+  if (payload.is_anonymous !== undefined) appendFormValue(form, "is_anonymous", payload.is_anonymous);
   if (sourceType === "upload") {
-    const form = new FormData();
-    appendFormValue(form, "title", payload.title);
-    appendFormValue(form, "description", payload.description || "");
-    appendFormValue(form, "foreword", payload.foreword || "");
-    appendFormValue(form, "afterword", payload.afterword || "");
-    appendFormValue(form, "numbering_style", payload.numbering_style || "separator");
-    appendFormValue(form, "source_type", "upload");
     appendFormValue(form, "upload_file", payload.upload_file || null);
-    return form;
+  } else {
+    appendFormValue(form, "foreword", sanitizeEditableHtmlForTransport(payload.foreword));
+    appendFormValue(form, "afterword", sanitizeEditableHtmlForTransport(payload.afterword));
   }
-
-  return JSON.stringify({
-    title: payload.title,
-    description: payload.description || "",
-    foreword: sanitizeEditableHtmlForTransport(payload.foreword),
-    afterword: sanitizeEditableHtmlForTransport(payload.afterword),
-    numbering_style: payload.numbering_style || "separator",
-    source_type: "manual",
-  });
+  if (payload.cover_image) {
+    appendFormValue(form, "cover_image", payload.cover_image);
+  }
+  return form;
 }
 
 export async function fetchContent(
@@ -646,41 +677,21 @@ export async function createBook(payload: BookCreatePayload): Promise<ContentDet
 }
 
 export async function updateBook(id: number, payload: Partial<BookCreatePayload>): Promise<ContentDetail> {
-  const sourceType = resolveBookSourceType(payload);
-
-  if (sourceType === "upload") {
-    const form = new FormData();
-    appendFormValue(form, "title", payload.title);
-    appendFormValue(form, "description", payload.description);
-    appendFormValue(form, "foreword", payload.foreword);
-    appendFormValue(form, "afterword", payload.afterword);
-    appendFormValue(form, "numbering_style", payload.numbering_style);
-    appendFormValue(form, "source_type", "upload");
-    appendFormValue(form, "upload_file", payload.upload_file || null);
-
-    return apiRequest<ContentDetail>(
-      `/api/content/books/${id}/`,
-      {
-        method: "PATCH",
-        body: form,
-      },
-      true,
-    );
-  }
+  const form = new FormData();
+  if (payload.title !== undefined) appendFormValue(form, "title", payload.title);
+  if (payload.description !== undefined) appendFormValue(form, "description", payload.description);
+  if (payload.foreword !== undefined) appendFormValue(form, "foreword", sanitizeEditableHtmlForTransport(payload.foreword));
+  if (payload.afterword !== undefined) appendFormValue(form, "afterword", sanitizeEditableHtmlForTransport(payload.afterword));
+  if (payload.numbering_style !== undefined) appendFormValue(form, "numbering_style", payload.numbering_style);
+  if (payload.source_type !== undefined) appendFormValue(form, "source_type", payload.source_type);
+  if (payload.is_anonymous !== undefined) appendFormValue(form, "is_anonymous", payload.is_anonymous);
+  if (payload.upload_file) appendFormValue(form, "upload_file", payload.upload_file);
+  if (payload.cover_image) appendFormValue(form, "cover_image", payload.cover_image);
+  if (payload.is_hidden !== undefined) appendFormValue(form, "is_hidden", payload.is_hidden);
 
   return apiRequest<ContentDetail>(
     `/api/content/books/${id}/`,
-    {
-      method: "PATCH",
-      body: JSON.stringify({
-        ...(payload.title !== undefined ? { title: payload.title } : {}),
-        ...(payload.description !== undefined ? { description: payload.description } : {}),
-        ...(payload.foreword !== undefined ? { foreword: sanitizeEditableHtmlForTransport(payload.foreword) } : {}),
-        ...(payload.afterword !== undefined ? { afterword: sanitizeEditableHtmlForTransport(payload.afterword) } : {}),
-        ...(payload.numbering_style !== undefined ? { numbering_style: payload.numbering_style } : {}),
-        ...(payload.source_type !== undefined ? { source_type: payload.source_type } : {}),
-      }),
-    },
+    { method: "PATCH", body: form },
     true,
   );
 }
@@ -697,36 +708,23 @@ export async function createPoem(payload: TextContentPayload): Promise<ContentDe
 }
 
 export async function updatePoem(id: number, payload: Partial<TextContentPayload>): Promise<ContentDetail> {
+  const form = new FormData();
   const sourceType = resolveTextSourceType(payload as TextContentPayload);
-
+  if (payload.title !== undefined) appendFormValue(form, "title", payload.title);
+  if (payload.description !== undefined) appendFormValue(form, "description", payload.description);
+  appendFormValue(form, "source_type", sourceType);
+  if (payload.is_anonymous !== undefined) appendFormValue(form, "is_anonymous", payload.is_anonymous);
   if (sourceType === "upload") {
-    const form = new FormData();
-    appendFormValue(form, "title", payload.title);
-    appendFormValue(form, "description", payload.description);
-    appendFormValue(form, "source_type", "upload");
-    appendFormValue(form, "upload_file", payload.upload_file || null);
-
-    return apiRequest<ContentDetail>(
-      `/api/content/poems/${id}/`,
-      {
-        method: "PATCH",
-        body: form,
-      },
-      true,
-    );
+    if (payload.upload_file) appendFormValue(form, "upload_file", payload.upload_file);
+  } else {
+    if (payload.body !== undefined) appendFormValue(form, "body", sanitizeEditableHtmlForTransport(payload.body));
   }
+  if (payload.cover_image) appendFormValue(form, "cover_image", payload.cover_image);
+  if (payload.is_hidden !== undefined) appendFormValue(form, "is_hidden", payload.is_hidden);
 
   return apiRequest<ContentDetail>(
     `/api/content/poems/${id}/`,
-    {
-      method: "PATCH",
-      body: JSON.stringify({
-        ...(payload.title !== undefined ? { title: payload.title } : {}),
-        ...(payload.description !== undefined ? { description: payload.description } : {}),
-        ...(payload.body !== undefined ? { body: sanitizeEditableHtmlForTransport(payload.body) } : {}),
-        ...(payload.source_type !== undefined ? { source_type: payload.source_type } : {}),
-      }),
-    },
+    { method: "PATCH", body: form },
     true,
   );
 }
@@ -743,36 +741,23 @@ export async function createStory(payload: TextContentPayload): Promise<ContentD
 }
 
 export async function updateStory(id: number, payload: Partial<TextContentPayload>): Promise<ContentDetail> {
+  const form = new FormData();
   const sourceType = resolveTextSourceType(payload as TextContentPayload);
-
+  if (payload.title !== undefined) appendFormValue(form, "title", payload.title);
+  if (payload.description !== undefined) appendFormValue(form, "description", payload.description);
+  appendFormValue(form, "source_type", sourceType);
+  if (payload.is_anonymous !== undefined) appendFormValue(form, "is_anonymous", payload.is_anonymous);
   if (sourceType === "upload") {
-    const form = new FormData();
-    appendFormValue(form, "title", payload.title);
-    appendFormValue(form, "description", payload.description);
-    appendFormValue(form, "source_type", "upload");
-    appendFormValue(form, "upload_file", payload.upload_file || null);
-
-    return apiRequest<ContentDetail>(
-      `/api/content/stories/${id}/`,
-      {
-        method: "PATCH",
-        body: form,
-      },
-      true,
-    );
+    if (payload.upload_file) appendFormValue(form, "upload_file", payload.upload_file);
+  } else {
+    if (payload.body !== undefined) appendFormValue(form, "body", sanitizeEditableHtmlForTransport(payload.body));
   }
+  if (payload.cover_image) appendFormValue(form, "cover_image", payload.cover_image);
+  if (payload.is_hidden !== undefined) appendFormValue(form, "is_hidden", payload.is_hidden);
 
   return apiRequest<ContentDetail>(
     `/api/content/stories/${id}/`,
-    {
-      method: "PATCH",
-      body: JSON.stringify({
-        ...(payload.title !== undefined ? { title: payload.title } : {}),
-        ...(payload.description !== undefined ? { description: payload.description } : {}),
-        ...(payload.body !== undefined ? { body: sanitizeEditableHtmlForTransport(payload.body) } : {}),
-        ...(payload.source_type !== undefined ? { source_type: payload.source_type } : {}),
-      }),
-    },
+    { method: "PATCH", body: form },
     true,
   );
 }
@@ -919,3 +904,4 @@ export async function fetchAuditLogs(params: {
   );
   return asPaginated(payload);
 }
+

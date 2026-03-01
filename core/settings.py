@@ -21,10 +21,10 @@ DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = env.list(
     "DJANGO_ALLOWED_HOSTS",
-    default=["localhost", "127.0.0.1", "api"],
+    default=["*"],
 )
 
-CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=False)
+CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=True)
 CORS_ALLOWED_ORIGINS = env.list(
     "CORS_ALLOWED_ORIGINS",
     default=[
@@ -69,6 +69,7 @@ INSTALLED_APPS = [
 ]
 
 SITE_ID = env.int("SITE_ID", default=1)
+FRONTEND_BASE_URL = env("FRONTEND_BASE_URL", default="http://localhost:5173").rstrip("/")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -142,7 +143,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-ACCOUNT_LOGIN_METHODS = {"username"}
+ACCOUNT_LOGIN_METHODS = {"username", "email"}
 ACCOUNT_SIGNUP_FIELDS = [
     "username*",
     "email*",
@@ -154,8 +155,9 @@ ACCOUNT_SIGNUP_FIELDS = [
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = False
-ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "/"
-ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = "/"
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = f"{FRONTEND_BASE_URL}/dashboard"
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = f"{FRONTEND_BASE_URL}/dashboard"
+ACCOUNT_ADAPTER = "accounts.adapters.ReadusAccountAdapter"
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",

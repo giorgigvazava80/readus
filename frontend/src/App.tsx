@@ -7,6 +7,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ApiError } from "@/lib/api";
+import { I18nProvider } from "@/i18n";
 
 import AdminAuditLogsPage from "@/pages/AdminAuditLogsPage";
 import AdminContentReviewPage from "@/pages/AdminContentReviewPage";
@@ -62,7 +63,8 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+    <I18nProvider>
+      <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter
@@ -460,7 +462,8 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
-    </TooltipProvider>
+      </TooltipProvider>
+    </I18nProvider>
   </QueryClientProvider>
 );
 

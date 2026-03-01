@@ -1,20 +1,34 @@
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useEffect, useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import { fetchContentDetail } from "@/lib/api";
+import { useReadChapters } from "@/hooks/useReadChapters";
 
 const ReaderChapterReadPage = () => {
   const { id, chapterId } = useParams();
   const bookId = Number(id);
   const currentChapterId = Number(chapterId);
+  const { markAsRead } = useReadChapters();
 
   const bookQuery = useQuery({
     queryKey: ["reader", "book", bookId, "chapter", currentChapterId],
     queryFn: () => fetchContentDetail("books", bookId),
     enabled: Number.isFinite(bookId) && Number.isFinite(currentChapterId),
   });
+
+  const book = bookQuery.data;
+  const chapters = useMemo(() => (book?.chapters || []).slice().sort((a, b: any) => a.order - b.order), [book]);
+  const currentIndex = useMemo(() => chapters.findIndex((ch) => ch.id === currentChapterId), [chapters, currentChapterId]);
+  const chapter = currentIndex >= 0 ? chapters[currentIndex] : null;
+
+  useEffect(() => {
+    if (chapter) {
+      markAsRead(chapter.id);
+    }
+  }, [chapter, markAsRead]);
 
   if (!Number.isFinite(bookId) || !Number.isFinite(currentChapterId)) {
     return (
@@ -32,7 +46,7 @@ const ReaderChapterReadPage = () => {
     );
   }
 
-  if (bookQuery.isError || !bookQuery.data) {
+  if (bookQuery.isError || !book) {
     return (
       <div className="container mx-auto px-6 py-10 space-y-4">
         <p className="font-ui text-sm text-red-700">Could not load chapter.</p>
@@ -42,11 +56,6 @@ const ReaderChapterReadPage = () => {
       </div>
     );
   }
-
-  const book = bookQuery.data;
-  const chapters = (book.chapters || []).slice().sort((a, b) => a.order - b.order);
-  const currentIndex = chapters.findIndex((chapter) => chapter.id === currentChapterId);
-  const chapter = currentIndex >= 0 ? chapters[currentIndex] : null;
 
   if (!chapter) {
     return (

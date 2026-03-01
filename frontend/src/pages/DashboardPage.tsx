@@ -3,9 +3,10 @@ import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, BookOpenText, ClipboardCheck, Feather, ShieldAlert, UserCircle2 } from "lucide-react";
 
-import { useSession } from "@/hooks/useSession";
-import { fetchContent, fetchMyWriterApplications, fetchNotifications } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { useSession } from "@/hooks/useSession";
+import { useI18n } from "@/i18n";
+import { fetchContent, fetchMyWriterApplications, fetchNotifications } from "@/lib/api";
 
 const statusStyles: Record<string, string> = {
   approved: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700",
@@ -16,6 +17,7 @@ const statusStyles: Record<string, string> = {
 const DashboardPage = () => {
   const queryClient = useQueryClient();
   const { me } = useSession();
+  const { t } = useI18n();
 
   const writerApplicationQuery = useQuery({
     queryKey: ["writer-applications", "mine", 1],
@@ -58,11 +60,13 @@ const DashboardPage = () => {
   }, [latestApplication?.status, me, queryClient]);
 
   const workCards = [
-    { key: "books", label: "Books", value: worksSummaryQuery.data?.books ?? 0 },
-    { key: "chapters", label: "Chapters", value: worksSummaryQuery.data?.chapters ?? 0 },
-    { key: "poems", label: "Poems", value: worksSummaryQuery.data?.poems ?? 0 },
-    { key: "stories", label: "Stories", value: worksSummaryQuery.data?.stories ?? 0 },
+    { key: "books", label: t("dashboard.books", "Books"), value: worksSummaryQuery.data?.books ?? 0 },
+    { key: "chapters", label: t("dashboard.chapters", "Chapters"), value: worksSummaryQuery.data?.chapters ?? 0 },
+    { key: "poems", label: t("dashboard.poems", "Poems"), value: worksSummaryQuery.data?.poems ?? 0 },
+    { key: "stories", label: t("dashboard.stories", "Stories"), value: worksSummaryQuery.data?.stories ?? 0 },
   ];
+
+  const roleLabel = me ? t(`role.${me.effective_role}`, me.effective_role) : "";
 
   return (
     <div className="container mx-auto space-y-8 px-6 py-10">
@@ -71,41 +75,41 @@ const DashboardPage = () => {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1">
               <UserCircle2 className="h-4 w-4 text-primary" />
-              <span className="font-ui text-xs text-muted-foreground">Personal Workspace</span>
+              <span className="font-ui text-xs text-muted-foreground">{t("dashboard.workspace", "Personal Workspace")}</span>
             </div>
-            <h1 className="mt-4 font-display text-4xl font-semibold leading-tight text-foreground">Dashboard</h1>
+            <h1 className="mt-4 font-display text-4xl font-semibold leading-tight text-foreground">{t("dashboard.title", "Dashboard")}</h1>
             <p className="mt-2 font-body text-base text-muted-foreground">
-              Signed in as <span className="font-semibold text-foreground">{me?.username}</span> ({me?.effective_role}).
+              {t("dashboard.signedInAs", "Signed in as")} <span className="font-semibold text-foreground">{me?.username}</span> ({roleLabel}).
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link to="/settings">
-              <Button variant="outline">Profile Settings</Button>
-            </Link>
             {me?.is_writer_approved ? (
               <Link to="/writer/new">
-                <Button variant="outline">Publish Book</Button>
+                <Button>{t("dashboard.newWork", "New Work")}</Button>
               </Link>
             ) : (
               <Link to="/writer-application">
-                <Button variant="outline">Writer Application</Button>
+                <Button>{t("dashboard.writerApplication", "Writer Application")}</Button>
               </Link>
             )}
             <Link to="/my-works">
-              <Button>My Works</Button>
+              <Button variant="outline">{t("nav.myWorks", "My Works")}</Button>
+            </Link>
+            <Link to="/settings">
+              <Button variant="outline">{t("nav.settings", "Settings")}</Button>
             </Link>
           </div>
         </div>
 
         {!me?.is_email_verified ? (
           <p className="mt-5 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 font-ui text-sm text-amber-700">
-            Verify your email before using protected features.
+            {t("dashboard.verifyEmail", "Verify your email before using protected features.")}
           </p>
         ) : null}
 
         {me?.forced_password_change ? (
           <p className="mt-3 rounded-lg border border-red-500/40 bg-red-500/10 p-3 font-ui text-sm text-red-700">
-            Password change is required before continuing.
+            {t("dashboard.forcePassword", "Password change is required before continuing.")}
           </p>
         ) : null}
       </section>
@@ -123,28 +127,28 @@ const DashboardPage = () => {
         <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
           <div className="flex items-center gap-2">
             <ClipboardCheck className="h-5 w-5 text-primary" />
-            <h2 className="font-display text-2xl font-semibold text-foreground">Writer Application Status</h2>
+            <h2 className="font-display text-2xl font-semibold text-foreground">{t("dashboard.writerStatus", "Writer Application Status")}</h2>
           </div>
           {latestApplication ? (
             <div className="mt-4 rounded-xl border border-border/70 bg-background/70 p-4 font-ui text-sm">
               <p>
-                Status:{" "}
+                {t("dashboard.status", "Status")}: {" "}
                 <span
                   className={`rounded-full border px-2 py-0.5 text-xs font-medium ${statusStyles[latestApplication.status] || "border-border bg-muted text-foreground"}`}
                 >
                   {latestApplication.status}
                 </span>
               </p>
-              <p className="mt-2 text-muted-foreground">Submitted: {new Date(latestApplication.created_at).toLocaleString()}</p>
+              <p className="mt-2 text-muted-foreground">{t("dashboard.submitted", "Submitted")}: {new Date(latestApplication.created_at).toLocaleString()}</p>
               {latestApplication.review_comment ? (
                 <p className="mt-3 rounded-lg border border-border/70 bg-card/80 p-3 text-foreground">
-                  Reviewer comment: {latestApplication.review_comment}
+                  {t("dashboard.reviewerComment", "Reviewer comment")}: {latestApplication.review_comment}
                 </p>
               ) : null}
             </div>
           ) : (
             <div className="mt-4 rounded-xl border border-dashed border-border/80 bg-background/65 p-5 font-ui text-sm text-muted-foreground">
-              No writer application yet. Submit one to unlock writer privileges after approval.
+              {t("dashboard.noWriterApp", "No writer application yet. Submit one to unlock writer privileges after approval.")}
             </div>
           )}
         </section>
@@ -153,7 +157,7 @@ const DashboardPage = () => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <div className="flex items-center gap-2">
           <Bell className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-2xl font-semibold text-foreground">Recent Notifications</h2>
+          <h2 className="font-display text-2xl font-semibold text-foreground">{t("dashboard.notifications", "Recent Notifications")}</h2>
         </div>
 
         {notificationsQuery.data?.results?.length ? (
@@ -169,19 +173,19 @@ const DashboardPage = () => {
           <div className="mt-4 rounded-xl border border-dashed border-border/80 bg-background/65 p-5 font-ui text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <BookOpenText className="h-4 w-4" />
-              No notifications yet.
+              {t("dashboard.noNotifications", "No notifications yet.")}
             </div>
           </div>
         )}
 
         {(writerApplicationQuery.isLoading || worksSummaryQuery.isLoading || notificationsQuery.isLoading) ? (
-          <p className="mt-4 font-ui text-xs text-muted-foreground">Updating dashboard...</p>
+          <p className="mt-4 font-ui text-xs text-muted-foreground">{t("dashboard.updating", "Updating dashboard...")}</p>
         ) : null}
 
         {writerApplicationQuery.isError || worksSummaryQuery.isError || notificationsQuery.isError ? (
           <p className="mt-4 flex items-center gap-2 rounded-lg border border-red-500/35 bg-red-500/10 p-3 font-ui text-sm text-red-700">
             <ShieldAlert className="h-4 w-4" />
-            Some dashboard sections failed to load.
+            {t("dashboard.partialError", "Some dashboard sections failed to load.")}
           </p>
         ) : null}
       </section>
@@ -190,14 +194,14 @@ const DashboardPage = () => {
         <section className="rounded-2xl border border-border/70 bg-gradient-to-r from-primary/10 via-card/80 to-accent/10 p-6 shadow-card">
           <div className="flex items-center gap-2">
             <Feather className="h-5 w-5 text-primary" />
-            <p className="font-display text-xl font-semibold text-foreground">Writer mode active</p>
+            <p className="font-display text-xl font-semibold text-foreground">{t("dashboard.writerMode", "Writer mode active")}</p>
           </div>
           <p className="mt-1 font-ui text-sm text-muted-foreground">
-            You are approved as writer. Start publishing books from your writer workspace.
+            {t("dashboard.writerModeDesc", "You are approved as writer. Start publishing books from your writer workspace.")}
           </p>
           <div className="mt-4">
             <Link to="/writer/new">
-              <Button className="gap-2">Publish Book</Button>
+              <Button className="gap-2">{t("dashboard.newWork", "New Work")}</Button>
             </Link>
           </div>
         </section>

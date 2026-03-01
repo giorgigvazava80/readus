@@ -50,10 +50,10 @@ class ReviewActionMixin:
         previous_status = obj.status
 
         if isinstance(obj, Book) and status_value == StatusChoices.APPROVED:
-            has_unapproved_chapters = obj.chapters.exclude(status=StatusChoices.APPROVED).exists()
-            if has_unapproved_chapters:
+            has_approved_chapters = obj.chapters.filter(status=StatusChoices.APPROVED).exists()
+            if not has_approved_chapters and obj.chapters.exists():
                 return Response(
-                    {"detail": "Approve all chapters before approving this book."},
+                    {"detail": "At least one chapter must be approved before approving this book."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -114,9 +114,9 @@ class AuthorContentViewSet(ReviewActionMixin, viewsets.ModelViewSet):
             queryset = queryset.filter(author=user)
         else:
             if not user.is_authenticated:
-                queryset = queryset.filter(status=StatusChoices.APPROVED)
+                queryset = queryset.filter(status=StatusChoices.APPROVED, is_hidden=False)
             elif not (can_manage_content(user) or can_review_content(user)):
-                queryset = queryset.filter(Q(status=StatusChoices.APPROVED) | Q(author=user))
+                queryset = queryset.filter(Q(status=StatusChoices.APPROVED, is_hidden=False) | Q(author=user))
 
         if status_filter:
             queryset = queryset.filter(status=status_filter)
@@ -184,6 +184,25 @@ class BookViewSet(AuthorContentViewSet):
     queryset = Book.objects.select_related("author").all().prefetch_related("chapters")
     serializer_class = BookSerializer
 
+    def get_queryset(self):
+        # Start with base queryset logic from AuthorContentViewSet
+        queryset = super().get_queryset()
+        
+        request = self.request
+        user = request.user
+        mine = request.query_params.get("mine", "0") in {"1", "true", "True"}
+        status_filter = request.query_params.get("status", "").strip()
+
+        # Custom logic for redactors viewing the review queue
+        if not mine and (can_manage_content(user) or can_review_content(user)):
+            if status_filter == StatusChoices.DRAFT:
+                # Include books in draft state OR books with at least one draft chapter
+                queryset = Book.objects.filter(
+                    Q(status=StatusChoices.DRAFT) | Q(chapters__status=StatusChoices.DRAFT)
+                ).select_related("author").prefetch_related("chapters").distinct()
+
+        return queryset.order_by("-created_at")
+
 
 class ChapterViewSet(ReviewActionMixin, viewsets.ModelViewSet):
     queryset = Chapter.objects.select_related("book", "book__author")
@@ -211,10 +230,14 @@ class ChapterViewSet(ReviewActionMixin, viewsets.ModelViewSet):
             queryset = queryset.filter(book__author=user)
         else:
             if not user.is_authenticated:
-                queryset = queryset.filter(status=StatusChoices.APPROVED, book__status=StatusChoices.APPROVED)
+                queryset = queryset.filter(
+                    status=StatusChoices.APPROVED, 
+                    book__status=StatusChoices.APPROVED,
+                    book__is_hidden=False
+                )
             elif not (can_manage_content(user) or can_review_content(user)):
                 queryset = queryset.filter(
-                    Q(status=StatusChoices.APPROVED, book__status=StatusChoices.APPROVED)
+                    (Q(status=StatusChoices.APPROVED, book__status=StatusChoices.APPROVED, book__is_hidden=False))
                     | Q(book__author=user)
                 )
 

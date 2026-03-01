@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { createBook, createChapter, createPoem, createStory, fetchContent, fetchContentDetail } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 
@@ -31,6 +32,7 @@ const WriterNewWorkPage = () => {
   const [bookIdForChapter, setBookIdForChapter] = useState<string>("");
   const [sourceType, setSourceType] = useState<"manual" | "upload">("manual");
   const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [isAnonymous, setIsAnonymous] = useState(false);
 
   const booksQuery = useQuery({
     queryKey: ["writer", "books", "for-chapter"],
@@ -53,6 +55,7 @@ const WriterNewWorkPage = () => {
           numbering_style: "separator",
           source_type: sourceType,
           upload_file: sourceType === "upload" ? uploadFile : null,
+          is_anonymous: isAnonymous,
         });
         return { route: `/writer/books/${created.id}/edit` };
       }
@@ -68,6 +71,7 @@ const WriterNewWorkPage = () => {
           body: sourceType === "manual" ? "<p>Start writing your poem...</p>" : "",
           source_type: sourceType,
           upload_file: sourceType === "upload" ? uploadFile : null,
+          is_anonymous: isAnonymous,
         });
         return { route: `/writer/poems/${created.id}/edit` };
       }
@@ -83,6 +87,7 @@ const WriterNewWorkPage = () => {
           body: sourceType === "manual" ? "<p>Start writing your story...</p>" : "",
           source_type: sourceType,
           upload_file: sourceType === "upload" ? uploadFile : null,
+          is_anonymous: isAnonymous,
         });
         return { route: `/writer/stories/${created.id}/edit` };
       }
@@ -181,6 +186,18 @@ const WriterNewWorkPage = () => {
                   <SelectItem value="upload">Upload file</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          ) : null}
+
+          {supportsUploadChoice ? (
+            <div className="flex items-start justify-between rounded-xl border border-border/70 bg-background/70 p-4">
+              <div className="space-y-1 pr-4">
+                <p className="font-ui text-sm font-medium text-foreground">Post as Anonymous</p>
+                <p className="font-ui text-xs text-muted-foreground">
+                  Public readers and redactors will see "Anonymous". Only admins can see your identity.
+                </p>
+              </div>
+              <Switch id="anonymousToggleNewWork" checked={isAnonymous} onCheckedChange={setIsAnonymous} />
             </div>
           ) : null}
 

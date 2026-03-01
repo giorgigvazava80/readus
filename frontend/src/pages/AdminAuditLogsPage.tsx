@@ -24,6 +24,10 @@ const AdminAuditLogsPage = () => {
         page,
       }),
   });
+  const queryErrorMessage =
+    query.error instanceof Error
+      ? query.error.message
+      : "Could not load audit logs. Check your permissions.";
 
   return (
     <div className="container mx-auto space-y-8 px-6 py-10">
@@ -91,6 +95,10 @@ const AdminAuditLogsPage = () => {
                 </p>
               </div>
             ))}
+          </div>
+        ) : query.isError ? (
+          <div className="rounded-xl border border-red-500/40 bg-red-500/10 p-5 font-ui text-sm text-red-700">
+            {queryErrorMessage}
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-border/80 bg-background/65 p-5 font-ui text-sm text-muted-foreground">

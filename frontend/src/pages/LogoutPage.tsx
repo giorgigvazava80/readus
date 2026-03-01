@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { logout } from "@/lib/api";
-import { isAdminAppHost } from "@/lib/runtime";
 
 const LogoutPage = () => {
   const navigate = useNavigate();
@@ -10,7 +9,7 @@ const LogoutPage = () => {
   useEffect(() => {
     const run = async () => {
       await logout();
-      navigate(isAdminAppHost() ? "/admin/login" : "/login", { replace: true });
+      navigate("/", { replace: true });
     };
 
     void run();

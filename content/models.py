@@ -103,6 +103,7 @@ class BaseContent(StatusTrackedModel):
 
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
+    is_anonymous = models.BooleanField(default=False)
 
     # manual or upload file
     source_type = models.CharField(
@@ -115,6 +116,12 @@ class BaseContent(StatusTrackedModel):
         blank=True,
         null=True,
     )
+    cover_image = models.ImageField(
+        upload_to='uploads/covers/%Y/%m/%d/',
+        blank=True,
+        null=True,
+    )
+    is_hidden = models.BooleanField(default=False)
     extracted_text = models.TextField(blank=True)
 
 
@@ -192,4 +199,5 @@ class Chapter(StatusTrackedModel):
     def __str__(self):
         base = self.title or f"Chapter {self.auto_label}"
         return f"{self.book.title}"
+
 

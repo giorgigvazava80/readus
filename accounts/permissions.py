@@ -1,4 +1,4 @@
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 from .utils import (
     can_manage_redactors,
@@ -53,6 +53,11 @@ class PasswordChangeNotForced(BasePermission):
     message = "Password change is required before continuing."
 
     def has_permission(self, request, view):
+        # Allow read-only access so admins can still see queues/logs,
+        # while keeping write actions blocked until password is changed.
+        if request.method in SAFE_METHODS:
+            return True
+
         user = request.user
         if not user or not user.is_authenticated:
             return False

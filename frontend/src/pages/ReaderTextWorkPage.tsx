@@ -1,8 +1,9 @@
-import { Link, useParams } from "react-router-dom";
+﻿import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { fetchContentDetail } from "@/lib/api";
 import { estimateReadTimeFromHtml } from "@/lib/content";
 
@@ -70,9 +71,17 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
         </Link>
 
         <p className="mt-4 font-ui text-xs uppercase tracking-wide text-muted-foreground">{labels[type]}</p>
-        <h1 className="mt-2 font-display text-4xl font-semibold text-foreground">{work.title}</h1>
+        <div className="flex items-center justify-between gap-4 mt-2">
+          <h1 className="font-display text-4xl font-semibold text-foreground">{work.title}</h1>
+          {work.is_hidden && (
+            <Badge variant="outline" className="border-amber-500/50 bg-amber-500/10 text-amber-700 gap-1.5 px-3 py-1">
+              <EyeOff className="h-4 w-4" />
+              Hidden from Public
+            </Badge>
+          )}
+        </div>
         <p className="mt-2 font-ui text-sm text-muted-foreground">
-          by {work.author_name || work.author_username || "Unknown author"} � {estimateReadTimeFromHtml(work.body || work.extracted_text || work.description)}
+          by {work.author_name || work.author_username || "Unknown author"} · {estimateReadTimeFromHtml(work.body || work.extracted_text || work.description)}
         </p>
       </section>
 

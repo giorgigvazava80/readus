@@ -6,12 +6,14 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n";
 import { fetchMe, login, logout } from "@/lib/api";
 import { isAdminAppHost } from "@/lib/runtime";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const adminHost = isAdminAppHost();
+  const { t } = useI18n();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +23,7 @@ const LoginPage = () => {
     event.preventDefault();
 
     if (!username || !password) {
-      toast.error("Enter username and password.");
+      toast.error(t("login.error.missing", "Enter username or email and password."));
       return;
     }
 
@@ -30,18 +32,18 @@ const LoginPage = () => {
       await login(username, password);
       const me = await fetchMe();
       if (!me) {
-        throw new Error("Failed to load current user.");
+        throw new Error(t("login.error.loadUser", "Failed to load current user."));
       }
 
       if (adminHost && !(me.is_admin || me.is_redactor)) {
         await logout();
-        throw new Error("You do not have admin portal access.");
+        throw new Error(t("login.error.noAdminAccess", "You do not have admin portal access."));
       }
 
       navigate(adminHost ? "/admin" : "/dashboard");
-      toast.success("Logged in.");
+      toast.success(t("login.success", "Logged in."));
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Login failed.";
+      const message = error instanceof Error ? error.message : t("login.error.failed", "Login failed.");
       toast.error(message);
     } finally {
       setLoading(false);
@@ -57,35 +59,35 @@ const LoginPage = () => {
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/70 px-4 py-1.5">
               {adminHost ? <Shield className="h-4 w-4 text-primary" /> : <BookOpen className="h-4 w-4 text-primary" />}
               <span className="font-ui text-xs text-muted-foreground">
-                {adminHost ? "Editorial Management Portal" : "Welcome to Quill & Page"}
+                {adminHost ? t("login.portal", "Editorial Management Portal") : t("login.welcome", "Welcome to read us")}
               </span>
             </div>
             <h1 className="mt-6 font-display text-4xl font-bold leading-tight text-foreground md:text-5xl">
-              {adminHost ? "Moderate Content with Precision" : "Continue Your Literary Journey"}
+              {adminHost ? t("login.adminTitle", "Moderate Content with Precision") : t("login.userTitle", "Continue Your Literary Journey")}
             </h1>
             <p className="mt-4 font-body text-lg leading-relaxed text-muted-foreground">
               {adminHost
-                ? "Sign in with a redactor or admin account to review writer applications and submissions."
-                : "Sign in to browse stories, engage with authors, and manage your writing workflow."}
+                ? t("login.adminSubtitle", "Sign in with a redactor or admin account to review writer applications and submissions.")
+                : t("login.userSubtitle", "Sign in to browse stories, engage with authors, and manage your writing workflow.")}
             </p>
           </div>
         </section>
 
         <section className="mx-auto w-full max-w-md rounded-2xl border border-border/70 bg-card/85 p-7 shadow-card backdrop-blur-sm">
           <h2 className="font-display text-3xl font-semibold text-foreground">
-            {adminHost ? "Admin Login" : "Login"}
+            {adminHost ? t("login.adminHeading", "Admin Login") : t("login.heading", "Login")}
           </h2>
           <p className="mt-1 font-ui text-sm text-muted-foreground">
-            {adminHost ? "Restricted to redactor/admin roles." : "Sign in to your account."}
+            {adminHost ? t("login.adminNote", "Restricted to redactor/admin roles.") : t("login.note", "Sign in to your account.")}
           </p>
 
           <form onSubmit={handleSubmit} className="mt-7 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username" className="font-ui">Username</Label>
+              <Label htmlFor="username" className="font-ui">{t("login.username", "Username or email")}</Label>
               <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} className="font-ui" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password" className="font-ui">Password</Label>
+              <Label htmlFor="password" className="font-ui">{t("login.password", "Password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -96,17 +98,17 @@ const LoginPage = () => {
             </div>
 
             <Button type="submit" className="w-full gap-2" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? t("login.signingIn", "Signing in...") : t("login.signIn", "Sign In")}
             </Button>
           </form>
 
           {!adminHost ? (
             <div className="mt-5 flex items-center justify-between text-sm font-ui">
               <Link className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline" to="/register">
-                Create account
+                {t("login.createAccount", "Create account")}
               </Link>
               <Link className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline" to="/forgot-password">
-                Forgot password
+                {t("login.forgotPassword", "Forgot password")}
               </Link>
             </div>
           ) : null}

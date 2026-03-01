@@ -24,6 +24,7 @@ export function useAutosave<T>({ value, enabled, onSave, delayMs = DEFAULT_AUTOS
   const valueRef = useRef(value);
   const baselineRef = useRef(JSON.stringify(value));
   const onSaveRef = useRef(onSave);
+  const timerRef = useRef<number | null>(null);
 
   valueRef.current = value;
   onSaveRef.current = onSave;
@@ -68,12 +69,24 @@ export function useAutosave<T>({ value, enabled, onSave, delayMs = DEFAULT_AUTOS
       return;
     }
 
-    const intervalId = window.setInterval(() => {
-      void saveNow();
-    }, delayMs);
+    // Clear previous timer if value changes
+    if (timerRef.current) {
+      window.clearTimeout(timerRef.current);
+    }
 
-    return () => window.clearInterval(intervalId);
-  }, [enabled, delayMs, saveNow]);
+    // Only set a new timer if there are actually unsaved changes
+    if (hasUnsavedChanges) {
+      timerRef.current = window.setTimeout(() => {
+        void saveNow();
+      }, delayMs);
+    }
+
+    return () => {
+      if (timerRef.current) {
+        window.clearTimeout(timerRef.current);
+      }
+    };
+  }, [enabled, delayMs, saveNow, hasUnsavedChanges]); // Depend on hasUnsavedChanges so the debounce restarts
 
   useEffect(() => {
     const beforeUnload = (event: BeforeUnloadEvent) => {
@@ -83,9 +96,25 @@ export function useAutosave<T>({ value, enabled, onSave, delayMs = DEFAULT_AUTOS
       }
     };
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden" && enabled && hasUnsavedChanges) {
+        void saveNow();
+      }
+    };
+
     window.addEventListener("beforeunload", beforeUnload);
-    return () => window.removeEventListener("beforeunload", beforeUnload);
-  }, [enabled, hasUnsavedChanges]);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("beforeunload", beforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+
+      // Auto-save on component unmount (e.g. user navigates to another page)
+      if (enabled && hasUnsavedChanges) {
+        void saveNow();
+      }
+    };
+  }, [enabled, hasUnsavedChanges, saveNow]);
 
   return {
     isSaving,

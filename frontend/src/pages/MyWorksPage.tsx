@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, Filter, PlusSquare, Search } from "lucide-react";
+import { Calendar, Filter, PlusSquare, Search, Trash } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,9 +13,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchContent } from "@/lib/api";
+import { Badge } from "@/components/ui/badge";
+import { fetchContent, deleteContentItem } from "@/lib/api";
 import { CONTENT_STATUS_STYLES } from "@/lib/content";
 import { useSession } from "@/hooks/useSession";
+import { toast } from "@/hooks/use-toast";
 import type { ContentCategory, ContentStatus } from "@/lib/types";
 
 const categories: ContentCategory[] = ["books", "chapters", "poems", "stories"];
@@ -175,9 +177,16 @@ const MyWorksPage = () => {
               <div key={item.id} className="rounded-xl border border-border/70 bg-background/70 p-4 font-ui text-sm">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-display text-xl font-semibold text-foreground">{item.title}</p>
-                  <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${CONTENT_STATUS_STYLES[item.status]}`}>
-                    {item.status}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {item.is_hidden && (
+                      <Badge variant="outline" className="border-amber-500/50 bg-amber-500/10 text-amber-700 text-[10px] uppercase tracking-wider">
+                        Hidden
+                      </Badge>
+                    )}
+                    <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${CONTENT_STATUS_STYLES[item.status]}`}>
+                      {item.status}
+                    </span>
+                  </div>
                 </div>
                 <p className="mt-1 text-muted-foreground">
                   Created: {new Date(item.created_at).toLocaleString()}
@@ -190,10 +199,28 @@ const MyWorksPage = () => {
                 ) : null}
 
                 {me?.is_writer_approved ? (
-                  <div className="mt-4">
+                  <div className="mt-4 flex items-center justify-between">
                     <Link to={getEditPath(category, item.id)}>
                       <Button variant="outline" size="sm">Open editor</Button>
                     </Link>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                      onClick={async () => {
+                        if (window.confirm("Are you sure you want to delete this work? This cannot be undone.")) {
+                          try {
+                            await deleteContentItem(category as any, item.id);
+                            worksQuery.refetch();
+                            toast({ title: "Work deleted" });
+                          } catch (error) {
+                            toast({ variant: "destructive", title: "Delete failed" });
+                          }
+                        }
+                      }}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
                   </div>
                 ) : null}
               </div>

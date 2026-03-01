@@ -18,7 +18,7 @@ import { fetchContent, reviewContent } from "@/lib/api";
 import { toExcerpt } from "@/lib/content";
 import type { ContentCategory } from "@/lib/types";
 
-const categories: ContentCategory[] = ["books", "chapters", "poems", "stories"];
+const categories: ContentCategory[] = ["books", "poems", "stories"];
 
 const statusStyles: Record<string, string> = {
   draft: "border-amber-500/30 bg-amber-500/10 text-amber-700",
@@ -45,6 +45,10 @@ const AdminContentReviewPage = () => {
         requiresAuth: true,
       }),
   });
+  const queryErrorMessage =
+    query.error instanceof Error
+      ? query.error.message
+      : "Could not load review queue. Check your permissions.";
 
   const handleReview = async (id: number, reviewStatus: "approved" | "rejected") => {
     try {
@@ -115,9 +119,16 @@ const AdminContentReviewPage = () => {
               <div key={item.id} className="rounded-xl border border-border/70 bg-background/70 p-4 font-ui text-sm">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-display text-xl font-semibold text-foreground">{item.title}</p>
-                  <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${statusStyles[item.status]}`}>
-                    {item.status}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {category === "books" && item.has_draft_chapters && (
+                      <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-blue-600 no-underline shadow-sm animate-pulse">
+                        New Chapter
+                      </span>
+                    )}
+                    <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${statusStyles[item.status]}`}>
+                      {item.status}
+                    </span>
+                  </div>
                 </div>
                 <p className="mt-1 text-muted-foreground">Created: {new Date(item.created_at).toLocaleString()}</p>
                 {item.description ? <p className="mt-2 text-foreground">{toExcerpt(item.description)}</p> : null}
@@ -139,6 +150,10 @@ const AdminContentReviewPage = () => {
                 </div>
               </div>
             ))}
+          </div>
+        ) : query.isError ? (
+          <div className="rounded-xl border border-red-500/40 bg-red-500/10 p-5 font-ui text-sm text-red-700">
+            {queryErrorMessage}
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-border/80 bg-background/65 p-5 font-ui text-sm text-muted-foreground">

@@ -14,6 +14,10 @@ const AdminRedactorsPage = () => {
     queryKey: ["admin", "redactors"],
     queryFn: fetchRedactors,
   });
+  const redactorsErrorMessage =
+    redactorsQuery.error instanceof Error
+      ? redactorsQuery.error.message
+      : "Could not load redactors. Check your permissions.";
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -126,7 +130,12 @@ const AdminRedactorsPage = () => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <h2 className="font-display text-2xl font-semibold text-foreground">Current Redactors</h2>
         {redactorsQuery.isLoading ? <p className="mt-3 font-ui text-sm text-muted-foreground">Loading redactors...</p> : null}
-        {redactors.length === 0 && !redactorsQuery.isLoading ? (
+        {redactorsQuery.isError ? (
+          <div className="mt-4 rounded-xl border border-red-500/40 bg-red-500/10 p-5 font-ui text-sm text-red-700">
+            {redactorsErrorMessage}
+          </div>
+        ) : null}
+        {redactors.length === 0 && !redactorsQuery.isLoading && !redactorsQuery.isError ? (
           <div className="mt-4 rounded-xl border border-dashed border-border/80 bg-background/65 p-5 font-ui text-sm text-muted-foreground">
             No redactors yet.
           </div>

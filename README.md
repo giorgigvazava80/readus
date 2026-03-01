@@ -1,4 +1,4 @@
-# DjangoAuth Full Stack (Django API + User/Admin Frontends)
+# Readus Full Stack (Django API + User/Admin Frontends)
 
 ## What Is Implemented
 
@@ -21,7 +21,7 @@
 ## Run
 
 From:
-`C:\Users\Giorgi\Documents\lit_proj\full_project\DjangoAuth\DjangoAuth`
+`C:\path\to\Readus\Readus`
 
 ```powershell
 Copy-Item .env.example .env

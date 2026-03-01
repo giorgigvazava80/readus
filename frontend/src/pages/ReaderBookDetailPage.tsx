@@ -1,14 +1,23 @@
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, BookText, ListTree } from "lucide-react";
+import { ArrowLeft, BookText, ListTree, EyeOff } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { fetchContentDetail } from "@/lib/api";
+import { useReadChapters } from "@/hooks/useReadChapters";
+
+const hasTextContent = (html?: string | null) => {
+  if (!html) return false;
+  const stripped = html.replace(/<[^>]+>/g, "").trim();
+  return stripped.length > 0;
+};
 
 const ReaderBookDetailPage = () => {
   const { id } = useParams();
   const bookId = Number(id);
+  const { isRead } = useReadChapters();
 
   const bookQuery = useQuery({
     queryKey: ["reader", "book", bookId],
@@ -56,7 +65,15 @@ const ReaderBookDetailPage = () => {
           </Button>
         </Link>
 
-        <h1 className="mt-3 font-display text-4xl font-semibold text-foreground">{book.title}</h1>
+        <div className="flex items-center justify-between gap-4 mt-3">
+          <h1 className="font-display text-4xl font-semibold text-foreground">{book.title}</h1>
+          {book.is_hidden && (
+            <Badge variant="outline" className="border-amber-500/50 bg-amber-500/10 text-amber-700 gap-1.5 px-3 py-1">
+              <EyeOff className="h-4 w-4" />
+              Hidden from Public
+            </Badge>
+          )}
+        </div>
         <p className="mt-1 font-ui text-sm text-muted-foreground">
           by {book.author_name || book.author_username || "Unknown author"}
         </p>
@@ -76,8 +93,13 @@ const ReaderBookDetailPage = () => {
           <div className="mt-4 space-y-2">
             {chapters.length ? (
               chapters.map((chapter) => (
-                <Link key={chapter.id} to={`/books/${book.id}/chapters/${chapter.id}`} className="block rounded-lg border border-border/60 bg-background/65 px-3 py-2 font-ui text-sm text-foreground transition-colors hover:border-primary/40 hover:text-primary">
-                  {chapter.title || `Chapter ${chapter.auto_label || chapter.order}`}
+                <Link key={chapter.id} to={`/books/${book.id}/chapters/${chapter.id}`} className="flex justify-between items-center rounded-lg border border-border/60 bg-background/65 px-3 py-2 font-ui text-sm text-foreground transition-colors hover:border-primary/40 hover:text-primary">
+                  <span>{chapter.title || `Chapter ${chapter.auto_label || chapter.order}`}</span>
+                  {!isRead(chapter.id) && (
+                    <span className="flex-shrink-0 ml-2 rounded-full px-1.5 py-0.5 text-[10px] uppercase font-bold tracking-wider bg-blue-500/20 text-blue-500">
+                      New
+                    </span>
+                  )}
                 </Link>
               ))
             ) : (
@@ -87,7 +109,7 @@ const ReaderBookDetailPage = () => {
         </aside>
 
         <article className="lg:col-span-2 rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
-          {book.foreword ? (
+          {hasTextContent(book.foreword) ? (
             <>
               <div className="flex items-center gap-2">
                 <BookText className="h-4 w-4 text-primary" />
@@ -109,7 +131,7 @@ const ReaderBookDetailPage = () => {
             </p>
           )}
 
-          {book.afterword ? (
+          {hasTextContent(book.afterword) ? (
             <>
               <Separator className="my-8" />
               <h3 className="font-display text-2xl text-foreground">Afterword</h3>

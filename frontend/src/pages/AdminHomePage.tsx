@@ -28,6 +28,12 @@ const AdminHomePage = () => {
       };
     },
   });
+  const loadErrorMessage =
+    pendingApplicationsQuery.error instanceof Error
+      ? pendingApplicationsQuery.error.message
+      : contentSummaryQuery.error instanceof Error
+        ? contentSummaryQuery.error.message
+        : null;
 
   const stats = [
     {
@@ -82,6 +88,11 @@ const AdminHomePage = () => {
           </div>
         ))}
       </section>
+      {loadErrorMessage ? (
+        <section className="rounded-xl border border-red-500/40 bg-red-500/10 p-4 font-ui text-sm text-red-700">
+          {loadErrorMessage}
+        </section>
+      ) : null}
     </div>
   );
 };

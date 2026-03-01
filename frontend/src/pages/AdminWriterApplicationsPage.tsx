@@ -18,6 +18,10 @@ const AdminWriterApplicationsPage = () => {
     queryKey: ["admin", "writer-applications", "pending", page, search],
     queryFn: () => fetchPendingWriterApplications(page, search),
   });
+  const queryErrorMessage =
+    query.error instanceof Error
+      ? query.error.message
+      : "Could not load pending applications. Check your permissions.";
 
   const handleReview = async (id: number, status: "approved" | "rejected") => {
     try {
@@ -82,12 +86,15 @@ const AdminWriterApplicationsPage = () => {
               </div>
             ))}
           </div>
+        ) : query.isError ? (
+          <div className="rounded-xl border border-red-500/40 bg-red-500/10 p-5 font-ui text-sm text-red-700">
+            {queryErrorMessage}
+          </div>
         ) : (
           <div className="rounded-xl border border-dashed border-border/80 bg-background/65 p-5 font-ui text-sm text-muted-foreground">
             {query.isLoading ? "Loading pending applications..." : "No pending applications."}
           </div>
         )}
-
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
           <p className="font-ui text-xs text-muted-foreground">Total pending: {query.data?.count || 0}</p>
           <div className="flex gap-2">
