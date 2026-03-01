@@ -1,4 +1,5 @@
 import logging
+from urllib.parse import urlsplit
 
 from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
@@ -29,6 +30,43 @@ def _has_provider_app_in_db(provider: str) -> bool:
     except (OperationalError, ProgrammingError):
         # During early boot/migrations we may not have tables yet.
         return False
+
+
+def _validated_redirect_uri(value: str) -> str:
+    redirect_uri = (value or "").strip()
+    if not redirect_uri:
+        return ""
+    validator = URLValidator(schemes=["http", "https"])
+    try:
+        validator(redirect_uri)
+        return redirect_uri
+    except ValidationError:
+        return ""
+
+
+def _infer_redirect_uri_from_request(request) -> str:
+    # Prefer explicit client value; fallback to Origin/Referer to avoid mismatch
+    # when older frontend build does not send redirect_uri in payload.
+    explicit = _validated_redirect_uri(str(request.data.get("redirect_uri", "")))
+    if explicit:
+        return explicit
+
+    origin = str(request.META.get("HTTP_ORIGIN", "")).strip()
+    origin_valid = _validated_redirect_uri(origin)
+    if origin_valid:
+        return f"{origin_valid.rstrip('/')}/login"
+
+    referer = str(request.META.get("HTTP_REFERER", "")).strip()
+    if referer:
+        parsed = urlsplit(referer)
+        if parsed.scheme in {"http", "https"} and parsed.netloc:
+            base = f"{parsed.scheme}://{parsed.netloc}"
+            path = parsed.path or "/login"
+            # Keep admin callback path when login comes from admin frontend.
+            if path.startswith("/admin/login"):
+                return f"{base}/admin/login"
+            return f"{base}/login"
+    return ""
 
 
 class VerifyEmailAndLoginView(VerifyEmailView):
@@ -69,22 +107,21 @@ class GoogleLoginView(SocialLoginView):
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
-        redirect_uri = str(request.data.get("redirect_uri", "")).strip()
+        redirect_uri = _infer_redirect_uri_from_request(request)
         if redirect_uri:
-            validator = URLValidator(schemes=["http", "https"])
-            try:
-                validator(redirect_uri)
-                self.callback_url = redirect_uri
-            except ValidationError:
-                # Keep configured callback_url if client sends invalid redirect_uri.
-                pass
+            self.callback_url = redirect_uri
 
         try:
             return super().post(request, *args, **kwargs)
         except Exception as exc:
             logger.exception("Google social login failed")
             return Response(
-                {"detail": "Google authentication failed.", "error": str(exc)},
+                {
+                    "detail": "Google authentication failed.",
+                    "error": str(exc),
+                    "error_type": exc.__class__.__name__,
+                    "callback_url": self.callback_url or "",
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -106,20 +143,20 @@ class FacebookLoginView(SocialLoginView):
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
-        redirect_uri = str(request.data.get("redirect_uri", "")).strip()
+        redirect_uri = _infer_redirect_uri_from_request(request)
         if redirect_uri:
-            validator = URLValidator(schemes=["http", "https"])
-            try:
-                validator(redirect_uri)
-                self.callback_url = redirect_uri
-            except ValidationError:
-                pass
+            self.callback_url = redirect_uri
 
         try:
             return super().post(request, *args, **kwargs)
         except Exception as exc:
             logger.exception("Facebook social login failed")
             return Response(
-                {"detail": "Facebook authentication failed.", "error": str(exc)},
+                {
+                    "detail": "Facebook authentication failed.",
+                    "error": str(exc),
+                    "error_type": exc.__class__.__name__,
+                    "callback_url": self.callback_url or "",
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
