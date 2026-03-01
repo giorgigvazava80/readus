@@ -49,7 +49,7 @@ This repo includes [`render.yaml`](./render.yaml) for Blueprint deploy.
 
 After first deploy, verify these env vars:
 
-- On `readus-api`: `FRONTEND_BASE_URL` should be your actual public frontend URL (example: `https://readus-public.onrender.com`).
+- On `readus-api`: `FRONTEND_BASE_URL` should be your actual public frontend URL (used in email verification and password reset links).
 - On both static sites: `VITE_API_BASE_URL` should be your actual API URL (example: `https://readus-api.onrender.com`).
 
 If you change any of them, redeploy the affected service.

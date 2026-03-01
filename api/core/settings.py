@@ -214,6 +214,7 @@ REST_AUTH = {
     "JWT_AUTH_COOKIE": "core-app-auth",
     "JWT_AUTH_REFRESH_COOKIE": "core-refresh-auth",
     "REGISTER_SERIALIZER": "accounts.serializers.CustomRegisterSerializer",
+    "PASSWORD_RESET_SERIALIZER": "accounts.auth_serializers.FrontendPasswordResetSerializer",
     "PASSWORD_CHANGE_SERIALIZER": "accounts.auth_serializers.ProfileAwarePasswordChangeSerializer",
 }
 
