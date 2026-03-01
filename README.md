@@ -84,6 +84,7 @@ First login requires password change. After changing password, privileged endpoi
 - `THROTTLE_ANON`, `THROTTLE_USER`
 - `EMAIL_SEND_ASYNC` (set `1` in production so signup does not wait on SMTP)
 - `SOCIAL_AUTH_GOOGLE_CALLBACK_URL`, `SOCIAL_AUTH_FACEBOOK_CALLBACK_URL` (for OAuth code flow)
+- `SERVE_MEDIA` (set `1` to serve uploaded media files like cover images from Django in hosted testing)
 
 ## API Surfaces
 

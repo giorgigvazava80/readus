@@ -18,8 +18,22 @@ const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || defaultApiUrl).replac
 
 export function resolveMediaUrl(path: string | null | undefined): string | null {
   if (!path) return null;
-  if (/^(https?:|blob:|data:)/i.test(path)) return path;
-  return `${API_BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+  if (/^(blob:|data:)/i.test(path)) return path;
+
+  let resolved = path;
+  if (/^https?:/i.test(path)) {
+    resolved = path;
+  } else if (path.startsWith("//")) {
+    resolved = `${window.location.protocol}${path}`;
+  } else {
+    resolved = `${API_BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+  }
+
+  if (typeof window !== "undefined" && window.location.protocol === "https:" && /^http:\/\//i.test(resolved)) {
+    return resolved.replace(/^http:\/\//i, "https://");
+  }
+
+  return resolved;
 }
 
 const ACCESS_TOKEN_KEY = "qa_access_token";
