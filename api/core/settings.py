@@ -5,6 +5,7 @@ Django settings for core project.
 from datetime import timedelta
 from pathlib import Path
 import os
+import warnings
 
 import environ
 
@@ -15,6 +16,21 @@ env = environ.Env(
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+
+# dj-rest-auth 7.x still reads deprecated allauth settings internally.
+# Keep logs clean by filtering only those known deprecation warnings.
+warnings.filterwarnings(
+    "ignore",
+    category=UserWarning,
+    module=r"dj_rest_auth\.registration\.serializers",
+    message=r"app_settings\.USERNAME_REQUIRED is deprecated.*",
+)
+warnings.filterwarnings(
+    "ignore",
+    category=UserWarning,
+    module=r"dj_rest_auth\.registration\.serializers",
+    message=r"app_settings\.EMAIL_REQUIRED is deprecated.*",
+)
 
 SECRET_KEY = env("SECRET_KEY", default="unsafe-dev-secret-key")
 DEBUG = env("DEBUG")
