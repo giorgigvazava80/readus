@@ -7,6 +7,7 @@ import type { ContentCategory } from "@/lib/types";
 
 export interface PublicWorkCardItem {
   id: number;
+  publicSlug: string;
   title: string;
   author: string;
   excerpt: string;
@@ -47,7 +48,7 @@ const WorkCard = ({ work, index = 0 }: WorkCardProps) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.08, ease: "easeOut" }}
     >
-      <Link to={`/read/${work.category}/${work.id}`} className="group block h-full">
+      <Link to={`/read/${work.category}/${work.publicSlug}`} className="group block h-full">
         <article className="relative h-full min-h-[320px] sm:min-h-[380px] overflow-hidden rounded-2xl border border-border/40 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md flex flex-col">
 
           {/* Background Layer with Photo/Color */}

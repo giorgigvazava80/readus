@@ -69,6 +69,7 @@ export interface ChapterDetail {
 
 export interface ContentItem {
   id: number;
+  public_slug?: string;
   title: string;
   description: string;
   is_anonymous: boolean;

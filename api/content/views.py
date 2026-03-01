@@ -1,4 +1,5 @@
 from django.db.models import Q
+from django.http import Http404
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -96,6 +97,23 @@ class ReviewActionMixin:
 
 class AuthorContentViewSet(ReviewActionMixin, viewsets.ModelViewSet):
     permission_classes = [IsApprovedWriterOrReadOnly]
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        lookup_value = self.kwargs.get(lookup_url_kwarg)
+
+        if lookup_value is None:
+            return super().get_object()
+
+        obj = queryset.filter(public_slug=lookup_value).first()
+        if obj is None and str(lookup_value).isdigit():
+            obj = queryset.filter(**{self.lookup_field: int(lookup_value)}).first()
+        if obj is None:
+            raise Http404("No content matches the given query.")
+
+        self.check_object_permissions(self.request, obj)
+        return obj
 
     def get_queryset(self):
         queryset = super().get_queryset()

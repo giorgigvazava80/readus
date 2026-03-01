@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.utils.text import slugify
 
 
 # shared enum
@@ -123,10 +124,31 @@ class BaseContent(StatusTrackedModel):
     )
     is_hidden = models.BooleanField(default=False)
     extracted_text = models.TextField(blank=True)
+    public_slug = models.SlugField(max_length=255, unique=True, blank=True, db_index=True)
 
 
     class Meta:
         abstract = True
+
+    def _generate_public_slug(self) -> str:
+        base = slugify(self.title or "")[:220] or "work"
+        if base.isdigit():
+            base = f"work-{base}"
+        candidate = base
+        index = 2
+        model_cls = type(self)
+
+        while model_cls.objects.filter(public_slug=candidate).exclude(pk=self.pk).exists():
+            suffix = f"-{index}"
+            candidate = f"{base[: max(1, 255 - len(suffix))]}{suffix}"
+            index += 1
+
+        return candidate
+
+    def save(self, *args, **kwargs):
+        if not self.public_slug:
+            self.public_slug = self._generate_public_slug()
+        super().save(*args, **kwargs)
 
 
 

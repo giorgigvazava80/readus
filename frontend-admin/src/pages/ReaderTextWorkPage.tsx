@@ -1,6 +1,7 @@
-﻿import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, EyeOff } from "lucide-react";
+import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,16 +23,28 @@ const listPath = {
 };
 
 const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
-  const { id } = useParams();
-  const contentId = Number(id);
+  const { identifier } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const contentIdentifier = (identifier || "").trim();
 
   const detailQuery = useQuery({
-    queryKey: ["reader", type, contentId],
-    queryFn: () => fetchContentDetail(type, contentId),
-    enabled: Number.isFinite(contentId),
+    queryKey: ["reader", type, contentIdentifier],
+    queryFn: () => fetchContentDetail(type, contentIdentifier),
+    enabled: Boolean(contentIdentifier),
   });
 
-  if (!Number.isFinite(contentId)) {
+  useEffect(() => {
+    if (!detailQuery.data?.public_slug || contentIdentifier === detailQuery.data.public_slug) {
+      return;
+    }
+    const target = `/${type}/${detailQuery.data.public_slug}`;
+    if (location.pathname !== target) {
+      navigate(target, { replace: true });
+    }
+  }, [contentIdentifier, detailQuery.data?.public_slug, location.pathname, navigate, type]);
+
+  if (!contentIdentifier) {
     return (
       <div className="container mx-auto px-6 py-10">
         <p className="font-ui text-sm text-muted-foreground">Invalid link.</p>
@@ -81,7 +94,7 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
           )}
         </div>
         <p className="mt-2 font-ui text-sm text-muted-foreground">
-          by {work.author_name || work.author_username || "Unknown author"} · {estimateReadTimeFromHtml(work.body || work.extracted_text || work.description)}
+          by {work.author_name || work.author_username || "Unknown author"} - {estimateReadTimeFromHtml(work.body || work.extracted_text || work.description)}
         </p>
       </section>
 

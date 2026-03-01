@@ -40,6 +40,7 @@ function colorFor(category: "books" | "stories" | "poems", id: number): string {
 function toCardItem(category: "books" | "stories" | "poems", item: ContentItem): PublicWorkCardItem {
   return {
     id: item.id,
+    publicSlug: item.public_slug || String(item.id),
     category,
     title: item.title,
     author: item.author_name || item.author_username || "Unknown author",

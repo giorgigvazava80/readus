@@ -1,4 +1,4 @@
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, Clock, Share2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { fetchContentDetail, resolveMediaUrl } from "@/lib/api";
 import type { ContentCategory, ContentDetail } from "@/lib/types";
 import { useReadChapters } from "@/hooks/useReadChapters";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 const categoryLabels: Record<ContentCategory, string> = {
   books: "Book",
@@ -45,10 +45,11 @@ function estimateReadTime(content: ContentDetail): string {
 }
 
 const PublicReadPage = () => {
-  const { category: rawCategory, id: rawId } = useParams();
-  const contentId = Number(rawId);
-  const [searchParams, setSearchParams] = useSearchParams();
-  const pageParam = searchParams.get("page");
+  const { category: rawCategory, identifier: rawIdentifier, page: rawPage } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const identifier = (rawIdentifier || "").trim();
+  const legacyPageParam = useMemo(() => new URLSearchParams(location.search).get("page"), [location.search]);
 
   const category = allowedCategories.includes(rawCategory as ContentCategory)
     ? (rawCategory as ContentCategory)
@@ -57,17 +58,37 @@ const PublicReadPage = () => {
   const { isRead, markAsRead } = useReadChapters();
   const contentAreaRef = useRef<HTMLDivElement>(null);
 
-  const currentPage = pageParam
-    ? parseInt(pageParam, 10)
-    : (category === "books" ? 0 : 1);
+  const currentPage = useMemo(() => {
+    if (category !== "books") {
+      return 1;
+    }
+    if (!rawPage) {
+      return 0;
+    }
+    const parsed = Number.parseInt(rawPage, 10);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return 0;
+    }
+    return parsed;
+  }, [category, rawPage]);
 
   const detailQuery = useQuery({
-    queryKey: ["public-read", category, contentId],
-    queryFn: () => fetchContentDetail(category as ContentCategory, contentId),
-    enabled: Boolean(category) && Number.isFinite(contentId),
+    queryKey: ["public-read", category, identifier],
+    queryFn: () => fetchContentDetail(category as ContentCategory, identifier),
+    enabled: Boolean(category) && Boolean(identifier),
   });
 
   const content = detailQuery.data;
+  const canonicalIdentifier = (content?.public_slug || identifier).trim();
+  const buildReadPath = useCallback((page: number) => {
+    if (!category || !identifier) {
+      return "/browse";
+    }
+    if (category !== "books" || page <= 0) {
+      return `/read/${category}/${canonicalIdentifier}`;
+    }
+    return `/read/${category}/${canonicalIdentifier}/${page}`;
+  }, [canonicalIdentifier, category, identifier]);
 
   const sections = useMemo(() => {
     if (!content || category !== "books") return [];
@@ -100,16 +121,50 @@ const PublicReadPage = () => {
     }
   }, [currentPage, sections, markAsRead]);
 
-  // Handle initial scroll on mount/refresh if page search param exists
+  // Backward compatibility for old links like /read/books/:id?page=:page
   useEffect(() => {
-    if (pageParam && !detailQuery.isLoading && detailQuery.data) {
+    if (category !== "books" || !legacyPageParam) {
+      return;
+    }
+
+    const parsed = Number.parseInt(legacyPageParam, 10);
+    const legacyPage = Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+    const target = buildReadPath(legacyPage);
+    if (`${location.pathname}${location.search}` !== target) {
+      navigate(target, { replace: true });
+    }
+  }, [buildReadPath, category, legacyPageParam, location.pathname, location.search, navigate]);
+
+  // Canonicalize old id URLs to slug URLs once content is loaded.
+  useEffect(() => {
+    if (!category || !content?.public_slug || identifier === content.public_slug) {
+      return;
+    }
+    const target = buildReadPath(currentPage);
+    if (location.pathname !== target && !location.search) {
+      navigate(target, { replace: true });
+    }
+  }, [
+    buildReadPath,
+    category,
+    content?.public_slug,
+    currentPage,
+    identifier,
+    location.pathname,
+    location.search,
+    navigate,
+  ]);
+
+  // Handle initial scroll on mount/refresh if section page exists
+  useEffect(() => {
+    if ((rawPage || legacyPageParam) && !detailQuery.isLoading && detailQuery.data) {
       setTimeout(() => {
         contentAreaRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 500); // Small delay to ensure layout is ready
     }
-  }, [detailQuery.isLoading, detailQuery.data, pageParam]); // Added pageParam to deps for safety
+  }, [detailQuery.isLoading, detailQuery.data, rawPage, legacyPageParam]);
 
-  if (!category || !Number.isFinite(contentId)) {
+  if (!category || !identifier) {
     return (
       <div className="container mx-auto px-6 py-24 text-center">
         <h1 className="font-display text-2xl font-bold text-foreground">Invalid Content Link</h1>
@@ -138,7 +193,7 @@ const PublicReadPage = () => {
   const coverUrl = resolveMediaUrl(content.cover_image);
 
   const navigateToPage = (p: number) => {
-    setSearchParams({ page: p.toString() });
+    navigate(buildReadPath(p));
     contentAreaRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 

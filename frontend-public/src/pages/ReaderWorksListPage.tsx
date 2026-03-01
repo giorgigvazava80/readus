@@ -74,7 +74,7 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
         ) : null}
 
         {items.map((item) => (
-          <Link key={item.id} to={`${paths[category]}/${item.id}`} className="group block">
+          <Link key={item.id} to={`${paths[category]}/${item.public_slug || item.id}`} className="group block">
             <article className="rounded-xl border border-border/70 bg-card/85 p-5 shadow-card transition-all hover:-translate-y-1 hover:shadow-card-hover">
               <div className="flex items-center justify-between gap-2">
                 <p className="font-display text-2xl font-semibold text-foreground transition-colors group-hover:text-primary">

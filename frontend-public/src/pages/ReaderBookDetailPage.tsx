@@ -1,7 +1,8 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, BookText, ListTree, EyeOff } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -15,17 +16,29 @@ const hasTextContent = (html?: string | null) => {
 };
 
 const ReaderBookDetailPage = () => {
-  const { id } = useParams();
-  const bookId = Number(id);
+  const { identifier } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const contentIdentifier = (identifier || "").trim();
   const { isRead } = useReadChapters();
 
   const bookQuery = useQuery({
-    queryKey: ["reader", "book", bookId],
-    queryFn: () => fetchContentDetail("books", bookId),
-    enabled: Number.isFinite(bookId),
+    queryKey: ["reader", "book", contentIdentifier],
+    queryFn: () => fetchContentDetail("books", contentIdentifier),
+    enabled: Boolean(contentIdentifier),
   });
 
-  if (!Number.isFinite(bookId)) {
+  useEffect(() => {
+    if (!bookQuery.data?.public_slug || contentIdentifier === bookQuery.data.public_slug) {
+      return;
+    }
+    const target = `/books/${bookQuery.data.public_slug}`;
+    if (location.pathname !== target) {
+      navigate(target, { replace: true });
+    }
+  }, [bookQuery.data?.public_slug, contentIdentifier, location.pathname, navigate]);
+
+  if (!contentIdentifier) {
     return (
       <div className="container mx-auto px-6 py-10">
         <p className="font-ui text-sm text-muted-foreground">Invalid book link.</p>
@@ -53,6 +66,7 @@ const ReaderBookDetailPage = () => {
   }
 
   const book = bookQuery.data;
+  const canonicalIdentifier = (book.public_slug || contentIdentifier).trim();
   const chapters = (book.chapters || []).slice().sort((a, b) => a.order - b.order);
 
   return (
@@ -93,7 +107,7 @@ const ReaderBookDetailPage = () => {
           <div className="mt-4 space-y-2">
             {chapters.length ? (
               chapters.map((chapter) => (
-                <Link key={chapter.id} to={`/books/${book.id}/chapters/${chapter.id}`} className="flex justify-between items-center rounded-lg border border-border/60 bg-background/65 px-3 py-2 font-ui text-sm text-foreground transition-colors hover:border-primary/40 hover:text-primary">
+                <Link key={chapter.id} to={`/books/${canonicalIdentifier}/chapters/${chapter.id}`} className="flex justify-between items-center rounded-lg border border-border/60 bg-background/65 px-3 py-2 font-ui text-sm text-foreground transition-colors hover:border-primary/40 hover:text-primary">
                   <span>{chapter.title || `Chapter ${chapter.auto_label || chapter.order}`}</span>
                   {!isRead(chapter.id) && (
                     <span className="flex-shrink-0 ml-2 rounded-full px-1.5 py-0.5 text-[10px] uppercase font-bold tracking-wider bg-blue-500/20 text-blue-500">

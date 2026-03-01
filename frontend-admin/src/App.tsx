@@ -137,7 +137,15 @@ const App = () => (
               }
             />
             <Route
-              path="/read/:category/:id"
+              path="/read/:category/:identifier"
+              element={
+                <UserAppOnly>
+                  <PublicReadPage />
+                </UserAppOnly>
+              }
+            />
+            <Route
+              path="/read/:category/:identifier/:page"
               element={
                 <UserAppOnly>
                   <PublicReadPage />
@@ -154,7 +162,7 @@ const App = () => (
               }
             />
             <Route
-              path="/books/:id"
+              path="/books/:identifier"
               element={
                 <UserAppOnly>
                   <ReaderBookDetailPage />
@@ -162,7 +170,7 @@ const App = () => (
               }
             />
             <Route
-              path="/books/:id/chapters/:chapterId"
+              path="/books/:identifier/chapters/:chapterId"
               element={
                 <UserAppOnly>
                   <ReaderChapterReadPage />
@@ -178,7 +186,7 @@ const App = () => (
               }
             />
             <Route
-              path="/poems/:id"
+              path="/poems/:identifier"
               element={
                 <UserAppOnly>
                   <ReaderTextWorkPage type="poems" />
@@ -194,7 +202,7 @@ const App = () => (
               }
             />
             <Route
-              path="/stories/:id"
+              path="/stories/:identifier"
               element={
                 <UserAppOnly>
                   <ReaderTextWorkPage type="stories" />

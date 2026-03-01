@@ -697,7 +697,7 @@ export async function fetchContent(
 
 export async function fetchContentDetail(
   category: ContentCategory,
-  id: number,
+  id: number | string,
   options: { requiresAuth?: boolean } = {},
 ): Promise<ContentDetail> {
   return apiRequest<ContentDetail>(`/api/content/${category}/${id}/`, { method: "GET" }, Boolean(options.requiresAuth));

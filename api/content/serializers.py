@@ -180,6 +180,7 @@ class StorySerializer(ContentValidationMixin):
         model = Story
         fields = [
             "id",
+            "public_slug",
             "title",
             "description",
             "is_anonymous",
@@ -197,6 +198,7 @@ class StorySerializer(ContentValidationMixin):
             "updated_at",
         ]
         read_only_fields = [
+            "public_slug",
             "extracted_text",
             "author_username",
             "author_name",
@@ -247,6 +249,7 @@ class PoemSerializer(ContentValidationMixin):
         model = Poem
         fields = [
             "id",
+            "public_slug",
             "title",
             "description",
             "is_anonymous",
@@ -264,6 +267,7 @@ class PoemSerializer(ContentValidationMixin):
             "updated_at",
         ]
         read_only_fields = [
+            "public_slug",
             "extracted_text",
             "author_username",
             "author_name",
@@ -360,6 +364,7 @@ class BookSerializer(ContentValidationMixin):
         model = Book
         fields = [
             "id",
+            "public_slug",
             "title",
             "description",
             "is_anonymous",
@@ -382,6 +387,7 @@ class BookSerializer(ContentValidationMixin):
             "new_chapters",
         ]
         read_only_fields = [
+            "public_slug",
             "extracted_text",
             "author_username",
             "author_name",
@@ -470,4 +476,3 @@ class ContentReviewSerializer(serializers.Serializer):
 
         attrs["rejection_reason"] = rejection_reason
         return attrs
-
