@@ -21,10 +21,6 @@ static/
 staticfiles/
 postgres/pgdata/
 
-# Frontend build artifacts
-frontend/node_modules/
-frontend/dist/
-
 # IDE
 .idea/
 .vscode/

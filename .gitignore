@@ -15,13 +15,17 @@ venv/
 /static/
 /staticfiles/
 /media/
+/api/staticfiles/
+/api/media/
 
 # Postgres local data
 postgres/pgdata/
 
 # Frontend
-frontend/node_modules/
-frontend/dist/
+frontend-public/node_modules/
+frontend-public/dist/
+frontend-admin/node_modules/
+frontend-admin/dist/
 
 # IDE
 .idea/

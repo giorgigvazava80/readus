@@ -18,6 +18,12 @@
 - Frontend: React + Vite + Tailwind + shadcn/ui
 - Runtime: Docker Compose
 
+## Project Structure
+
+- `api/` Django backend
+- `frontend-public/` Public user frontend
+- `frontend-admin/` Admin frontend
+
 ## Run
 
 From:
@@ -49,7 +55,6 @@ First login requires password change. After changing password, privileged endpoi
 ## Important Environment Variables
 
 - `VITE_API_BASE_URL`
-- `VITE_APP_MODE` (set by compose service: `user` or `admin`)
 - `ROOT_EMAIL`, `ROOT_USERNAME`, `ROOT_PASSWORD`
 - `BOOTSTRAP_ROOT`, `BOOTSTRAP_FORCE_PASSWORD_CHANGE`, `BOOTSTRAP_ROOT_RESET_PASSWORD`
 - `THROTTLE_ANON`, `THROTTLE_USER`

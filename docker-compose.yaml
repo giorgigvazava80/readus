@@ -18,7 +18,7 @@ services:
 
   api:
     build:
-      context: .
+      context: ./api
       dockerfile: Dockerfile
     env_file:
       - .env
@@ -27,7 +27,7 @@ services:
     ports:
       - "${API_PORT:-9000}:8000"
     volumes:
-      - .:/app
+      - ./api:/app
     depends_on:
       postgres:
         condition: service_healthy
@@ -35,7 +35,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ./frontend-public
       dockerfile: Dockerfile
     env_file:
       - .env
@@ -47,15 +47,15 @@ services:
     ports:
       - "${FRONTEND_PORT:-5173}:5173"
     volumes:
-      - ./frontend:/frontend
-      - frontend_node_modules:/frontend/node_modules
+      - ./frontend-public:/frontend
+      - frontend_public_node_modules:/frontend/node_modules
     depends_on:
       - api
     restart: unless-stopped
 
   admin_frontend:
     build:
-      context: ./frontend
+      context: ./frontend-admin
       dockerfile: Dockerfile
     env_file:
       - .env
@@ -67,12 +67,13 @@ services:
     ports:
       - "${ADMIN_FRONTEND_PORT:-5174}:5174"
     volumes:
-      - ./frontend:/frontend
-      - frontend_node_modules:/frontend/node_modules
+      - ./frontend-admin:/frontend
+      - frontend_admin_node_modules:/frontend/node_modules
     depends_on:
       - api
     restart: unless-stopped
 
 volumes:
   postgres_data:
-  frontend_node_modules:
+  frontend_public_node_modules:
+  frontend_admin_node_modules:
