@@ -1,9 +1,10 @@
 {% load i18n %}
 {% autoescape off %}
-<p>{% trans "Welcome" %},</p>
-<p>{% trans "Please verify your email address to activate your account." %}</p>
+<p>{% trans "Hello from Readus!" %}</p>
+<p>{% blocktrans with username=user.username %}You're receiving this email because user {{ username }} used your email to register on Readus.{% endblocktrans %}</p>
 <p>
   <a href="{{ activate_url }}">{% trans "Verify Email" %}</a>
 </p>
 <p>{% trans "If the button does not work, use this link:" %} {{ activate_url }}</p>
+<p>{% trans "Thank you for using Readus!" %}</p>
 {% endautoescape %}
