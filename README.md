@@ -77,6 +77,8 @@ First login requires password change. After changing password, privileged endpoi
 - `VITE_API_BASE_URL`
 - `VITE_GOOGLE_CLIENT_ID`, `VITE_GOOGLE_REDIRECT_URI` (frontend Google OAuth)
 - `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` (backend Google OAuth exchange)
+- `ACCOUNT_EMAIL_VERIFICATION` (`none` for temporary no-verification mode, set back to `mandatory` later)
+- `VITE_EMAIL_VERIFICATION_REQUIRED` (`0` now; set to `1` when re-enabling verification UX)
 - `ROOT_EMAIL`, `ROOT_USERNAME`, `ROOT_PASSWORD`
 - `BOOTSTRAP_ROOT`, `BOOTSTRAP_FORCE_PASSWORD_CHANGE`, `BOOTSTRAP_ROOT_RESET_PASSWORD`
 - `THROTTLE_ANON`, `THROTTLE_USER`

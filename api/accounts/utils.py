@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from allauth.account.models import EmailAddress
+from django.conf import settings
 from django.contrib.auth.models import Group
 
 from .constants import GROUP_ADMINS, GROUP_READERS, GROUP_REDACTORS, GROUP_WRITERS
@@ -56,6 +57,8 @@ def _has_group(user, group_name: str) -> bool:
 def is_email_verified(user) -> bool:
     if not user or not user.is_authenticated:
         return False
+    if getattr(settings, "ACCOUNT_EMAIL_VERIFICATION", "mandatory") == "none":
+        return True
     return EmailAddress.objects.filter(user=user, verified=True).exists()
 
 

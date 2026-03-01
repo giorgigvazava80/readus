@@ -2,6 +2,7 @@ import os
 
 import bleach
 from dj_rest_auth.registration.serializers import RegisterSerializer
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from rest_framework import serializers
@@ -65,12 +66,20 @@ class CustomRegisterSerializer(RegisterSerializer):
         user.groups.add(reader_group)
         user.groups.remove(*Group.objects.filter(name__in=[GROUP_WRITERS, GROUP_REDACTORS]))
 
-        create_notification(
-            user=user,
-            category=Notification.Category.VERIFICATION,
-            title="Verify your email",
-            message="Check your inbox and verify your email to activate your account.",
-        )
+        if getattr(settings, "ACCOUNT_EMAIL_VERIFICATION", "mandatory") == "none":
+            create_notification(
+                user=user,
+                category=Notification.Category.SYSTEM,
+                title="Welcome to Readus",
+                message="Your account is active. You can start using the platform now.",
+            )
+        else:
+            create_notification(
+                user=user,
+                category=Notification.Category.VERIFICATION,
+                title="Verify your email",
+                message="Check your inbox and verify your email to activate your account.",
+            )
 
         return user
 

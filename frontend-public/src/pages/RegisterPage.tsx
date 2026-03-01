@@ -30,6 +30,7 @@ const RegisterPage = () => {
   const [role, setRole] = useState<RegisteredRole>("reader");
   const [loading, setLoading] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
+  const emailVerificationRequired = import.meta.env.VITE_EMAIL_VERIFICATION_REQUIRED === "1";
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
   const googleRedirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI || `${window.location.origin}/login`;
 
@@ -50,7 +51,11 @@ const RegisterPage = () => {
     try {
       await register({ username, email, firstName, lastName, password, password2, role });
       setRegisteredEmail(email);
-      toast.success(t("register.success", "Registration successful. Verify your email to activate account."));
+      toast.success(
+        emailVerificationRequired
+          ? t("register.success", "Registration successful. Verify your email to activate account.")
+          : t("register.successNoVerification", "Registration successful. You can sign in now."),
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : t("register.error.failed", "Registration failed.");
       toast.error(message);
@@ -128,7 +133,9 @@ const RegisterPage = () => {
             <h2 className="font-display text-3xl font-semibold text-foreground">{t("register.heading", "Register")}</h2>
           </div>
           <p className="mt-1 font-ui text-sm text-muted-foreground">
-            {t("register.note", "All accounts require email verification before access.")}
+            {emailVerificationRequired
+              ? t("register.note", "All accounts require email verification before access.")
+              : t("register.noteNoVerification", "Accounts are activated immediately during this testing period.")}
           </p>
 
           <form onSubmit={handleSubmit} className="mt-7 space-y-4">
@@ -216,13 +223,15 @@ const RegisterPage = () => {
             <Link className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline" to="/login">
               {t("register.haveAccount", "Already have an account?")}
             </Link>
-            <button
-              type="button"
-              className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-              onClick={handleResend}
-            >
-              {t("register.resend", "Resend verification")}
-            </button>
+            {emailVerificationRequired ? (
+              <button
+                type="button"
+                className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                onClick={handleResend}
+              >
+                {t("register.resend", "Resend verification")}
+              </button>
+            ) : <span />}
           </div>
         </section>
       </div>
