@@ -124,7 +124,7 @@ class BaseContent(StatusTrackedModel):
     )
     is_hidden = models.BooleanField(default=False)
     extracted_text = models.TextField(blank=True)
-    public_slug = models.SlugField(max_length=255, unique=True, blank=True)
+    public_slug = models.SlugField(max_length=255, unique=True, blank=True, db_index=False)
 
 
     class Meta:

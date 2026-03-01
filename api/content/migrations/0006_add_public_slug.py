@@ -47,17 +47,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="book",
             name="public_slug",
-            field=models.SlugField(blank=True, max_length=255, null=True),
+            field=models.SlugField(blank=True, db_index=False, max_length=255, null=True),
         ),
         migrations.AddField(
             model_name="poem",
             name="public_slug",
-            field=models.SlugField(blank=True, max_length=255, null=True),
+            field=models.SlugField(blank=True, db_index=False, max_length=255, null=True),
         ),
         migrations.AddField(
             model_name="story",
             name="public_slug",
-            field=models.SlugField(blank=True, max_length=255, null=True),
+            field=models.SlugField(blank=True, db_index=False, max_length=255, null=True),
         ),
         migrations.RunPython(populate_public_slugs, migrations.RunPython.noop),
         migrations.RunSQL(
@@ -84,16 +84,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="book",
             name="public_slug",
-            field=models.SlugField(blank=True, max_length=255, unique=True),
+            field=models.SlugField(blank=True, db_index=False, max_length=255, unique=True),
         ),
         migrations.AlterField(
             model_name="poem",
             name="public_slug",
-            field=models.SlugField(blank=True, max_length=255, unique=True),
+            field=models.SlugField(blank=True, db_index=False, max_length=255, unique=True),
         ),
         migrations.AlterField(
             model_name="story",
             name="public_slug",
-            field=models.SlugField(blank=True, max_length=255, unique=True),
+            field=models.SlugField(blank=True, db_index=False, max_length=255, unique=True),
         ),
     ]

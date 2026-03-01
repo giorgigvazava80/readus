@@ -44,7 +44,63 @@ else:
     sys.exit(1)
 PY
 
-python manage.py migrate --noinput
+if [ "${RUN_MIGRATIONS:-1}" = "1" ]; then
+python - <<'PY'
+import os
+import subprocess
+import sys
+import time
+
+import psycopg2
+
+
+def connect_db():
+    database_url = os.getenv("DATABASE_URL", "").strip()
+    if database_url:
+        return psycopg2.connect(database_url)
+    return psycopg2.connect(
+        host=os.getenv("DB_HOST", "postgres"),
+        port=int(os.getenv("DB_PORT", "5432")),
+        user=os.getenv("DB_USER", "postgres"),
+        password=os.getenv("DB_PASSWORD", "postgres"),
+        dbname=os.getenv("DB_NAME", "postgres"),
+    )
+
+
+lock_id = int(os.getenv("MIGRATION_LOCK_ID", "38192217"))
+lock_timeout = int(os.getenv("MIGRATION_LOCK_TIMEOUT", "300"))
+start = time.time()
+
+conn = connect_db()
+conn.autocommit = True
+cur = conn.cursor()
+locked = False
+
+try:
+    while True:
+        cur.execute("SELECT pg_try_advisory_lock(%s)", (lock_id,))
+        locked = bool(cur.fetchone()[0])
+        if locked:
+            print(f"Acquired migration lock {lock_id}.")
+            break
+
+        elapsed = time.time() - start
+        if elapsed >= lock_timeout:
+            print(f"Timed out waiting for migration lock {lock_id}.", file=sys.stderr)
+            sys.exit(1)
+
+        print(f"Another instance is running migrations; waiting... ({int(elapsed)}s)")
+        time.sleep(2)
+
+    subprocess.run(["python", "manage.py", "migrate", "--noinput"], check=True)
+finally:
+    if locked:
+        cur.execute("SELECT pg_advisory_unlock(%s)", (lock_id,))
+        print(f"Released migration lock {lock_id}.")
+    cur.close()
+    conn.close()
+PY
+fi
 
 if [ "${BOOTSTRAP_ROOT:-1}" = "1" ]; then
     python manage.py bootstrap_root
