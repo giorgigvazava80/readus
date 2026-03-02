@@ -4,12 +4,15 @@ import { ArrowLeft, Calendar, Clock, Share2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 import { Badge } from "@/components/ui/badge";
+import ReadingFontSizeControl from "@/components/reader/ReadingFontSizeControl";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { fetchContentDetail, resolveMediaUrl } from "@/lib/api";
+import { getStoredReadingFontSize, readingFontSizeClassByPreference, setStoredReadingFontSize, type ReadingFontSize } from "@/lib/fontSize";
 import type { ContentCategory, ContentDetail } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { useReadChapters } from "@/hooks/useReadChapters";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const categoryLabels: Record<ContentCategory, string> = {
   books: "წიგნი",
@@ -57,6 +60,8 @@ const PublicReadPage = () => {
 
   const { isRead, markAsRead } = useReadChapters();
   const contentAreaRef = useRef<HTMLDivElement>(null);
+  const [fontSize, setFontSize] = useState<ReadingFontSize>(() => getStoredReadingFontSize());
+  const readingFontSizeClass = readingFontSizeClassByPreference[fontSize];
 
   const currentPage = useMemo(() => {
     if (category !== "books") {
@@ -197,6 +202,11 @@ const PublicReadPage = () => {
     contentAreaRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const handleReadingFontSizeChange = (next: ReadingFontSize) => {
+    setStoredReadingFontSize(next);
+    setFontSize(next);
+  };
+
   return (
     <div>
       <div className="relative border-b bg-background overflow-hidden">
@@ -273,8 +283,9 @@ const PublicReadPage = () => {
         transition={{ delay: 0.2 }}
         className="container mx-auto px-6 py-12 scroll-mt-20"
       >
-        <div className="mx-auto max-w-2xl">
+        <div className={cn("mx-auto max-w-2xl", readingFontSizeClass)}>
           <div className="mb-6 h-1.5 w-16 rounded-full bg-primary" />
+          <ReadingFontSizeControl value={fontSize} onChange={handleReadingFontSizeChange} />
 
           {content.upload_file ? (
             <p className="mb-6 text-sm text-muted-foreground">

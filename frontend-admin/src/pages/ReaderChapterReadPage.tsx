@@ -1,10 +1,13 @@
 ﻿import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import ReadingFontSizeControl from "@/components/reader/ReadingFontSizeControl";
 import { Button } from "@/components/ui/button";
 import { fetchContentDetail } from "@/lib/api";
+import { getStoredReadingFontSize, readingFontSizeClassByPreference, setStoredReadingFontSize, type ReadingFontSize } from "@/lib/fontSize";
+import { cn } from "@/lib/utils";
 import { useReadChapters } from "@/hooks/useReadChapters";
 
 const ReaderChapterReadPage = () => {
@@ -14,6 +17,8 @@ const ReaderChapterReadPage = () => {
   const bookIdentifier = (identifier || "").trim();
   const currentChapterId = Number(chapterId);
   const { markAsRead } = useReadChapters();
+  const [fontSize, setFontSize] = useState<ReadingFontSize>(() => getStoredReadingFontSize());
+  const readingFontSizeClass = readingFontSizeClassByPreference[fontSize];
 
   const bookQuery = useQuery({
     queryKey: ["reader", "book", bookIdentifier, "chapter", currentChapterId],
@@ -83,6 +88,10 @@ const ReaderChapterReadPage = () => {
   const canonicalBookIdentifier = (book.public_slug || bookIdentifier).trim();
   const previousChapter = currentIndex > 0 ? chapters[currentIndex - 1] : null;
   const nextChapter = currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : null;
+  const handleReadingFontSizeChange = (next: ReadingFontSize) => {
+    setStoredReadingFontSize(next);
+    setFontSize(next);
+  };
 
   return (
     <div className="container mx-auto max-w-4xl space-y-8 px-6 py-10">
@@ -100,7 +109,9 @@ const ReaderChapterReadPage = () => {
         </h1>
       </section>
 
-      <article className="reader-html prose-literary rounded-2xl border border-border/70 bg-card/80 p-8 text-foreground/90 shadow-card">
+      <ReadingFontSizeControl value={fontSize} onChange={handleReadingFontSizeChange} />
+
+      <article className={cn("reader-html prose-literary rounded-2xl border border-border/70 bg-card/80 p-8 text-foreground/90 shadow-card", readingFontSizeClass)}>
         <div dangerouslySetInnerHTML={{ __html: chapter.body || "<p>თავის ტექსტი ჯერ არ არის.</p>" }} />
       </article>
 

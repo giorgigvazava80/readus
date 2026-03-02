@@ -2,12 +2,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, BookText, ListTree, EyeOff } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
+import ReadingFontSizeControl from "@/components/reader/ReadingFontSizeControl";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { fetchContentDetail } from "@/lib/api";
+import { getStoredReadingFontSize, readingFontSizeClassByPreference, setStoredReadingFontSize, type ReadingFontSize } from "@/lib/fontSize";
 import { useReadChapters } from "@/hooks/useReadChapters";
+import { cn } from "@/lib/utils";
 
 const hasTextContent = (html?: string | null) => {
   if (!html) return false;
@@ -21,6 +24,8 @@ const ReaderBookDetailPage = () => {
   const location = useLocation();
   const contentIdentifier = (identifier || "").trim();
   const { isRead } = useReadChapters();
+  const [fontSize, setFontSize] = useState<ReadingFontSize>(() => getStoredReadingFontSize());
+  const readingFontSizeClass = readingFontSizeClassByPreference[fontSize];
 
   const bookQuery = useQuery({
     queryKey: ["reader", "book", contentIdentifier],
@@ -68,6 +73,10 @@ const ReaderBookDetailPage = () => {
   const book = bookQuery.data;
   const canonicalIdentifier = (book.public_slug || contentIdentifier).trim();
   const chapters = (book.chapters || []).slice().sort((a, b) => a.order - b.order);
+  const handleReadingFontSizeChange = (next: ReadingFontSize) => {
+    setStoredReadingFontSize(next);
+    setFontSize(next);
+  };
 
   return (
     <div className="container mx-auto max-w-6xl space-y-8 px-6 py-10">
@@ -93,9 +102,11 @@ const ReaderBookDetailPage = () => {
         </p>
 
         {book.description ? (
-          <div className="reader-html prose-literary mt-5 text-foreground/85" dangerouslySetInnerHTML={{ __html: book.description }} />
+          <div className={cn("reader-html prose-literary mt-5 text-foreground/85", readingFontSizeClass)} dangerouslySetInnerHTML={{ __html: book.description }} />
         ) : null}
       </section>
+
+      <ReadingFontSizeControl value={fontSize} onChange={handleReadingFontSizeChange} />
 
       <section className="grid gap-6 lg:grid-cols-3">
         <aside className="rounded-2xl border border-border/70 bg-card/80 p-5 shadow-card lg:sticky lg:top-24 lg:h-fit">
@@ -122,7 +133,7 @@ const ReaderBookDetailPage = () => {
           </div>
         </aside>
 
-        <article className="lg:col-span-2 rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
+        <article className={cn("lg:col-span-2 rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card", readingFontSizeClass)}>
           {hasTextContent(book.foreword) ? (
             <>
               <div className="flex items-center gap-2">

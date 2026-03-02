@@ -1,4 +1,4 @@
-﻿import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Lock, UserRoundCog } from "lucide-react";
 import { toast } from "sonner";
@@ -84,7 +84,6 @@ const SettingsPage = () => {
       setSavingPassword(false);
     }
   };
-
   return (
     <div className="container mx-auto grid gap-8 px-6 py-10 lg:grid-cols-2">
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
@@ -159,10 +158,9 @@ const SettingsPage = () => {
           </Button>
         </form>
       </section>
+
     </div>
   );
 };
 
 export default SettingsPage;
-
-

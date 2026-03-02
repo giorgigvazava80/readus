@@ -1,11 +1,14 @@
 ﻿import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, EyeOff } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
+import ReadingFontSizeControl from "@/components/reader/ReadingFontSizeControl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { fetchContentDetail } from "@/lib/api";
+import { getStoredReadingFontSize, readingFontSizeClassByPreference, setStoredReadingFontSize, type ReadingFontSize } from "@/lib/fontSize";
+import { cn } from "@/lib/utils";
 import { estimateReadTimeFromHtml } from "@/lib/content";
 
 interface ReaderTextWorkPageProps {
@@ -27,6 +30,8 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const contentIdentifier = (identifier || "").trim();
+  const [fontSize, setFontSize] = useState<ReadingFontSize>(() => getStoredReadingFontSize());
+  const readingFontSizeClass = readingFontSizeClassByPreference[fontSize];
 
   const detailQuery = useQuery({
     queryKey: ["reader", type, contentIdentifier],
@@ -72,6 +77,10 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
   }
 
   const work = detailQuery.data;
+  const handleReadingFontSizeChange = (next: ReadingFontSize) => {
+    setStoredReadingFontSize(next);
+    setFontSize(next);
+  };
 
   return (
     <div className="container mx-auto max-w-4xl space-y-8 px-6 py-10">
@@ -98,19 +107,23 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
         </p>
       </section>
 
-      {work.description ? (
-        <section className="reader-html prose-literary rounded-2xl border border-border/70 bg-card/80 p-7 text-foreground/85 shadow-card" dangerouslySetInnerHTML={{ __html: work.description }} />
-      ) : null}
+      <ReadingFontSizeControl value={fontSize} onChange={handleReadingFontSizeChange} />
 
-      <article className="rounded-2xl border border-border/70 bg-card/80 p-8 text-foreground/90 shadow-card">
-        {work.body ? (
-          <div className="reader-html prose-literary" dangerouslySetInnerHTML={{ __html: work.body }} />
-        ) : work.extracted_text ? (
-          <pre className="prose-literary whitespace-pre-wrap">{work.extracted_text}</pre>
-        ) : (
-          <p className="font-ui text-sm text-muted-foreground">ტექსტი ხელმისაწვდომი არ არის.</p>
-        )}
-      </article>
+      <div className={readingFontSizeClass}>
+        {work.description ? (
+          <section className="reader-html prose-literary rounded-2xl border border-border/70 bg-card/80 p-7 text-foreground/85 shadow-card" dangerouslySetInnerHTML={{ __html: work.description }} />
+        ) : null}
+
+        <article className="rounded-2xl border border-border/70 bg-card/80 p-8 text-foreground/90 shadow-card">
+          {work.body ? (
+            <div className={cn("reader-html prose-literary", readingFontSizeClass)} dangerouslySetInnerHTML={{ __html: work.body }} />
+          ) : work.extracted_text ? (
+            <pre className={cn("prose-literary whitespace-pre-wrap", readingFontSizeClass)}>{work.extracted_text}</pre>
+          ) : (
+            <p className="font-ui text-sm text-muted-foreground">ტექსტი ხელმისაწვდომი არ არის.</p>
+          )}
+        </article>
+      </div>
     </div>
   );
 };

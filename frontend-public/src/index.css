@@ -125,6 +125,24 @@
     letter-spacing: 0.015em;
   }
 
+  .reader-font-size-small .prose-literary,
+  .reader-font-size-small.prose-literary {
+    font-size: 1rem;
+    line-height: 1.85;
+  }
+
+  .reader-font-size-medium .prose-literary,
+  .reader-font-size-medium.prose-literary {
+    font-size: 1.125rem;
+    line-height: 1.9;
+  }
+
+  .reader-font-size-big .prose-literary,
+  .reader-font-size-big.prose-literary {
+    font-size: 1.28rem;
+    line-height: 2;
+  }
+
   /* ── Editor styles ─────────────────────────── */
   .editor-content:empty::before {
     content: attr(data-placeholder);
