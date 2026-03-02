@@ -4,11 +4,7 @@ const STORAGE_KEY = "readus_reader_font_size";
 const DEFAULT_FONT_SIZE: ReadingFontSize = "medium";
 const VALID_FONT_SIZES = new Set<ReadingFontSize>(["small", "medium", "big"]);
 
-export const readingFontSizeOptions: Array<{ value: ReadingFontSize; label: string }> = [
-  { value: "small", label: "small/პატარა" },
-  { value: "medium", label: "medium/საშუალო" },
-  { value: "big", label: "big/დიდი" },
-];
+export const readingFontSizeOptions: ReadingFontSize[] = ["small", "medium", "big"];
 
 export const readingFontSizeClassByPreference: Record<ReadingFontSize, string> = {
   small: "reader-font-size-small",

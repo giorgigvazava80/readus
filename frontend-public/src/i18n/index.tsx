@@ -139,6 +139,12 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
     "role.admin": "admin",
     "role.root": "root",
 
+    "reader.fontSize.label": "Text size",
+    "reader.fontSize.placeholder": "Select size",
+    "reader.fontSize.small": "Small",
+    "reader.fontSize.medium": "Medium",
+    "reader.fontSize.big": "Big",
+
     "workcard.hidden": "Hidden",
     "workcard.by": "by ",
     "workcard.readNow": "Read now",
@@ -280,6 +286,12 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
     "role.redactor": "რედაქტორი",
     "role.admin": "ადმინი",
     "role.root": "root",
+
+    "reader.fontSize.label": "ტექსტის ზომა",
+    "reader.fontSize.placeholder": "აირჩიე ზომა",
+    "reader.fontSize.small": "პატარა",
+    "reader.fontSize.medium": "საშუალო",
+    "reader.fontSize.big": "დიდი",
 
     "workcard.hidden": "დამალული",
     "workcard.by": "ავტორი: ",
