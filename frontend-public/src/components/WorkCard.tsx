@@ -29,10 +29,10 @@ const categoryIcons = {
 };
 
 const categoryLabels = {
-  books: "წიგნი",
-  stories: "მოთხრობა",
-  poems: "პოეზია",
-  chapters: "თავი",
+  books: { key: "category.book", fallback: "Book" },
+  stories: { key: "category.story", fallback: "Story" },
+  poems: { key: "category.poem", fallback: "Poem" },
+  chapters: { key: "category.chapter", fallback: "Chapter" },
 };
 
 interface WorkCardProps {
@@ -96,7 +96,7 @@ const WorkCard = ({ work, index = 0 }: WorkCardProps) => {
             <div className="mt-auto">
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className="font-ui text-[10px] uppercase tracking-wider px-2 py-0 border-white/60 text-foreground bg-white/40 backdrop-blur-md shadow-sm">
-                  {categoryLabels[work.category]}
+                  {t(categoryLabels[work.category].key, categoryLabels[work.category].fallback)}
                 </Badge>
                 {work.isHidden && (
                   <Badge variant="outline" className="font-ui text-[10px] uppercase tracking-wider px-2 py-0 border-amber-500/40 text-amber-900 bg-amber-500/20 backdrop-blur-md shadow-sm flex items-center gap-1">

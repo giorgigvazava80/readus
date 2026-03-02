@@ -1,10 +1,12 @@
-﻿import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
 import { useSession } from "@/hooks/useSession";
+import { useI18n } from "@/i18n";
 import { isAdminAppHost } from "@/lib/runtime";
 
 function LoadingScreen() {
-  return <div className="p-8 text-sm text-muted-foreground">იტვირთება...</div>;
+  const { t } = useI18n();
+  return <div className="p-8 text-sm text-muted-foreground">{t("common.loading", "Loading...")}</div>;
 }
 
 export function UserAppOnly({ children }: { children: JSX.Element }) {
@@ -83,6 +85,3 @@ export function RequireWriterApproved({ children }: { children: JSX.Element }) {
 
   return children;
 }
-
-
-

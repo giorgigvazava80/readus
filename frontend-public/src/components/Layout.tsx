@@ -31,7 +31,7 @@ const Layout = () => {
                   {t("layout.cta.title", "Ready to share your story?")}
                 </h2>
                 <p className="font-ui text-sm md:text-base text-muted-foreground">
-                  {t("layout.cta.subtitle", "Join hundreds of authors who've found their readership on read us.")}
+                  {t("layout.cta.subtitle", "Join hundreds of authors who've found their readership on Readus.")}
                 </p>
                 <div className="pt-2">
                   <Link
@@ -58,7 +58,7 @@ const Layout = () => {
                     <BookOpen className="h-4 w-4 text-white" />
                   </div>
                   <span className="font-display text-2xl font-bold text-foreground tracking-tight">
-                    {t("brand.user", "read us")}
+                    {t("brand.user", "Readus")}
                   </span>
                 </div>
                 <p className="font-body text-sm leading-relaxed text-muted-foreground max-w-xs">
@@ -85,9 +85,9 @@ const Layout = () => {
                   <ul className="space-y-3.5">
                     {[
                       { label: t("layout.footer.browseAll", "Browse All"), to: "/browse" },
-                      { label: t("layout.footer.books", "წიგნები"), to: "/books" },
-                      { label: t("layout.footer.stories", "მოთხრობები"), to: "/stories" },
-                      { label: t("layout.footer.poetry", "პოეზია"), to: "/poems" },
+                      { label: t("layout.footer.books", "Books"), to: "/books" },
+                      { label: t("layout.footer.stories", "Stories"), to: "/stories" },
+                      { label: t("layout.footer.poetry", "Poetry"), to: "/poems" },
                     ].map((item) => (
                       <li key={item.label}>
                         <Link
@@ -109,8 +109,8 @@ const Layout = () => {
                     {[
                       { label: t("nav.login", "Login"), to: "/login" },
                       { label: t("nav.register", "Register"), to: "/register" },
-                      { label: t("layout.footer.writerApplication", "ავტორის განაცხადი"), to: "/writer-application" },
-                      { label: t("layout.footer.myWorks", "ჩემი ნაშრომები"), to: "/my-works" },
+                      { label: t("layout.footer.writerApplication", "Writer Application"), to: "/writer-application" },
+                      { label: t("layout.footer.myWorks", "My Works"), to: "/my-works" },
                     ].map((item) => (
                       <li key={item.label}>
                         <Link
@@ -151,7 +151,7 @@ const Layout = () => {
 
             <div className="mt-16 sm:mt-24 flex flex-col items-center gap-4 border-t border-border/40 pt-8 sm:flex-row sm:justify-between opacity-80">
               <p className="font-ui text-xs text-muted-foreground order-2 sm:order-1">
-                {t("layout.footer.rights", "(c) 2026 read us. All rights reserved.")}
+                {t("layout.footer.rights", "(c) 2026 Readus. All rights reserved.")}
               </p>
               <p className="font-body text-xs italic text-muted-foreground order-1 sm:order-2">
                 {t("layout.footer.tagline", "A home for stories worth telling.")}

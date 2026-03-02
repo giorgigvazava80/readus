@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import WorkCard, { type PublicWorkCardItem } from "@/components/WorkCard";
+import { useI18n } from "@/i18n";
 import { fetchContent, resolveMediaUrl } from "@/lib/api";
 import type { ContentItem } from "@/lib/types";
 import heroImage from "@/assets/hero-literary.jpg";
@@ -15,21 +16,21 @@ const CATEGORY_COLOR_PALETTE: Record<"books" | "stories" | "poems", string[]> = 
   poems: ["hsl(150, 25%, 45%)", "hsl(165, 30%, 40%)", "hsl(135, 20%, 50%)"],
 };
 
-function toExcerpt(item: ContentItem): string {
+function toExcerpt(item: ContentItem, fallback: string): string {
   const rawHtml = item.description || item.extracted_text || item.body || "";
   // Remove HTML tags using regex and clean up extra spaces
   const raw = rawHtml.replace(/<[^>]*>?/gm, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 
-  if (!raw) return "მიმოხილვა ჯერ ხელმისაწვდომი არ არის.";
+  if (!raw) return fallback;
   if (raw.length <= 190) return raw;
   return `${raw.slice(0, 187)}...`;
 }
 
-function estimateReadTime(item: ContentItem): string {
+function estimateReadTime(item: ContentItem, template: string): string {
   const text = [item.body, item.extracted_text, item.description].filter(Boolean).join(" ");
   const words = text.trim().split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.ceil(words / 220));
-  return `${minutes} წთ კითხვის დრო`;
+  return template.replace("{minutes}", String(minutes));
 }
 
 function colorFor(category: "books" | "stories" | "poems", id: number): string {
@@ -37,48 +38,67 @@ function colorFor(category: "books" | "stories" | "poems", id: number): string {
   return palette[id % palette.length];
 }
 
-function toCardItem(category: "books" | "stories" | "poems", item: ContentItem): PublicWorkCardItem {
+function toCardItem(
+  category: "books" | "stories" | "poems",
+  item: ContentItem,
+  locale: string,
+  excerptFallback: string,
+  readTimeTemplate: string,
+): PublicWorkCardItem {
   return {
     id: item.id,
     publicSlug: item.public_slug || String(item.id),
     category,
     title: item.title,
     author: item.author_name || item.author_username || "",
-    excerpt: toExcerpt(item),
+    excerpt: toExcerpt(item, excerptFallback),
     coverColor: colorFor(category, item.id),
     coverImageUrl: resolveMediaUrl(item.cover_image),
-    date: new Date(item.created_at).toLocaleDateString(undefined, {
+    date: new Date(item.created_at).toLocaleDateString(locale, {
       year: "numeric",
       month: "short",
       day: "numeric",
     }),
-    readTime: estimateReadTime(item),
+    readTime: estimateReadTime(item, readTimeTemplate),
     createdAt: item.created_at,
     isHidden: item.is_hidden,
   };
 }
 
-const steps = [
-  {
-    step: "01",
-    title: "იკითხე საჯაროდ",
-    desc: "ნებისმიერ მომხმარებელს შეუძლია დამტკიცებული წიგნების, მოთხრობებისა და პოეზიის კითხვა ანგარიშის შექმნის გარეშე.",
-  },
-  {
-    step: "02",
-    title: "შემოუერთდი როგორც მკითხველი",
-    desc: "შექმენი მკითხველის ანგარიში, რათა დატოვო შეფასებები, მოწონებები, კომენტარები, სანიშნები და აწარმოო პროფილის აქტივობა.",
-  },
-  {
-    step: "03",
-    title: "გახდი ავტორი",
-    desc: "შეავსე ავტორის განაცხადი ნიმუშით. დამტკიცების შემდეგ შეძლებ ნაშრომების გაგზავნას და გამოქვეყნების რიგის მართვას.",
-  },
-];
-
 const PublicHomePage = () => {
+  const { t, language } = useI18n();
+  const locale = language === "ka" ? "ka-GE" : "en-US";
+  const excerptFallback = t("home.excerptUnavailable", "Excerpt is not available yet.");
+  const readTimeTemplate = t("home.readTime", "{minutes} min read");
+  const steps = [
+    {
+      step: "01",
+      title: t("home.step1.title", "Read Publicly"),
+      desc: t(
+        "home.step1.desc",
+        "Anyone can read approved books, stories, and poetry without creating an account.",
+      ),
+    },
+    {
+      step: "02",
+      title: t("home.step2.title", "Join as Reader"),
+      desc: t(
+        "home.step2.desc",
+        "Create a reader account to leave ratings, likes, comments, bookmarks, and track activity.",
+      ),
+    },
+    {
+      step: "03",
+      title: t("home.step3.title", "Become a Writer"),
+      desc: t(
+        "home.step3.desc",
+        "Submit a writer application with a sample. After approval, you can submit and manage publications.",
+      ),
+    },
+  ];
+
   const worksQuery = useQuery({
-    queryKey: ["public-home", "featured"],
+    queryKey: ["public-home", "featured", language],
     queryFn: async () => {
       const [books, stories, poems] = await Promise.all([
         fetchContent("books", { status: "approved", page: 1 }),
@@ -92,7 +112,9 @@ const PublicHomePage = () => {
         ...poems.results.map((item) => ({ category: "poems" as const, item })),
       ].sort((a, b) => new Date(b.item.created_at).getTime() - new Date(a.item.created_at).getTime());
 
-      const works = raw.map(({ category, item }) => toCardItem(category, item));
+      const works = raw.map(({ category, item }) =>
+        toCardItem(category, item, locale, excerptFallback, readTimeTemplate),
+      );
 
       return {
         works,
@@ -120,9 +142,30 @@ const PublicHomePage = () => {
   }).length;
 
   const stats = [
-    { icon: BookOpen, value: `${publishedCount}+`, label: "გამოქვეყნებული ნაშრომები", color: "hsl(24 60% 55%)", bg: "hsl(24 60% 55% / 0.15)", border: "hsl(24 60% 55% / 0.2)" },
-    { icon: Users, value: `${authorsCount}+`, label: "ავტორები", color: "hsl(215 40% 45%)", bg: "hsl(215 40% 45% / 0.15)", border: "hsl(215 40% 45% / 0.2)" },
-    { icon: Feather, value: `${newThisMonth}+`, label: "ახალი ამ თვეში", color: "hsl(150 25% 45%)", bg: "hsl(150 25% 45% / 0.15)", border: "hsl(150 25% 45% / 0.2)" },
+    {
+      icon: BookOpen,
+      value: `${publishedCount}+`,
+      label: t("home.stats.published", "Published works"),
+      color: "hsl(24 60% 55%)",
+      bg: "hsl(24 60% 55% / 0.15)",
+      border: "hsl(24 60% 55% / 0.2)",
+    },
+    {
+      icon: Users,
+      value: `${authorsCount}+`,
+      label: t("home.stats.authors", "Authors"),
+      color: "hsl(215 40% 45%)",
+      bg: "hsl(215 40% 45% / 0.15)",
+      border: "hsl(215 40% 45% / 0.2)",
+    },
+    {
+      icon: Feather,
+      value: `${newThisMonth}+`,
+      label: t("home.stats.newThisMonth", "New this month"),
+      color: "hsl(150 25% 45%)",
+      bg: "hsl(150 25% 45% / 0.15)",
+      border: "hsl(150 25% 45% / 0.2)",
+    },
   ];
 
   return (
@@ -130,7 +173,11 @@ const PublicHomePage = () => {
       {/* ── Hero ─────────────────────────────────────── */}
       <section className="relative overflow-hidden min-h-[85vh] flex items-center">
         <div className="absolute inset-0">
-          <img src={heroImage} alt="Open book with pen" className="h-full w-full object-cover opacity-20" />
+          <img
+            src={heroImage}
+            alt={t("home.heroImageAlt", "Open book with pen")}
+            className="h-full w-full object-cover opacity-20"
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/75 to-background" />
         </div>
 
@@ -155,7 +202,7 @@ const PublicHomePage = () => {
           >
             <Sparkles className="h-3.5 w-3.5 text-primary" />
             <span className="font-ui text-xs font-medium text-primary">
-              ღია პლატფორმა — იკითხე თავისუფლად, ანგარიში არ გჭირდება
+              {t("home.readAcc", "Read freely, no account required")}
             </span>
           </motion.div>
 
@@ -167,10 +214,14 @@ const PublicHomePage = () => {
             className="max-w-4xl"
           >
             <h1 className="font-display text-5xl font-bold leading-[1.15] tracking-tight text-foreground sm:text-6xl md:text-7xl lg:text-[5rem]">
-              სიტყვები პოულობენ <span className="text-gradient-primary">თავიანთ სახლს</span>
+              {t("home.hero.titleStart", "Words find")}{" "}
+              <span className="text-gradient-primary">{t("home.hero.titleHighlight", "their home")}</span>
             </h1>
             <p className="mt-6 font-body text-lg leading-relaxed text-muted-foreground md:text-xl max-w-2xl">
-              საჯარო გვერდები ყველასთვის ღიაა. მკითხველის ანგარიში გაძლევს შეფასებების, მოწონებებისა და კომენტარების დატოვების შესაძლებლობას. ავტორები ნაშრომებს აქვეყნებენ სარედაქციო დამტკიცების შემდეგ.
+              {t(
+                "home.authorsApprove",
+                "Public pages are open to everyone. A reader account lets you leave ratings, likes, and comments. Authors publish after editorial approval.",
+              )}
             </p>
 
             <div className="mt-10 flex flex-wrap gap-4">
@@ -179,7 +230,7 @@ const PublicHomePage = () => {
                   size="lg"
                   className="gap-2 font-ui font-semibold shadow-warm hover:shadow-lg hover:scale-[1.02] transition-all duration-300 h-12 px-8"
                 >
-                  ბიბლიოთეკაში გადასვლა
+                  {t("home.hero.browseCta", "Go to Library")}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
@@ -189,7 +240,7 @@ const PublicHomePage = () => {
                   variant="outline"
                   className="gap-2 font-ui hover:bg-primary/5 hover:border-primary/40 transition-all duration-300 h-12 px-8 border-border/80"
                 >
-                  შემოუერთდი როგორც მკითხველი ან ავტორი
+                  {t("home.hero.joinCta", "Join as Reader or Writer")}
                 </Button>
               </Link>
             </div>
@@ -234,8 +285,12 @@ const PublicHomePage = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">როგორ მუშაობს</h2>
-            <p className="mt-3 font-ui text-base text-muted-foreground">Readus-ის ნაწილი გახდომის სამი გზა</p>
+            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
+              {t("home.howItWorksTitle", "How it Works")}
+            </h2>
+            <p className="mt-3 font-ui text-base text-muted-foreground">
+              {t("home.howItWorksSubtitle", "Three ways to become part of Readus")}
+            </p>
           </motion.div>
 
           <div className="grid gap-8 md:grid-cols-3">
@@ -272,12 +327,16 @@ const PublicHomePage = () => {
             className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between mb-8"
           >
             <div>
-              <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">რჩეული ნაშრომები</h2>
-              <p className="mt-1 font-ui text-sm text-muted-foreground">ბოლო დროს დამტკიცებული და გამოქვეყნებული ნაშრომები</p>
+              <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">
+                {t("home.featuredTitle", "Featured Works")}
+              </h2>
+              <p className="mt-1 font-ui text-sm text-muted-foreground">
+                {t("home.featuredSubtitle", "Recently approved and published works")}
+              </p>
             </div>
             <Link to="/browse">
               <Button variant="ghost" className="gap-1.5 text-sm font-ui group">
-                ყველას ნახვა
+                {t("home.featuredViewAll", "View all")}
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
@@ -306,7 +365,9 @@ const PublicHomePage = () => {
           )}
 
           {!worksQuery.isLoading && works.length === 0 ? (
-            <p className="mt-8 text-center font-body text-sm text-muted-foreground">გამოქვეყნებული ნაშრომები ჯერ არ არის.</p>
+            <p className="mt-8 text-center font-body text-sm text-muted-foreground">
+              {t("home.noWorks", "No published works yet.")}
+            </p>
           ) : null}
         </div>
       </section>

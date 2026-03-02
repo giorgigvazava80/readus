@@ -41,11 +41,14 @@ export function toExcerpt(html: string | undefined, fallback = "მიმოხ�
   return `${plain.slice(0, 177)}...`;
 }
 
-export function estimateReadTimeFromHtml(value: string | undefined): string {
+export function estimateReadTimeFromHtml(
+  value: string | undefined,
+  template = "{minutes} წთ კითხვის დრო",
+): string {
   const plain = htmlToPlainText(value);
   const words = plain.split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.ceil(words / 220));
-  return `${minutes} წთ კითხვის დრო`;
+  return template.replace("{minutes}", String(minutes));
 }
 
 

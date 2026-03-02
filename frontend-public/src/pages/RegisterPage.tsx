@@ -38,12 +38,12 @@ const RegisterPage = () => {
     event.preventDefault();
 
     if (!username || !email || !firstName || !lastName || !password || !password2) {
-      toast.error(t("register.error.required", "შეავსე ყველა სავალდებულო ველი."));
+      toast.error(t("register.error.required", "Fill all required fields."));
       return;
     }
 
     if (password !== password2) {
-      toast.error(t("register.error.passwordMatch", "პაროლები არ ემთხვევა."));
+      toast.error(t("register.error.passwordMatch", "Passwords do not match."));
       return;
     }
 
@@ -53,8 +53,8 @@ const RegisterPage = () => {
       setRegisteredEmail(email);
       toast.success(
         emailVerificationRequired
-          ? t("register.success", "რეგისტრაცია წარმატებულია. ანგარიშის გასააქტიურებლად დაადასტურე ელფოსტა.")
-          : t("register.successNoVerification", "რეგისტრაცია წარმატებულია. ახლა შეგიძლია შეხვიდე ანგარიშში."),
+          ? t("register.success", "Registration successful. Verify your email to activate your account.")
+          : t("register.successNoVerification", "Registration successful. You can sign in now."),
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : t("register.error.failed", "Registration failed.");
@@ -66,13 +66,13 @@ const RegisterPage = () => {
 
   const handleResend = async () => {
     if (!registeredEmail) {
-      toast.error(t("register.error.resendBefore", "ვერიფიკაციის ხელახლა გასაგზავნად ჯერ დარეგისტრირდი."));
+      toast.error(t("register.error.resendBefore", "Register first before requesting another verification email."));
       return;
     }
 
     try {
       await resendVerification(registeredEmail);
-      toast.success(t("register.success.resent", "ვერიფიკაციის ელფოსტა ხელახლა გაიგზავნა."));
+      toast.success(t("register.success.resent", "Verification email sent again."));
     } catch (error) {
       const message = error instanceof Error ? error.message : t("register.error.resendFailed", "Failed to resend verification.");
       toast.error(message);
@@ -81,7 +81,7 @@ const RegisterPage = () => {
 
   const handleGoogleRegister = () => {
     if (!googleClientId) {
-      toast.error("Google ავტორიზაცია კონფიგურირებული არ არის.");
+      toast.error(t("register.error.googleNotConfigured", "Google authentication is not configured."));
       return;
     }
 
@@ -106,7 +106,7 @@ const RegisterPage = () => {
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/75 px-4 py-1.5">
               <BookOpen className="h-4 w-4 text-primary" />
-              <span className="font-ui text-xs text-muted-foreground">{t("register.badge", "Create your read us account")}</span>
+              <span className="font-ui text-xs text-muted-foreground">{t("register.badge", "Create your Readus account")}</span>
             </div>
             <h1 className="mt-6 font-display text-5xl font-bold leading-tight text-foreground">
               {t("register.title", "Reader First. Writer by Approval.")}
@@ -134,25 +134,25 @@ const RegisterPage = () => {
           </div>
           <p className="mt-1 font-ui text-sm text-muted-foreground">
             {emailVerificationRequired
-              ? t("register.note", "წვდომამდე ყველა ანგარიში საჭიროებს ელფოსტის ვერიფიკაციას.")
-              : t("register.noteNoVerification", "ტესტირების პერიოდში ანგარიშები დაუყოვნებლივ აქტიურდება.")}
+              ? t("register.note", "All accounts require email verification before access.")
+              : t("register.noteNoVerification", "Accounts activate immediately while email verification is disabled.")}
           </p>
 
           <form onSubmit={handleSubmit} className="mt-7 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="firstName" className="font-ui">{t("register.firstName", "სახელი")}</Label>
+                <Label htmlFor="firstName" className="font-ui">{t("register.firstName", "First name")}</Label>
                 <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="font-ui" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName" className="font-ui">{t("register.lastName", "გვარი")}</Label>
+                <Label htmlFor="lastName" className="font-ui">{t("register.lastName", "Last name")}</Label>
                 <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} className="font-ui" />
               </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="username" className="font-ui">{t("register.username", "მომხმარებლის სახელი")}</Label>
+                <Label htmlFor="username" className="font-ui">{t("register.username", "Username")}</Label>
                 <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} className="font-ui" />
               </div>
               <div className="space-y-2">
@@ -198,7 +198,7 @@ const RegisterPage = () => {
             </div>
 
             <Button type="submit" className="w-full gap-2" disabled={loading}>
-              {loading ? t("register.creating", "ანგარიში იქმნება...") : t("register.create", "ანგარიშის შექმნა")}
+              {loading ? t("register.creating", "Creating account...") : t("register.create", "Create account")}
             </Button>
           </form>
 
@@ -210,11 +210,14 @@ const RegisterPage = () => {
               onClick={handleGoogleRegister}
               disabled={loading || !googleClientId}
             >
-              გაგრძელება Google-ით
+              {t("register.googleContinue", "Continue with Google")}
             </Button>
             {!googleClientId ? (
               <p className="text-center text-xs font-ui text-muted-foreground">
-                Google ავტორიზაცია ჯერ არ არის გამართული (`VITE_GOOGLE_CLIENT_ID` არ არის მითითებული).
+                {t(
+                  "register.googleNotConfiguredHint",
+                  "Google auth is not configured (`VITE_GOOGLE_CLIENT_ID` is missing).",
+                )}
               </p>
             ) : null}
           </div>

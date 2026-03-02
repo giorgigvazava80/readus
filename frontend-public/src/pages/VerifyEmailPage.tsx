@@ -6,10 +6,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n";
 import { fetchMe, resendVerification, verifyEmail } from "@/lib/api";
 import { isAdminAppHost } from "@/lib/runtime";
 
 const VerifyEmailPage = () => {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const adminHost = isAdminAppHost();
   const [searchParams] = useSearchParams();
@@ -22,19 +24,19 @@ const VerifyEmailPage = () => {
   const completeVerification = useCallback(
     async (verificationKey: string) => {
       const response = await verifyEmail(verificationKey);
-      const hasAuthტოკენი = Boolean(response.access || response.key);
+      const hasAuthToken = Boolean(response.access || response.key);
 
-      if (hasAuthტოკენი) {
+      if (hasAuthToken) {
         await fetchMe();
-        toast.success("Email verified. Redirecting to dashboard.");
+        toast.success(t("verify.success.redirecting", "Email verified. Redirecting to dashboard."));
         navigate(adminHost ? "/admin" : "/dashboard", { replace: true });
         return;
       }
 
-      toast.success("Email verified. You can now sign in.");
+      toast.success(t("verify.success.canSignIn", "Email verified. You can now sign in."));
       navigate(adminHost ? "/admin/login" : "/login", { replace: true });
     },
-    [adminHost, navigate],
+    [adminHost, navigate, t],
   );
 
   useEffect(() => {
@@ -51,7 +53,7 @@ const VerifyEmailPage = () => {
         if (!active) {
           return;
         }
-        const message = error instanceof Error ? error.message : "Verification failed.";
+        const message = error instanceof Error ? error.message : t("verify.error.failed", "Verification failed.");
         toast.error(message);
       } finally {
         if (active) {
@@ -65,12 +67,12 @@ const VerifyEmailPage = () => {
     return () => {
       active = false;
     };
-  }, [completeVerification, keyFromQuery]);
+  }, [completeVerification, keyFromQuery, t]);
 
   const handleVerify = async (event: FormEvent) => {
     event.preventDefault();
     if (!key) {
-      toast.error("დადასტურების გასაღები is required.");
+      toast.error(t("verify.error.keyRequired", "Verification key is required."));
       return;
     }
 
@@ -78,7 +80,7 @@ const VerifyEmailPage = () => {
     try {
       await completeVerification(key);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Verification failed.";
+      const message = error instanceof Error ? error.message : t("verify.error.failed", "Verification failed.");
       toast.error(message);
     } finally {
       setLoading(false);
@@ -87,16 +89,16 @@ const VerifyEmailPage = () => {
 
   const handleResend = async () => {
     if (!email) {
-      toast.error("ელფოსტა სავალდებულოა.");
+      toast.error(t("verify.error.emailRequired", "Email is required."));
       return;
     }
 
     setLoading(true);
     try {
       await resendVerification(email);
-      toast.success("Verification email sent.");
+      toast.success(t("verify.success.sent", "Verification email sent."));
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Could not resend verification email.";
+      const message = error instanceof Error ? error.message : t("verify.error.resendFailed", "Could not resend verification email.");
       toast.error(message);
     } finally {
       setLoading(false);
@@ -110,42 +112,42 @@ const VerifyEmailPage = () => {
         <div className="w-full max-w-xl rounded-2xl border border-border/70 bg-card/85 p-7 shadow-card backdrop-blur-sm">
           <div className="flex items-center gap-2">
             <MailCheck className="h-5 w-5 text-primary" />
-            <h1 className="font-display text-3xl font-semibold text-foreground">ელფოსტის დადასტურება</h1>
+            <h1 className="font-display text-3xl font-semibold text-foreground">{t("verify.title", "Verify Email")}</h1>
           </div>
           <p className="mt-1 font-ui text-sm text-muted-foreground">
-            Paste your verification key or open the link you received by email.
+            {t("verify.subtitle", "Paste your verification key or open the link you received by email.")}
           </p>
 
           <form onSubmit={handleVerify} className="mt-7 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="key" className="font-ui">დადასტურების გასაღები</Label>
+              <Label htmlFor="key" className="font-ui">{t("verify.key", "Verification key")}</Label>
               <Input id="key" value={key} onChange={(e) => setKey(e.target.value)} className="font-ui" />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Verifying..." : "Verify"}
+              {loading ? t("verify.verifying", "Verifying...") : t("verify.verify", "Verify")}
             </Button>
           </form>
 
           <div className="mt-6 border-t border-border/70 pt-5">
-            <p className="font-ui text-sm text-muted-foreground">ელფოსტა ვერ მიიღე?</p>
+            <p className="font-ui text-sm text-muted-foreground">{t("verify.resendPrompt", "Did not receive an email?")}</p>
             <div className="mt-2 flex flex-col gap-2 sm:flex-row">
               <Input
-                placeholder="you@example.com"
+                placeholder={t("verify.emailPlaceholder", "you@example.com")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 type="email"
                 className="font-ui"
               />
               <Button type="button" variant="outline" onClick={handleResend} disabled={loading}>
-                Resend
+                {t("verify.resend", "Resend")}
               </Button>
             </div>
           </div>
 
           <p className="mt-5 text-center font-ui text-sm text-muted-foreground">
-            Verified already?{" "}
+            {t("verify.alreadyVerified", "Verified already?")}{" "}
             <Link className="underline-offset-4 hover:underline" to="/login">
-              Sign in
+              {t("verify.signIn", "Sign in")}
             </Link>
           </p>
         </div>

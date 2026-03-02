@@ -29,7 +29,7 @@ const LoginPage = () => {
     const oauthError = params.get("error");
 
     if (oauthError) {
-      toast.error(`Google login failed: ${oauthError}`);
+      toast.error(t("login.error.googleFailed", "Google login failed: {error}").replace("{error}", oauthError));
       navigate(adminHost ? "/admin/login" : "/login", { replace: true });
       return;
     }
@@ -44,18 +44,18 @@ const LoginPage = () => {
         await loginWithGoogleCode(code, googleRedirectUri);
         const me = await fetchMe();
         if (!me) {
-          throw new Error(t("login.error.loadUser", "მიმდინარე მომხმარებლის ჩატვირთვა ვერ მოხერხდა."));
+          throw new Error(t("login.error.loadUser", "Failed to load current user."));
         }
 
         if (adminHost && !(me.is_admin || me.is_redactor)) {
           await logout();
-          throw new Error(t("login.error.noAdminAccess", "ადმინ პორტალზე წვდომა არ გაქვს."));
+          throw new Error(t("login.error.noAdminAccess", "You do not have access to the admin portal."));
         }
 
         navigate(adminHost ? "/admin" : "/dashboard", { replace: true });
-        toast.success("Google-ით წარმატებით შეხვედი.");
+        toast.success(t("login.success.google", "Signed in with Google."));
       } catch (error) {
-        const message = error instanceof Error ? error.message : t("login.error.failed", "შესვლა ვერ მოხერხდა.");
+        const message = error instanceof Error ? error.message : t("login.error.failed", "Login failed.");
         toast.error(message);
         navigate(adminHost ? "/admin/login" : "/login", { replace: true });
       } finally {
@@ -68,7 +68,7 @@ const LoginPage = () => {
 
   const handleGoogleLogin = () => {
     if (!googleClientId) {
-      toast.error("Google ავტორიზაცია კონფიგურირებული არ არის.");
+      toast.error(t("login.error.googleNotConfigured", "Google authentication is not configured."));
       return;
     }
 
@@ -88,7 +88,7 @@ const LoginPage = () => {
     event.preventDefault();
 
     if (!username || !password) {
-      toast.error(t("login.error.missing", "შეიყვანე მომხმარებლის სახელი ან ელფოსტა და პაროლი."));
+      toast.error(t("login.error.missing", "Enter your username or email and password."));
       return;
     }
 
@@ -97,18 +97,18 @@ const LoginPage = () => {
       await login(username, password);
       const me = await fetchMe();
       if (!me) {
-        throw new Error(t("login.error.loadUser", "მიმდინარე მომხმარებლის ჩატვირთვა ვერ მოხერხდა."));
+        throw new Error(t("login.error.loadUser", "Failed to load current user."));
       }
 
       if (adminHost && !(me.is_admin || me.is_redactor)) {
         await logout();
-        throw new Error(t("login.error.noAdminAccess", "ადმინ პორტალზე წვდომა არ გაქვს."));
+        throw new Error(t("login.error.noAdminAccess", "You do not have access to the admin portal."));
       }
 
       navigate(adminHost ? "/admin" : "/dashboard");
-      toast.success(t("login.success", "შესვლა წარმატებულია."));
+      toast.success(t("login.success", "Signed in successfully."));
     } catch (error) {
-      const message = error instanceof Error ? error.message : t("login.error.failed", "შესვლა ვერ მოხერხდა.");
+      const message = error instanceof Error ? error.message : t("login.error.failed", "Login failed.");
       toast.error(message);
     } finally {
       setLoading(false);
@@ -126,16 +126,16 @@ const LoginPage = () => {
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/70 px-4 py-1.5">
               {adminHost ? <Shield className="h-4 w-4 text-primary" /> : <BookOpen className="h-4 w-4 text-primary" />}
               <span className="font-ui text-xs text-muted-foreground">
-                {adminHost ? t("login.portal", "Editorial Management Portal") : t("login.welcome", "Welcome to read us")}
+                {adminHost ? t("login.portal", "Editorial Management Portal") : t("login.welcome", "Welcome to Readus")}
               </span>
             </div>
             <h1 className="mt-6 font-display text-4xl font-bold leading-tight text-foreground md:text-5xl">
-              {adminHost ? t("login.adminTitle", "კონტენტის ზუსტი მოდერაცია") : t("login.userTitle", "გააგრძელე შენი ლიტერატურული გზა")}
+              {adminHost ? t("login.adminTitle", "Accurate Content Moderation") : t("login.userTitle", "Continue Your Literary Journey")}
             </h1>
             <p className="mt-4 font-body text-lg leading-relaxed text-muted-foreground">
               {adminHost
-                ? t("login.adminSubtitle", "შედი რედაქტორის ან ადმინის ანგარიშით ავტორის განაცხადებისა და ნაშრომების განსახილველად.")
-                : t("login.userSubtitle", "შედი, რომ დაათვალიერო ნაშრომები, იურთიერთო ავტორებთან და მართო შენი სამუშაო პროცესი.")}
+                ? t("login.adminSubtitle", "Sign in with a redactor or admin account to review writer applications and submitted works.")
+                : t("login.userSubtitle", "Sign in to browse works, interact with authors, and manage your reading activity.")}
             </p>
           </div>
         </section>
@@ -150,7 +150,7 @@ const LoginPage = () => {
 
           <form onSubmit={handleSubmit} className="mt-7 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username" className="font-ui">{t("login.username", "მომხმარებლის სახელი ან ელფოსტა")}</Label>
+              <Label htmlFor="username" className="font-ui">{t("login.username", "Username or Email")}</Label>
               <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} className="font-ui" />
             </div>
             <div className="space-y-2">
@@ -175,7 +175,7 @@ const LoginPage = () => {
                 {t("login.createAccount", "Create account")}
               </Link>
               <Link className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline" to="/forgot-password">
-                {t("login.forgotPassword", "პაროლი დაგავიწყდა")}
+                {t("login.forgotPassword", "Forgot password")}
               </Link>
             </div>
           ) : null}
@@ -189,11 +189,14 @@ const LoginPage = () => {
                 onClick={handleGoogleLogin}
                 disabled={loading || !googleClientId}
               >
-                გაგრძელება Google-ით
+                {t("login.googleContinue", "Continue with Google")}
               </Button>
               {!googleClientId ? (
                 <p className="text-center text-xs font-ui text-muted-foreground">
-                  Google ავტორიზაცია ჯერ არ არის გამართული (`VITE_GOOGLE_CLIENT_ID` არ არის მითითებული).
+                  {t(
+                    "login.googleNotConfiguredHint",
+                    "Google auth is not configured (`VITE_GOOGLE_CLIENT_ID` is missing).",
+                  )}
                 </p>
               ) : null}
             </div>

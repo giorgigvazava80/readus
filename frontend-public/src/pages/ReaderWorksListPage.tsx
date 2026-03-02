@@ -16,9 +16,9 @@ interface ReaderWorksListPageProps {
 }
 
 const titles = {
-  books: "წიგნები",
+  books: "Books",
   poems: "Poems",
-  stories: "მოთხრობები",
+  stories: "Stories",
 };
 
 const paths = {
@@ -28,9 +28,13 @@ const paths = {
 };
 
 const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const locale = language === "ka" ? "ka-GE" : "en-US";
+  const title = t(`category.${category}`, titles[category]);
+  const readTimeTemplate = t("reader.readTime", "{minutes} min read");
+  const excerptFallback = t("home.excerptUnavailable", "Excerpt is not available yet.");
 
   const worksQuery = useQuery({
     queryKey: ["reader", category, page, search],
@@ -47,9 +51,9 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
   return (
     <div className="container mx-auto max-w-6xl space-y-8 px-6 py-10">
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
-        <h1 className="font-display text-4xl font-semibold text-foreground">{titles[category]}</h1>
+        <h1 className="font-display text-4xl font-semibold text-foreground">{title}</h1>
         <p className="mt-2 font-body text-base text-muted-foreground">
-          დამტკიცებული ნაშრომები კითხვისთვის.
+          {t("reader.listSubtitle", "Approved works ready to read.")}
         </p>
 
         <div className="mt-5 relative max-w-md">
@@ -60,18 +64,18 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
               setSearch(event.target.value);
               setPage(1);
             }}
-            placeholder={`ძებნა ${titles[category].toLowerCase()}...`}
+            placeholder={t("reader.listSearchPlaceholder", "Search {category}...").replace("{category}", title.toLowerCase())}
             className="pl-9 font-ui"
           />
         </div>
       </section>
 
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {worksQuery.isLoading ? <p className="font-ui text-sm text-muted-foreground">იტვირთება...</p> : null}
+        {worksQuery.isLoading ? <p className="font-ui text-sm text-muted-foreground">{t("common.loading", "Loading...")}</p> : null}
 
         {!worksQuery.isLoading && !items.length ? (
           <div className="rounded-xl border border-dashed border-border/80 bg-background/65 p-6 font-ui text-sm text-muted-foreground">
-            გამოქვეყნებული ნაშრომები ვერ მოიძებნა.
+            {t("reader.listEmpty", "No published works found.")}
           </div>
         ) : null}
 
@@ -92,11 +96,11 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
                 {t("workcard.by", "by ")}{item.author_name || item.author_username || t("workcard.anonymous", "anonymous")}
               </p>
               <p className="mt-3 font-body text-sm leading-relaxed text-foreground/80">
-                {toExcerpt(item.body || item.extracted_text || item.description)}
+                {toExcerpt(item.body || item.extracted_text || item.description, excerptFallback)}
               </p>
               <div className="mt-4 flex items-center justify-between font-ui text-xs text-muted-foreground">
-                <span>{new Date(item.created_at).toLocaleDateString()}</span>
-                <span>{estimateReadTimeFromHtml(item.body || item.extracted_text || item.description)}</span>
+                <span>{new Date(item.created_at).toLocaleDateString(locale)}</span>
+                <span>{estimateReadTimeFromHtml(item.body || item.extracted_text || item.description, readTimeTemplate)}</span>
               </div>
             </article>
           </Link>
@@ -104,7 +108,9 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
       </section>
 
       <section className="flex items-center justify-between">
-        <p className="font-ui text-xs text-muted-foreground">სულ: {worksQuery.data?.count || 0}</p>
+        <p className="font-ui text-xs text-muted-foreground">
+          {t("reader.listTotal", "Total: {count}").replace("{count}", String(worksQuery.data?.count || 0))}
+        </p>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((prev) => prev - 1)}>
             {t("pagination.prev", "Previous")}

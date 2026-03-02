@@ -9,8 +9,10 @@ import { fetchContentDetail } from "@/lib/api";
 import { getStoredReadingFontSize, readingFontSizeClassByPreference, setStoredReadingFontSize, type ReadingFontSize } from "@/lib/fontSize";
 import { cn } from "@/lib/utils";
 import { useReadChapters } from "@/hooks/useReadChapters";
+import { useI18n } from "@/i18n";
 
 const ReaderChapterReadPage = () => {
+  const { t } = useI18n();
   const { identifier, chapterId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -50,7 +52,7 @@ const ReaderChapterReadPage = () => {
   if (!bookIdentifier || !Number.isFinite(currentChapterId)) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">თავის ბმული არასწორია.</p>
+        <p className="font-ui text-sm text-muted-foreground">{t("reader.chapterInvalidLink", "Chapter link is invalid.")}</p>
       </div>
     );
   }
@@ -58,7 +60,7 @@ const ReaderChapterReadPage = () => {
   if (bookQuery.isLoading) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">თავი იტვირთება...</p>
+        <p className="font-ui text-sm text-muted-foreground">{t("reader.chapterLoading", "Loading chapter...")}</p>
       </div>
     );
   }
@@ -66,9 +68,9 @@ const ReaderChapterReadPage = () => {
   if (bookQuery.isError || !book) {
     return (
       <div className="container mx-auto px-6 py-10 space-y-4">
-        <p className="font-ui text-sm text-red-700">თავის ჩატვირთვა ვერ მოხერხდა.</p>
+        <p className="font-ui text-sm text-red-700">{t("reader.chapterLoadError", "Could not load chapter.")}</p>
         <Link to="/books">
-          <Button variant="outline">წიგნებზე დაბრუნება</Button>
+          <Button variant="outline">{t("reader.backToBooks", "Back to books")}</Button>
         </Link>
       </div>
     );
@@ -77,9 +79,9 @@ const ReaderChapterReadPage = () => {
   if (!chapter) {
     return (
       <div className="container mx-auto px-6 py-10 space-y-4">
-        <p className="font-ui text-sm text-red-700">ამ წიგნში ეს თავი ვერ მოიძებნა.</p>
+        <p className="font-ui text-sm text-red-700">{t("reader.chapterNotFound", "This chapter was not found in the book.")}</p>
         <Link to={`/books/${book.public_slug || bookIdentifier}`}>
-          <Button variant="outline">სარჩევზე დაბრუნება</Button>
+          <Button variant="outline">{t("reader.backToContents", "Back to contents")}</Button>
         </Link>
       </div>
     );
@@ -99,20 +101,20 @@ const ReaderChapterReadPage = () => {
         <Link to={`/books/${canonicalBookIdentifier}`}>
           <Button variant="ghost" size="sm" className="gap-1.5 font-ui text-sm text-muted-foreground">
             <ArrowLeft className="h-4 w-4" />
-            სარჩევზე დაბრუნება
+            {t("reader.backToContents", "Back to contents")}
           </Button>
         </Link>
 
         <p className="mt-4 font-ui text-xs uppercase tracking-wide text-muted-foreground">{book.title}</p>
         <h1 className="mt-2 font-display text-4xl font-semibold text-foreground">
-          {chapter.title || `Chapter ${chapter.auto_label || chapter.order}`}
+          {chapter.title || t("reader.chapterUntitled", "Chapter {number}").replace("{number}", String(chapter.auto_label || chapter.order))}
         </h1>
       </section>
 
       <ReadingFontSizeControl value={fontSize} onChange={handleReadingFontSizeChange} />
 
       <article className={cn("reader-html prose-literary rounded-2xl border border-border/70 bg-card/80 p-8 text-foreground/90 shadow-card", readingFontSizeClass)}>
-        <div dangerouslySetInnerHTML={{ __html: chapter.body || "<p>თავის ტექსტი ჯერ არ არის.</p>" }} />
+        <div dangerouslySetInnerHTML={{ __html: chapter.body || `<p>${t("reader.chapterEmptyText", "This chapter has no text yet.")}</p>` }} />
       </article>
 
       <section className="flex flex-wrap items-center justify-between gap-3">
@@ -120,7 +122,7 @@ const ReaderChapterReadPage = () => {
           <Link to={`/books/${canonicalBookIdentifier}/chapters/${previousChapter.id}`}>
             <Button variant="outline" className="gap-1.5">
               <ArrowLeft className="h-4 w-4" />
-              Previous
+              {t("reader.previous", "Previous")}
             </Button>
           </Link>
         ) : <span />}
@@ -128,7 +130,7 @@ const ReaderChapterReadPage = () => {
         {nextChapter ? (
           <Link to={`/books/${canonicalBookIdentifier}/chapters/${nextChapter.id}`}>
             <Button variant="outline" className="gap-1.5">
-              Next
+              {t("reader.next", "Next")}
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>

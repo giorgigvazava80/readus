@@ -17,8 +17,8 @@ interface ReaderTextWorkPageProps {
 }
 
 const labels = {
-  poems: "Poem",
-  stories: "მოთხრობა",
+  poems: "Poetry",
+  stories: "Stories",
 };
 
 const listPath = {
@@ -34,6 +34,8 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
   const contentIdentifier = (identifier || "").trim();
   const [fontSize, setFontSize] = useState<ReadingFontSize>(() => getStoredReadingFontSize());
   const readingFontSizeClass = readingFontSizeClassByPreference[fontSize];
+  const categoryLabel = t(`dashboard.${type}`, labels[type]);
+  const readTimeTemplate = t("reader.readTime", "{minutes} min read");
 
   const detailQuery = useQuery({
     queryKey: ["reader", type, contentIdentifier],
@@ -54,7 +56,7 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
   if (!contentIdentifier) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">ბმული არასწორია.</p>
+        <p className="font-ui text-sm text-muted-foreground">{t("reader.invalidLink", "Link is invalid.")}</p>
       </div>
     );
   }
@@ -62,7 +64,7 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
   if (detailQuery.isLoading) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">იტვირთება...</p>
+        <p className="font-ui text-sm text-muted-foreground">{t("common.loading", "Loading...")}</p>
       </div>
     );
   }
@@ -70,9 +72,11 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
   if (detailQuery.isError || !detailQuery.data) {
     return (
       <div className="container mx-auto px-6 py-10 space-y-4">
-        <p className="font-ui text-sm text-red-700">ნაშრომი ვერ მოიძებნა.</p>
+        <p className="font-ui text-sm text-red-700">{t("reader.workLoadError", "Work not found.")}</p>
         <Link to={listPath[type]}>
-          <Button variant="outline">სიაზე დაბრუნება</Button>
+          <Button variant="outline">
+            {t("reader.backToList", "Back to {category}").replace("{category}", categoryLabel)}
+          </Button>
         </Link>
       </div>
     );
@@ -90,11 +94,11 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
         <Link to={listPath[type]}>
           <Button variant="ghost" size="sm" className="gap-1.5 font-ui text-sm text-muted-foreground">
             <ArrowLeft className="h-4 w-4" />
-            {t("reader.backTo", "Back to ")} {t(`dashboard.${type}`, type)}
+            {t("reader.backToList", "Back to {category}").replace("{category}", categoryLabel)}
           </Button>
         </Link>
 
-        <p className="mt-4 font-ui text-xs uppercase tracking-wide text-muted-foreground">{t(`dashboard.${type}`, labels[type])}</p>
+        <p className="mt-4 font-ui text-xs uppercase tracking-wide text-muted-foreground">{categoryLabel}</p>
         <div className="flex items-center justify-between gap-4 mt-2">
           <h1 className="font-display text-4xl font-semibold text-foreground">{work.title}</h1>
           {work.is_hidden && (
@@ -105,7 +109,10 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
           )}
         </div>
         <p className="mt-2 font-ui text-sm text-muted-foreground">
-          {t("workcard.by", "by ")}{work.author_name || work.author_username || t("workcard.anonymous", "anonymous")} - {estimateReadTimeFromHtml(work.body || work.extracted_text || work.description)}
+          {t("workcard.by", "by ")}
+          {work.author_name || work.author_username || t("workcard.anonymous", "anonymous")}
+          {" - "}
+          {estimateReadTimeFromHtml(work.body || work.extracted_text || work.description, readTimeTemplate)}
         </p>
       </section>
 
@@ -122,7 +129,7 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
           ) : work.extracted_text ? (
             <pre className={cn("prose-literary whitespace-pre-wrap", readingFontSizeClass)}>{work.extracted_text}</pre>
           ) : (
-            <p className="font-ui text-sm text-muted-foreground">ტექსტი ხელმისაწვდომი არ არის.</p>
+            <p className="font-ui text-sm text-muted-foreground">{t("reader.noTextAvailable", "Text is not available.")}</p>
           )}
         </article>
       </div>

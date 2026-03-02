@@ -15,13 +15,6 @@ import { useI18n } from "@/i18n";
 import type { ContentCategory, ContentDetail } from "@/lib/types";
 import { useReadChapters } from "@/hooks/useReadChapters";
 
-const categoryLabels: Record<ContentCategory, string> = {
-  books: "წიგნი",
-  chapters: "თავი",
-  poems: "პოეზია",
-  stories: "მოკლე მოთხრობა",
-};
-
 const allowedCategories: ContentCategory[] = ["books", "chapters", "poems", "stories"];
 
 function stripHtml(value: string | undefined): string {
@@ -34,7 +27,7 @@ function hasTextContent(html?: string | null): boolean {
   return stripped.length > 0;
 }
 
-function estimateReadTime(content: ContentDetail): string {
+function estimateReadTime(content: ContentDetail, template: string): string {
   const parts = [
     content.description,
     content.body,
@@ -45,11 +38,11 @@ function estimateReadTime(content: ContentDetail): string {
 
   const words = stripHtml(parts.join(" ")).split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.ceil(words / 220));
-  return `${minutes} წთ კითხვის დრო`;
+  return template.replace("{minutes}", String(minutes));
 }
 
 const PublicReadPage = () => {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { category: rawCategory, identifier: rawIdentifier, page: rawPage } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,6 +57,14 @@ const PublicReadPage = () => {
   const contentAreaRef = useRef<HTMLDivElement>(null);
   const [fontSize, setFontSize] = useState<ReadingFontSize>(() => getStoredReadingFontSize());
   const readingFontSizeClass = readingFontSizeClassByPreference[fontSize];
+  const locale = language === "ka" ? "ka-GE" : "en-US";
+  const readTimeTemplate = t("reader.readTime", "{minutes} min read");
+  const categoryLabelByKey: Record<ContentCategory, string> = {
+    books: t("category.book", "Book"),
+    chapters: t("category.chapter", "Chapter"),
+    poems: t("category.poem", "Poem"),
+    stories: t("category.shortStory", "Short Story"),
+  };
 
   const currentPage = useMemo(() => {
     if (category !== "books") {
@@ -103,20 +104,20 @@ const PublicReadPage = () => {
     const s: { id: string; title: string; html: string }[] = [];
 
     if (hasTextContent(content.foreword)) {
-      s.push({ id: 'foreword', title: 'წინასიტყვაობა', html: content.foreword! });
+      s.push({ id: "foreword", title: t("reader.foreword", "Foreword"), html: content.foreword! });
     }
     chapters.forEach((ch) => {
       s.push({
         id: `chapter-${ch.id}`,
-        title: ch.title || `Chapter ${ch.auto_label || ch.order}`,
-        html: ch.body || "<p>თავის ტექსტი არ არის.</p>"
+        title: ch.title || t("reader.chapterUntitled", "Chapter {number}").replace("{number}", String(ch.auto_label || ch.order)),
+        html: ch.body || `<p>${t("reader.chapterEmptyText", "This chapter has no text yet.")}</p>`,
       });
     });
     if (hasTextContent(content.afterword)) {
-      s.push({ id: 'afterword', title: 'ბოლოსიტყვაობა', html: content.afterword! });
+      s.push({ id: "afterword", title: t("reader.afterword", "Afterword"), html: content.afterword! });
     }
     return s;
-  }, [content, category]);
+  }, [content, category, t]);
 
   useEffect(() => {
     if (currentPage > 0 && sections[currentPage - 1]) {
@@ -174,24 +175,30 @@ const PublicReadPage = () => {
   if (!category || !identifier) {
     return (
       <div className="container mx-auto px-6 py-24 text-center">
-        <h1 className="font-display text-2xl font-bold text-foreground">კონტენტის ბმული არასწორია</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground">
+          {t("reader.invalidContentLink", "Content link is invalid.")}
+        </h1>
         <Link to="/browse">
-          <Button variant="outline" className="mt-4">ბიბლიოთეკაში დაბრუნება</Button>
+          <Button variant="outline" className="mt-4">{t("reader.backToLibrary", "Back to library")}</Button>
         </Link>
       </div>
     );
   }
 
   if (detailQuery.isLoading) {
-    return <div className="container mx-auto px-6 py-24 text-center text-sm text-muted-foreground">იტვირთება...</div>;
+    return (
+      <div className="container mx-auto px-6 py-24 text-center text-sm text-muted-foreground">
+        {t("common.loading", "Loading...")}
+      </div>
+    );
   }
 
   if (detailQuery.isError || !detailQuery.data) {
     return (
       <div className="container mx-auto px-6 py-24 text-center">
-        <h1 className="font-display text-2xl font-bold text-foreground">ნაშრომი ვერ მოიძებნა</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground">{t("reader.workNotFound", "Work not found.")}</h1>
         <Link to="/browse">
-          <Button variant="outline" className="mt-4">ბიბლიოთეკაში დაბრუნება</Button>
+          <Button variant="outline" className="mt-4">{t("reader.backToLibrary", "Back to library")}</Button>
         </Link>
       </div>
     );
@@ -226,7 +233,7 @@ const PublicReadPage = () => {
         <div className="container relative mx-auto px-6 py-8 md:py-12">
           <Link to="/browse">
             <Button variant="ghost" size="sm" className="mb-6 gap-1.5 font-ui text-sm text-muted-foreground -ml-3">
-              <ArrowLeft className="h-3.5 w-3.5" /> ბიბლიოთეკაში დაბრუნება
+              <ArrowLeft className="h-3.5 w-3.5" /> {t("reader.backToLibrary", "Back to library")}
             </Button>
           </Link>
 
@@ -244,7 +251,7 @@ const PublicReadPage = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex-1 pt-2">
               <div className="mb-4 flex items-center gap-2">
                 <Badge variant="secondary" className="font-ui text-xs">
-                  {categoryLabels[category]}
+                  {categoryLabelByKey[category]}
                 </Badge>
               </div>
 
@@ -264,13 +271,13 @@ const PublicReadPage = () => {
 
               <div className="mt-8 flex flex-wrap items-center gap-3 font-ui text-sm text-muted-foreground">
                 <span className="flex items-center gap-1.5 bg-secondary/50 px-3 py-1.5 rounded-md border border-border/50">
-                  <Clock className="h-3.5 w-3.5" /> {estimateReadTime(content)}
+                  <Clock className="h-3.5 w-3.5" /> {estimateReadTime(content, readTimeTemplate)}
                 </span>
                 <span className="flex items-center gap-1.5 bg-secondary/50 px-3 py-1.5 rounded-md border border-border/50">
-                  <Calendar className="h-3.5 w-3.5" /> {new Date(content.created_at).toLocaleDateString()}
+                  <Calendar className="h-3.5 w-3.5" /> {new Date(content.created_at).toLocaleDateString(locale)}
                 </span>
                 <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground md:ml-4 border border-transparent hover:bg-secondary">
-                  <Share2 className="h-3.5 w-3.5" /> Share
+                  <Share2 className="h-3.5 w-3.5" /> {t("reader.share", "Share")}
                 </Button>
               </div>
             </motion.div>
@@ -291,7 +298,10 @@ const PublicReadPage = () => {
 
           {content.upload_file ? (
             <p className="mb-6 text-sm text-muted-foreground">
-              ატვირთული ფაილი: <a className="underline" href={content.upload_file} target="_blank" rel="noreferrer">ფაილის გახსნა</a>
+              {t("reader.uploadedFile", "Uploaded file:")}{" "}
+              <a className="underline" href={content.upload_file} target="_blank" rel="noreferrer">
+                {t("reader.openFile", "Open file")}
+              </a>
             </p>
           ) : null}
 
@@ -300,7 +310,9 @@ const PublicReadPage = () => {
               {sections.length > 0 ? (
                 currentPage === 0 ? (
                   <section className="animate-in fade-in duration-500">
-                    <h2 className="font-display text-3xl font-semibold text-foreground mb-6">სარჩევი</h2>
+                    <h2 className="font-display text-3xl font-semibold text-foreground mb-6">
+                      {t("reader.contents", "Contents")}
+                    </h2>
                     <div className="flex flex-col gap-3">
                       {sections.map((sec, idx) => {
                         const isChapter = sec.id.startsWith("chapter-");
@@ -318,7 +330,7 @@ const PublicReadPage = () => {
                             </span>
                             {showNew && (
                               <span className="flex-shrink-0 ml-2 rounded-full px-2 py-0.5 text-xs uppercase font-bold tracking-wider bg-blue-500/20 text-blue-500 no-underline">
-                                New
+                                {t("reader.new", "New")}
                               </span>
                             )}
                           </button>
@@ -335,15 +347,19 @@ const PublicReadPage = () => {
                     />
                   </section>
                 ) : (
-                  <p className="font-ui text-sm text-muted-foreground">გვერდი ვერ მოიძებნა.</p>
+                  <p className="font-ui text-sm text-muted-foreground">{t("reader.pageNotFound", "Page not found.")}</p>
                 )
               ) : content.extracted_text ? (
                 <section>
-                  <h2 className="font-display text-2xl font-semibold text-foreground">ატვირთული ტექსტი</h2>
+                  <h2 className="font-display text-2xl font-semibold text-foreground">
+                    {t("reader.uploadedText", "Uploaded text")}
+                  </h2>
                   <pre className="prose-literary mt-3 whitespace-pre-wrap text-foreground/90">{content.extracted_text}</pre>
                 </section>
               ) : (
-                <p className="font-ui text-sm text-muted-foreground">წაკითხვადი ტექსტი ხელმისაწვდომი არ არის.</p>
+                <p className="font-ui text-sm text-muted-foreground">
+                  {t("reader.noReadableText", "Readable text is not available.")}
+                </p>
               )}
             </div>
           ) : content.body ? (
@@ -354,7 +370,7 @@ const PublicReadPage = () => {
           ) : content.extracted_text ? (
             <pre className="prose-literary whitespace-pre-wrap text-foreground/90">{content.extracted_text}</pre>
           ) : (
-            <p className="font-ui text-sm text-muted-foreground">წაკითხვადი ტექსტი ხელმისაწვდომი არ არის.</p>
+            <p className="font-ui text-sm text-muted-foreground">{t("reader.noReadableText", "Readable text is not available.")}</p>
           )}
 
           {category === "books" && sections.length > 0 && (
@@ -364,7 +380,7 @@ const PublicReadPage = () => {
                 onClick={() => navigateToPage(0)}
                 className={`font-ui ${currentPage !== 0 ? "bg-background" : ""}`}
               >
-                სარჩევი
+                {t("reader.contents", "Contents")}
               </Button>
               {sections.map((sec, idx) => (
                 <Button
@@ -382,9 +398,9 @@ const PublicReadPage = () => {
           <Separator className="my-12" />
 
           <div className="text-center">
-            <p className="font-display text-lg italic text-muted-foreground">პრევიუს დასასრული</p>
+            <p className="font-display text-lg italic text-muted-foreground">{t("reader.previewEnd", "End of preview")}</p>
             <p className="mt-2 font-ui text-sm text-muted-foreground">
-              შემოუერთდი როგორც მკითხველი, რომ მოიწონო, დააკომენტარო და გამოიწერო ავტორები.
+              {t("reader.previewCta", "Join as a reader to like, comment, and follow authors.")}
             </p>
           </div>
         </div>
