@@ -169,9 +169,43 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = env("MEDIA_URL", default="/media/")
+if not MEDIA_URL.endswith("/"):
+    MEDIA_URL = f"{MEDIA_URL}/"
+
+_media_root_env = env("MEDIA_ROOT", default="").strip()
+if _media_root_env:
+    _media_root_path = Path(_media_root_env)
+    MEDIA_ROOT = _media_root_path if _media_root_path.is_absolute() else BASE_DIR / _media_root_path
+else:
+    MEDIA_ROOT = BASE_DIR / "media"
+
 SERVE_MEDIA = env.bool("SERVE_MEDIA", default=True)
+
+CACHE_URL = env("CACHE_URL", default="").strip()
+CACHE_KEY_PREFIX = env("CACHE_KEY_PREFIX", default="readus")
+CACHE_DEFAULT_TIMEOUT = env.int("CACHE_DEFAULT_TIMEOUT", default=300)
+CACHE_TTL_PUBLIC_LIST = env.int("CACHE_TTL_PUBLIC_LIST", default=120)
+CACHE_TTL_PUBLIC_DETAIL = env.int("CACHE_TTL_PUBLIC_DETAIL", default=300)
+
+if CACHE_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": CACHE_URL,
+            "KEY_PREFIX": CACHE_KEY_PREFIX,
+            "TIMEOUT": CACHE_DEFAULT_TIMEOUT,
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "readus-local-cache",
+            "KEY_PREFIX": CACHE_KEY_PREFIX,
+            "TIMEOUT": CACHE_DEFAULT_TIMEOUT,
+        }
+    }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

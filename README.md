@@ -43,6 +43,7 @@ This repo includes [`render.yaml`](./render.yaml) for Blueprint deploy.
 3. Select your `giorgigvazava80/readus` repository and deploy.
 4. Render will create:
    - `readus-db` (PostgreSQL)
+   - `readus-cache` (Render Key Value, Redis-compatible cache)
    - `readus-api` (Django API)
    - `readus-public` (public frontend)
    - `readus-admin` (admin frontend)
@@ -53,6 +54,12 @@ After first deploy, verify these env vars:
 - On both static sites: `VITE_API_BASE_URL` should be your actual API URL (example: `https://readus-api.onrender.com`).
 
 If you change any of them, redeploy the affected service.
+
+Media uploads in production are configured to use `MEDIA_ROOT=/var/data/media` on a Render persistent disk (`readus-media` in `render.yaml`).
+If your current Render plan does not support persistent disks, move media to object storage (for example S3/Cloudinary) instead of local filesystem storage.
+
+API response caching is configured to use Redis-compatible cache via `CACHE_URL` when available.
+In this repo's `render.yaml`, `readus-api` reads `CACHE_URL` from `readus-cache` connection string.
 
 ## URLs
 
@@ -85,6 +92,8 @@ First login requires password change. After changing password, privileged endpoi
 - `EMAIL_SEND_ASYNC` (set `1` in production so signup does not wait on SMTP)
 - `SOCIAL_AUTH_GOOGLE_CALLBACK_URL`, `SOCIAL_AUTH_FACEBOOK_CALLBACK_URL` (for OAuth code flow)
 - `SERVE_MEDIA` (set `1` to serve uploaded media files like cover images from Django in hosted testing)
+- `MEDIA_ROOT` and `MEDIA_URL` (where uploaded files are stored and served from)
+- `CACHE_URL`, `CACHE_KEY_PREFIX`, `CACHE_DEFAULT_TIMEOUT`, `CACHE_TTL_PUBLIC_LIST`, `CACHE_TTL_PUBLIC_DETAIL`
 
 ## API Surfaces
 

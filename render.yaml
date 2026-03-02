@@ -5,6 +5,12 @@ databases:
     user: readus
 
 services:
+  - type: keyvalue
+    name: readus-cache
+    plan: free
+    ipAllowList: []
+    maxmemoryPolicy: allkeys-lru
+
   - type: web
     name: readus-api
     runtime: python
@@ -12,6 +18,10 @@ services:
     buildCommand: cd api && pip install -r requirements.txt
     startCommand: cd api && sh entrypoint.sh gunicorn --bind 0.0.0.0:$PORT --workers 3 core.wsgi:application
     healthCheckPath: /health/
+    disk:
+      name: readus-media
+      mountPath: /var/data/media
+      sizeGB: 1
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.8
@@ -47,6 +57,23 @@ services:
         value: "10"
       - key: RUN_COLLECTSTATIC
         value: "1"
+      - key: SERVE_MEDIA
+        value: "1"
+      - key: MEDIA_ROOT
+        value: /var/data/media
+      - key: CACHE_URL
+        fromService:
+          type: keyvalue
+          name: readus-cache
+          property: connectionString
+      - key: CACHE_KEY_PREFIX
+        value: readus
+      - key: CACHE_DEFAULT_TIMEOUT
+        value: "300"
+      - key: CACHE_TTL_PUBLIC_LIST
+        value: "120"
+      - key: CACHE_TTL_PUBLIC_DETAIL
+        value: "300"
 
   - type: web
     runtime: static

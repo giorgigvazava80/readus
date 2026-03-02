@@ -1,3 +1,7 @@
+from hashlib import sha256
+
+from django.conf import settings
+from django.core.cache import cache
 from django.db.models import Q
 from django.http import Http404
 from rest_framework import permissions, status, viewsets
@@ -20,6 +24,9 @@ from content.serializers import (
 )
 
 
+PUBLIC_CONTENT_CACHE_VERSION_KEY = "public-content-cache-version"
+
+
 def _send_review_email(user, status_value):
     if not user.email:
         return
@@ -32,6 +39,30 @@ def _send_review_email(user, status_value):
         body = "One of your submissions was rejected. Check rejection reason in your dashboard."
 
     send_mail_safe(subject, body, None, [user.email], fail_silently=True)
+
+
+def _get_public_cache_version() -> int:
+    version = cache.get(PUBLIC_CONTENT_CACHE_VERSION_KEY)
+    if version is None:
+        cache.set(PUBLIC_CONTENT_CACHE_VERSION_KEY, 1, timeout=None)
+        return 1
+    return int(version)
+
+
+def _bump_public_cache_version() -> None:
+    if cache.get(PUBLIC_CONTENT_CACHE_VERSION_KEY) is None:
+        cache.set(PUBLIC_CONTENT_CACHE_VERSION_KEY, 1, timeout=None)
+    try:
+        cache.incr(PUBLIC_CONTENT_CACHE_VERSION_KEY)
+    except ValueError:
+        current = cache.get(PUBLIC_CONTENT_CACHE_VERSION_KEY) or 1
+        cache.set(PUBLIC_CONTENT_CACHE_VERSION_KEY, int(current) + 1, timeout=None)
+
+
+def _public_cache_key(prefix: str, path: str) -> str:
+    path_hash = sha256(path.encode("utf-8")).hexdigest()
+    version = _get_public_cache_version()
+    return f"{prefix}:v{version}:{path_hash}"
 
 
 class ReviewActionMixin:
@@ -92,11 +123,50 @@ class ReviewActionMixin:
             request=request,
         )
 
+        _bump_public_cache_version()
         return Response({"status": "updated"})
 
 
 class AuthorContentViewSet(ReviewActionMixin, viewsets.ModelViewSet):
     permission_classes = [IsApprovedWriterOrReadOnly]
+
+    def _can_use_public_cache(self, request):
+        user = request.user
+        return request.method == "GET" and not (user and user.is_authenticated)
+
+    def list(self, request, *args, **kwargs):
+        if not self._can_use_public_cache(request):
+            return super().list(request, *args, **kwargs)
+
+        cache_key = _public_cache_key(f"public-content:{self.basename}:list", request.get_full_path())
+        cached_payload = cache.get(cache_key)
+        if cached_payload is not None:
+            response = Response(cached_payload)
+            response["X-Cache"] = "HIT"
+            return response
+
+        response = super().list(request, *args, **kwargs)
+        if response.status_code == status.HTTP_200_OK:
+            cache.set(cache_key, response.data, timeout=getattr(settings, "CACHE_TTL_PUBLIC_LIST", 120))
+            response["X-Cache"] = "MISS"
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        if not self._can_use_public_cache(request):
+            return super().retrieve(request, *args, **kwargs)
+
+        cache_key = _public_cache_key(f"public-content:{self.basename}:detail", request.get_full_path())
+        cached_payload = cache.get(cache_key)
+        if cached_payload is not None:
+            response = Response(cached_payload)
+            response["X-Cache"] = "HIT"
+            return response
+
+        response = super().retrieve(request, *args, **kwargs)
+        if response.status_code == status.HTTP_200_OK:
+            cache.set(cache_key, response.data, timeout=getattr(settings, "CACHE_TTL_PUBLIC_DETAIL", 300))
+            response["X-Cache"] = "MISS"
+        return response
 
     def get_object(self):
         queryset = self.filter_queryset(self.get_queryset())
@@ -161,6 +231,7 @@ class AuthorContentViewSet(ReviewActionMixin, viewsets.ModelViewSet):
             metadata={"status": obj.status},
             request=self.request,
         )
+        _bump_public_cache_version()
 
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
@@ -173,6 +244,7 @@ class AuthorContentViewSet(ReviewActionMixin, viewsets.ModelViewSet):
             description="Content updated",
             request=request,
         )
+        _bump_public_cache_version()
         return response
 
     def destroy(self, request, *args, **kwargs):
@@ -185,7 +257,9 @@ class AuthorContentViewSet(ReviewActionMixin, viewsets.ModelViewSet):
             description="Content deleted",
             request=request,
         )
-        return super().destroy(request, *args, **kwargs)
+        response = super().destroy(request, *args, **kwargs)
+        _bump_public_cache_version()
+        return response
 
 
 class StoryViewSet(AuthorContentViewSet):
@@ -290,6 +364,7 @@ class ChapterViewSet(ReviewActionMixin, viewsets.ModelViewSet):
             metadata={"book_id": book.id, "status": chapter.status},
             request=self.request,
         )
+        _bump_public_cache_version()
 
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
@@ -302,6 +377,7 @@ class ChapterViewSet(ReviewActionMixin, viewsets.ModelViewSet):
             description="Chapter updated",
             request=request,
         )
+        _bump_public_cache_version()
         return response
 
     def destroy(self, request, *args, **kwargs):
@@ -314,4 +390,6 @@ class ChapterViewSet(ReviewActionMixin, viewsets.ModelViewSet):
             description="Content deleted",
             request=request,
         )
-        return super().destroy(request, *args, **kwargs)
+        response = super().destroy(request, *args, **kwargs)
+        _bump_public_cache_version()
+        return response
