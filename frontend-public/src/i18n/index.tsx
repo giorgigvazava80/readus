@@ -243,6 +243,7 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
     "home.featuredViewAll": "View all",
 
     "login.error.googleFailed": "Google login failed: {error}",
+    "login.error.googleStateInvalid": "Google login failed: invalid OAuth state.",
     "login.success.google": "Signed in with Google.",
     "login.error.googleNotConfigured": "Google authentication is not configured.",
     "login.googleContinue": "Continue with Google",
@@ -532,6 +533,7 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
     "home.featuredViewAll": "ყველას ნახვა",
 
     "login.error.googleFailed": "Google-ით შესვლა ვერ მოხერხდა: {error}",
+    "login.error.googleStateInvalid": "Google-ით შესვლა ვერ მოხერხდა: OAuth state არასწორია.",
     "login.success.google": "Google-ით წარმატებით შეხვედი.",
     "login.error.googleNotConfigured": "Google ავტორიზაცია კონფიგურირებული არ არის.",
     "login.googleContinue": "გაგრძელება Google-ით",

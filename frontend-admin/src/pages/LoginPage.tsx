@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import { useI18n } from "@/i18n";
 import { fetchMe, login, loginWithGoogleCode, logout } from "@/lib/api";
+import { consumeGoogleOAuthState, createGoogleOAuthState } from "@/lib/oauth";
 import { isAdminAppHost } from "@/lib/runtime";
 
 const LoginPage = () => {
@@ -29,12 +30,21 @@ const LoginPage = () => {
     const oauthError = params.get("error");
 
     if (oauthError) {
+      consumeGoogleOAuthState();
       toast.error(`Google login failed: ${oauthError}`);
       navigate(adminHost ? "/admin/login" : "/login", { replace: true });
       return;
     }
 
     if (!code) {
+      return;
+    }
+
+    const expectedState = consumeGoogleOAuthState();
+    const returnedState = params.get("state") || "";
+    if (!expectedState || expectedState !== returnedState) {
+      toast.error("Google login failed: invalid OAuth state.");
+      navigate(adminHost ? "/admin/login" : "/login", { replace: true });
       return;
     }
 
@@ -71,6 +81,7 @@ const LoginPage = () => {
       toast.error("Google ავტორიზაცია კონფიგურირებული არ არის.");
       return;
     }
+    const state = createGoogleOAuthState();
 
     const params = new URLSearchParams({
       client_id: googleClientId,
@@ -80,6 +91,7 @@ const LoginPage = () => {
       access_type: "offline",
       include_granted_scopes: "true",
       prompt: "select_account",
+      state,
     });
     window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
   };

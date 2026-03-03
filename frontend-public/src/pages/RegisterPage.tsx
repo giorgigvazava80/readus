@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { useI18n } from "@/i18n";
 import { register, resendVerification } from "@/lib/api";
+import { createGoogleOAuthState } from "@/lib/oauth";
 import type { RegisteredRole } from "@/lib/types";
 
 const RegisterPage = () => {
@@ -84,6 +85,7 @@ const RegisterPage = () => {
       toast.error(t("register.error.googleNotConfigured", "Google authentication is not configured."));
       return;
     }
+    const state = createGoogleOAuthState();
 
     const params = new URLSearchParams({
       client_id: googleClientId,
@@ -93,6 +95,7 @@ const RegisterPage = () => {
       access_type: "offline",
       include_granted_scopes: "true",
       prompt: "select_account",
+      state,
     });
     window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
   };

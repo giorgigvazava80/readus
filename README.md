@@ -95,6 +95,20 @@ First login requires password change. After changing password, privileged endpoi
 - `MEDIA_ROOT` and `MEDIA_URL` (where uploaded files are stored and served from)
 - `CACHE_URL`, `CACHE_KEY_PREFIX`, `CACHE_DEFAULT_TIMEOUT`, `CACHE_TTL_PUBLIC_LIST`, `CACHE_TTL_PUBLIC_DETAIL`
 
+## Google OAuth Checklist
+
+1. In Google Cloud Console, create an OAuth 2.0 **Web application** client.
+2. Add authorized JavaScript origins:
+   - `http://localhost:5173`
+   - your deployed public frontend origin (example: `https://your-app.vercel.app`)
+3. Add authorized redirect URIs:
+   - `http://localhost:5173/login`
+   - your deployed public login callback (example: `https://your-app.vercel.app/login`)
+4. Set these env vars:
+   - frontend (`frontend-public`): `VITE_GOOGLE_CLIENT_ID`, `VITE_GOOGLE_REDIRECT_URI`
+   - backend (`api`): `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `SOCIAL_AUTH_GOOGLE_CALLBACK_URL`
+5. Rebuild/redeploy frontend and API after env var changes.
+
 ## API Surfaces
 
 - Auth: `/auth/*`
