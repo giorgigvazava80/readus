@@ -96,7 +96,7 @@ const ReaderChapterReadPage = () => {
   };
 
   return (
-    <div className="container mx-auto max-w-4xl space-y-8 px-6 py-10">
+    <div className="container mx-auto w-full md:w-[95%] lg:w-[75%] space-y-8 px-6 py-10">
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <Link to={`/books/${canonicalBookIdentifier}`}>
           <Button variant="ghost" size="sm" className="gap-1.5 font-ui text-sm text-muted-foreground">

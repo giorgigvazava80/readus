@@ -140,29 +140,6 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
             lastError={autosave.lastError}
           />
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            className="gap-2"
-            onClick={async () => {
-              try {
-                await autosave.saveNow();
-                toast({ title: t("editor.chapterSaved") });
-              } catch (error) {
-                toast({ variant: "destructive", title: t("editor.saveFailed") });
-              }
-            }}
-            disabled={autosave.isSaving}
-          >
-            <Save className="h-4 w-4" /> Save
-          </Button>
-          <Button variant="destructive" size="sm" onClick={() => {
-            if (window.confirm("Are you sure you want to delete this chapter?")) {
-              deleteMutation.mutate();
-            }
-          }} className="gap-2 h-9" disabled={deleteMutation.isPending}>
-            <Trash className="h-3.5 w-3.5" /> {deleteMutation.isPending ? t("editor.deleting") : t("editor.delete")}
-          </Button>
-        </div>
       </div>
 
       {detailQuery.data.rejection_reason && (
@@ -201,6 +178,31 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
           placeholder="Write chapter text..."
         />
       </section>
+
+      <div className="flex items-center justify-end gap-3 pt-2">
+        <Button variant="destructive" size="sm" onClick={() => {
+          if (window.confirm("Are you sure you want to delete this chapter?")) {
+            deleteMutation.mutate();
+          }
+        }} className="gap-2 h-9" disabled={deleteMutation.isPending}>
+          <Trash className="h-3.5 w-3.5" /> {deleteMutation.isPending ? t("editor.deleting") : t("editor.delete")}
+        </Button>
+        <Button
+          className="gap-2 h-9"
+          size="sm"
+          onClick={async () => {
+            try {
+              await autosave.saveNow();
+              toast({ title: t("editor.chapterSaved") });
+            } catch (error) {
+              toast({ variant: "destructive", title: t("editor.saveFailed") });
+            }
+          }}
+          disabled={autosave.isSaving}
+        >
+          <Save className="h-4 w-4" /> Save
+        </Button>
+      </div>
     </div>
   );
 }
@@ -346,7 +348,7 @@ const WriterBookEditorPage = () => {
   const status = detailQuery.data.status;
 
   return (
-    <div className="container mx-auto max-w-6xl flex flex-col h-[calc(100dvh-64px)] lg:h-auto gap-3 lg:space-y-6 px-3 lg:px-6 py-3 lg:py-10">
+    <div className="container mx-auto max-w-6xl flex flex-col gap-3 lg:space-y-6 px-3 lg:px-6 py-3 lg:py-10">
       <section className="shrink-0 rounded-2xl border border-border/70 bg-card/80 p-3 lg:p-6 shadow-card">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -355,46 +357,6 @@ const WriterBookEditorPage = () => {
               <span className="font-ui text-xs text-muted-foreground">{t("work.book")}ს რედაქტორი</span>
             </div>
             <h1 className="mt-3 font-display text-3xl font-semibold text-foreground">{t("work.book")}ს რედაქტირება</h1>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              className="gap-2"
-              onClick={async () => {
-                try {
-                  await autosave.saveNow();
-                  toast({ title: t("editor.saved") });
-                } catch (error) {
-                  toast({
-                    variant: "destructive",
-                    title: t("editor.saveFailed"),
-                    description: error instanceof Error ? error.message : "Please fix validation issues and try again.",
-                  });
-                }
-              }}
-              disabled={autosave.isSaving}
-            >
-              <Save className="h-4 w-4" />
-              Save
-            </Button>
-            <Button
-              variant="destructive"
-              size="icon"
-              className="h-10 w-10"
-              onClick={async () => {
-                if (window.confirm(t("editor.deleteBookConfirm"))) {
-                  try {
-                    await deleteContentItem("books", bookId);
-                    toast({ title: t("editor.bookDeleted") });
-                    navigate("/writer/new");
-                  } catch (error) {
-                    toast({ variant: "destructive", title: t("work.deleteFailed") });
-                  }
-                }
-              }}
-            >
-              <Trash className="h-4 w-4" />
-            </Button>
           </div>
         </div>
 
@@ -415,101 +377,74 @@ const WriterBookEditorPage = () => {
         ) : null}
       </section>
 
-      <section className="flex flex-col flex-1 lg:grid lg:gap-6 lg:grid-cols-4 lg:items-start min-h-0">
-
-        {/* Mobile Navigation Row */}
-        <div className="lg:hidden shrink-0 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-border/20">
-          <Button variant={activeSection === "settings" ? "default" : "outline"} onClick={() => setActiveSection("settings")} size="sm" className="shrink-0 h-8 font-ui rounded-full">Overview & Settings</Button>
-          {(draft.foreword || activeSection === "foreword") && (
-            <Button variant={activeSection === "foreword" ? "default" : "outline"} onClick={() => setActiveSection("foreword")} size="sm" className="shrink-0 h-8 font-ui rounded-full">{t("work.foreword")}</Button>
-          )}
-          {chapters.map((ch) => (
-            <Button key={ch.id} variant={activeSection === ch.id ? "default" : "outline"} onClick={() => setActiveSection(ch.id)} size="sm" className="shrink-0 h-8 font-ui rounded-full">
-              {ch.title || `Chapter ${ch.order}`}
-            </Button>
-          ))}
-          {(draft.afterword || activeSection === "afterword") && (
-            <Button variant={activeSection === "afterword" ? "default" : "outline"} onClick={() => setActiveSection("afterword")} size="sm" className="shrink-0 h-8 font-ui rounded-full">{t("work.afterword")}</Button>
-          )}
-          <Button variant="outline" onClick={() => addChapterMutation.mutate()} disabled={addChapterMutation.isPending} size="sm" className="shrink-0 h-8 font-ui rounded-full border-dashed">
-            <Plus className="h-3.5 w-3.5 mr-1" /> Add
+      <section className="flex flex-col space-y-4 lg:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full rounded-2xl border border-border/70 bg-card/80 p-3 shadow-sm z-10">
+          <Label className="font-ui shrink-0 whitespace-nowrap pl-2 text-muted-foreground">{t("editor.toc")} (რედაქტირება):</Label>
+          <Select
+            value={activeSection.toString()}
+            onValueChange={(val) => val === "settings" || val === "foreword" || val === "afterword" ? setActiveSection(val) : setActiveSection(Number(val))}
+          >
+            <SelectTrigger className="font-ui flex-1 bg-background h-10">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="settings">Overview & Settings</SelectItem>
+              {(draft.foreword || activeSection === "foreword") && <SelectItem value="foreword">{t("work.foreword")} {!hasTextContent(draft.foreword) ? "(Empty)" : ""}</SelectItem>}
+              {chapters.map(ch => <SelectItem key={ch.id} value={ch.id.toString()}>{ch.title || `Chapter ${ch.order}`}</SelectItem>)}
+              {(draft.afterword || activeSection === "afterword") && <SelectItem value="afterword">{t("work.afterword")} {!hasTextContent(draft.afterword) ? "(Empty)" : ""}</SelectItem>}
+            </SelectContent>
+          </Select>
+          <Button variant="outline" onClick={() => addChapterMutation.mutate()} disabled={addChapterMutation.isPending} size="sm" className="h-10 w-full sm:w-auto font-ui border-dashed shrink-0 bg-background hover:bg-muted">
+            <Plus className="h-4 w-4 mr-2" /> Add Chapter
           </Button>
         </div>
 
-        {/* SIDEBAR: Table of სარჩევი */}
-        <aside className="hidden lg:block shrink-0 rounded-2xl border border-border/70 bg-card/80 p-5 shadow-card lg:col-span-1 lg:sticky lg:top-24">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <ListTree className="h-4 w-4 text-primary" />
-              <h2 className="font-display text-xl font-semibold text-foreground">{t("editor.toc")}</h2>
-            </div>
-          </div>
-          <div className="mt-4 space-y-2">
-            <button
-              onClick={() => setActiveSection("settings")}
-              className={`block w-full rounded-lg border px-3 py-2 text-left font-ui text-sm transition-colors ${activeSection === "settings"
-                ? "border-primary/45 bg-primary/10 text-primary"
-                : "border-border/60 bg-background/65 text-foreground hover:border-primary/40 hover:text-primary"
-                }`}
-            >
-              Overview & Settings
-            </button>
-
-            {(draft.foreword || activeSection === "foreword") && (
-              <button
-                onClick={() => setActiveSection("foreword")}
-                className={`flex items-center justify-between w-full rounded-lg border px-3 py-2 text-left font-ui text-sm transition-colors ${activeSection === "foreword"
-                  ? "border-primary/45 bg-primary/10 text-primary"
-                  : "border-border/60 bg-background/65 text-foreground hover:border-primary/40 hover:text-primary"
-                  }`}
-              >
-                <span>{t("work.foreword")} {!hasTextContent(draft.foreword) && <span className="text-muted-foreground/60 text-xs ml-1">{t("editor.empty")}</span>}</span>
-              </button>
-            )}
-
-            {chapters.map((ch) => (
-              <button
-                key={ch.id}
-                onClick={() => setActiveSection(ch.id)}
-                className={`flex items-center justify-between w-full rounded-lg border px-3 py-2 text-left font-ui text-sm transition-colors ${activeSection === ch.id
-                  ? "border-primary/45 bg-primary/10 text-primary"
-                  : "border-border/60 bg-background/65 text-foreground hover:border-primary/40 hover:text-primary"
-                  }`}
-              >
-                <span className="truncate">{ch.title || `Chapter ${ch.order}`}</span>
-                <span className={`flex-shrink-0 ml-2 rounded-full border px-1.5 py-0.5 text-[8px] uppercase tracking-wider ${CONTENT_STATUS_STYLES[ch.status] || ""}`}>
-                  {ch.status}
-                </span>
-              </button>
-            ))}
-
-            <button
-              onClick={() => addChapterMutation.mutate()}
-              disabled={addChapterMutation.isPending}
-              className="flex items-center justify-center w-full rounded-lg border border-dashed border-border/60 bg-background/30 px-3 py-2 text-left font-ui text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary hover:bg-primary/5"
-            >
-              <Plus className="h-3.5 w-3.5 mr-1.5" />
-              {addChapterMutation.isPending ? "Adding..." : "Add Chapter"}
-            </button>
-
-            {(draft.afterword || activeSection === "afterword") && (
-              <button
-                onClick={() => setActiveSection("afterword")}
-                className={`flex items-center justify-between w-full rounded-lg border px-3 py-2 text-left font-ui text-sm transition-colors ${activeSection === "afterword"
-                  ? "border-primary/45 bg-primary/10 text-primary"
-                  : "border-border/60 bg-background/65 text-foreground hover:border-primary/40 hover:text-primary"
-                  }`}
-              >
-                <span>{t("work.afterword")} {!hasTextContent(draft.afterword) && <span className="text-muted-foreground/60 text-xs ml-1">{t("editor.empty")}</span>}</span>
-              </button>
-            )}
-          </div>
-        </aside>
-
         {/* EDITOR AREA */}
-        <article className="flex flex-col flex-1 min-h-0 lg:col-span-3 rounded-2xl border border-border/70 bg-card/80 p-3 lg:p-6 shadow-card overflow-y-auto">
+        <article className="rounded-2xl border border-border/70 bg-card/80 p-4 lg:p-6 shadow-card overflow-visible">
           {activeSection === "settings" && (
             <div className="space-y-8 animate-in fade-in duration-300">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-5 mb-5">
+                <h2 className="font-display text-2xl font-semibold text-foreground">Overview & Settings</h2>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="gap-2 h-9"
+                    onClick={async () => {
+                      if (window.confirm(t("editor.deleteBookConfirm"))) {
+                        try {
+                          await deleteContentItem("books", bookId);
+                          toast({ title: t("editor.bookDeleted") });
+                          navigate("/writer/new");
+                        } catch (error) {
+                          toast({ variant: "destructive", title: t("work.deleteFailed") });
+                        }
+                      }
+                    }}
+                  >
+                    <Trash className="h-3.5 w-3.5" /> Delete Book
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="gap-2 h-9"
+                    onClick={async () => {
+                      try {
+                        await autosave.saveNow();
+                        toast({ title: t("editor.saved") });
+                      } catch (error) {
+                        toast({
+                          variant: "destructive",
+                          title: t("editor.saveFailed"),
+                          description: error instanceof Error ? error.message : "Please fix validation issues and try again.",
+                        });
+                      }
+                    }}
+                    disabled={autosave.isSaving}
+                  >
+                    <Save className="h-4 w-4" /> Save Book
+                  </Button>
+                </div>
+              </div>
               <div className="grid gap-5 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="font-ui">{t("work.title")}</Label>

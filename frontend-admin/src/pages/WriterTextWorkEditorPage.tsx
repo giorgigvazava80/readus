@@ -20,6 +20,7 @@ import { Switch } from "@/components/ui/switch";
 import { fetchContentDetail, resolveMediaUrl, updatePoem, updateStory, deleteContentItem } from "@/lib/api";
 import { CONTENT_STATUS_STYLES } from "@/lib/content";
 import { useAutosave } from "@/hooks/useAutosave";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
 
 interface WriterTextWorkEditorPageProps {
@@ -73,6 +74,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
   const contentId = Number(id);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const meta = writerMeta[type];
 
   const detailQuery = useQuery({
@@ -178,55 +180,58 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
   const Icon = meta.icon;
 
   return (
-    <div className="container mx-auto max-w-5xl space-y-6 px-6 py-10">
-      <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card">
+    <div className="container mx-auto max-w-5xl space-y-5 px-3 py-5 sm:space-y-6 sm:px-6 sm:py-10">
+      <section className="rounded-2xl border border-border/70 bg-card/80 p-4 shadow-card sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1">
               <Icon className="h-3.5 w-3.5 text-primary" />
               <span className="font-ui text-xs text-muted-foreground">{meta.title}</span>
             </div>
-            <h1 className="mt-3 font-display text-3xl font-semibold text-foreground">{meta.title}</h1>
+            <h1 className="mt-3 font-display text-2xl font-semibold text-foreground sm:text-3xl">{meta.title}</h1>
           </div>
 
-          <Button
-            className="gap-2"
-            onClick={async () => {
-              try {
-                await autosave.saveNow();
-                toast({ title: "შენახულია" });
-              } catch (error) {
-                toast({
-                  variant: "destructive",
-                  title: "შენახვა ვერ მოხერხდა",
-                  description: error instanceof Error ? error.message : "გთხოვ, გადაამოწმე სავალდებულო ველები.",
-                });
-              }
-            }}
-            disabled={autosave.isSaving}
-          >
-            <Save className="h-4 w-4" />
-            შენახვა ახლავე
-          </Button>
-          <Button
-            variant="destructive"
-            size="icon"
-            className="h-10 w-10 shrink-0"
-            onClick={async () => {
-              const label = type === "stories" ? "story" : "poem";
-              if (window.confirm(`Are you sure you want to delete this ${label}? This action cannot be undone.`)) {
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            <Button
+              size={isMobile ? "sm" : "default"}
+              className="gap-2"
+              onClick={async () => {
                 try {
-                  await deleteContentItem(type, contentId);
-                  toast({ title: "ნაშრომი წაიშალა" });
-                  navigate("/writer/new");
+                  await autosave.saveNow();
+                  toast({ title: "შენახულია" });
                 } catch (error) {
-                  toast({ variant: "destructive", title: "წაშლა ვერ მოხერხდა" });
+                  toast({
+                    variant: "destructive",
+                    title: "შენახვა ვერ მოხერხდა",
+                    description: error instanceof Error ? error.message : "გთხოვ, გადაამოწმე სავალდებულო ველები.",
+                  });
                 }
-              }
-            }}
-          >
-            <Trash className="h-4 w-4" />
-          </Button>
+              }}
+              disabled={autosave.isSaving}
+            >
+              <Save className="h-4 w-4" />
+              შენახვა ახლავე
+            </Button>
+            <Button
+              variant="destructive"
+              size="icon"
+              className={`${isMobile ? "h-9 w-9" : ""} shrink-0`}
+              onClick={async () => {
+                const label = type === "stories" ? "story" : "poem";
+                if (window.confirm(`Are you sure you want to delete this ${label}? This action cannot be undone.`)) {
+                  try {
+                    await deleteContentItem(type, contentId);
+                    toast({ title: "ნაშრომი წაიშალა" });
+                    navigate("/writer/new");
+                  } catch (error) {
+                    toast({ variant: "destructive", title: "წაშლა ვერ მოხერხდა" });
+                  }
+                }
+              }}
+            >
+              <Trash className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -246,7 +251,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
         ) : null}
       </section>
 
-      <section className="grid gap-5 md:grid-cols-3">
+      <section className="grid gap-4 sm:gap-5 md:grid-cols-3">
         <div className="space-y-2">
           <Label className="font-ui">სათაური</Label>
           <Input
@@ -310,7 +315,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card">
+      <section className="rounded-2xl border border-border/70 bg-card/80 p-4 shadow-card sm:p-6">
         <h2 className="mb-1 font-display text-base font-semibold text-foreground">ყდის სურათი</h2>
         <p className="mb-4 font-ui text-xs text-muted-foreground">
           არასავალდებულო. ჩანს ნაშრომის ბარათზე. JPG, PNG, WEBP ან GIF — მაქს. 5MB.
@@ -364,14 +369,15 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                 setCoverRevision((prev) => prev + 1);
               }}
             />
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => coverInputRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium font-ui transition-colors hover:border-primary/40 hover:text-primary"
+              className="w-fit gap-2"
             >
               <ImagePlus className="h-4 w-4" />
               {currentCoverUrl ? "Change cover" : "Upload cover"}
-            </button>
+            </Button>
             {coverImage && (
               <p className="font-ui text-xs text-muted-foreground">არჩეულია: {coverImage.name} — შეინახება შემდეგ შენახვაზე.</p>
             )}
@@ -383,7 +389,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
       </section>
 
       {draft.source_type === "upload" ? (
-        <section className="space-y-3 rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card">
+        <section className="space-y-3 rounded-2xl border border-border/70 bg-card/80 p-4 shadow-card sm:p-6">
           <div>
             <Label htmlFor="textWorkUpload" className="font-ui">ფაილის ატვირთვა</Label>
             <Input
@@ -417,7 +423,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
             <RichTextEditor
               value={draft.description}
               onChange={(description) => setDraft((prev) => ({ ...prev, description }))}
-              minHeightClass="min-h-[180px]"
+              minHeightClass="min-h-[120px] sm:min-h-[180px]"
               placeholder="მოკლე აღწერა მკითხველებისთვის..."
             />
           </div>
@@ -427,7 +433,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
             <RichTextEditor
               value={draft.body}
               onChange={(body) => setDraft((prev) => ({ ...prev, body }))}
-              minHeightClass="min-h-[420px]"
+              minHeightClass="min-h-[200px] sm:min-h-[420px]"
               placeholder="დაწერე სრული ტექსტი აქ..."
             />
           </div>

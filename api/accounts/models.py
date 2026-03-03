@@ -27,6 +27,8 @@ class UserProfile(models.Model):
         default=RegisteredRole.READER,
     )
     is_writer_approved = models.BooleanField(default=False)
+    birth_date = models.DateField(blank=True, null=True)
+    profile_photo = models.ImageField(upload_to="profiles/", blank=True, null=True)
     forced_password_change = models.BooleanField(default=False)
     is_root = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

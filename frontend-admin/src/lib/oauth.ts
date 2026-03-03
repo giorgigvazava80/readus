@@ -1,4 +1,5 @@
 const GOOGLE_OAUTH_STATE_KEY = "readus_google_oauth_state";
+export const GOOGLE_OAUTH_SCOPE = "openid email profile https://www.googleapis.com/auth/user.birthday.read";
 
 function randomState(bytes = 16): string {
   if (typeof window !== "undefined" && window.crypto?.getRandomValues) {

@@ -84,6 +84,8 @@ INSTALLED_APPS = [
     "drf_yasg",
     "accounts",
     "content",
+    "cloudinary_storage",
+    "cloudinary",
 ]
 
 SITE_ID = env.int("SITE_ID", default=1)
@@ -97,6 +99,8 @@ GOOGLE_EMAIL_AUTHENTICATION_AUTO_CONNECT = env.bool(
     "GOOGLE_EMAIL_AUTHENTICATION_AUTO_CONNECT",
     default=True,
 )
+GOOGLE_REQUEST_BIRTHDAY_SCOPE = env.bool("GOOGLE_REQUEST_BIRTHDAY_SCOPE", default=True)
+GOOGLE_IMPORT_BIRTH_DATE = env.bool("GOOGLE_IMPORT_BIRTH_DATE", default=True)
 FACEBOOK_OAUTH_CLIENT_ID = env("FACEBOOK_OAUTH_CLIENT_ID", default=env("FACEBOOK_CLIENT_ID", default="")).strip()
 FACEBOOK_OAUTH_CLIENT_SECRET = env("FACEBOOK_OAUTH_CLIENT_SECRET", default=env("FACEBOOK_CLIENT_SECRET", default="")).strip()
 
@@ -172,7 +176,15 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 MEDIA_URL = env("MEDIA_URL", default="/media/")
 if not MEDIA_URL.endswith("/"):
@@ -186,6 +198,11 @@ else:
     MEDIA_ROOT = BASE_DIR / "media"
 
 SERVE_MEDIA = env.bool("SERVE_MEDIA", default=True)
+
+# Cloudinary configuration
+CLOUDINARY_URL = env("CLOUDINARY_URL", default="").strip()
+if CLOUDINARY_URL:
+    STORAGES["default"]["BACKEND"] = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 CACHE_URL = env("CACHE_URL", default="").strip()
 CACHE_KEY_PREFIX = env("CACHE_KEY_PREFIX", default="readus")
@@ -235,9 +252,12 @@ ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = f"{FRONTEND_BASE_URL}/da
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = f"{FRONTEND_BASE_URL}/dashboard"
 ACCOUNT_ADAPTER = "accounts.adapters.ReadusAccountAdapter"
 SOCIALACCOUNT_ADAPTER = "accounts.adapters.ReadusSocialAccountAdapter"
+_google_scopes = ["profile", "email"]
+if GOOGLE_REQUEST_BIRTHDAY_SCOPE:
+    _google_scopes.append("https://www.googleapis.com/auth/user.birthday.read")
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
-        "SCOPE": ["profile", "email"],
+        "SCOPE": _google_scopes,
         "EMAIL_AUTHENTICATION": GOOGLE_EMAIL_AUTHENTICATION,
         "EMAIL_AUTHENTICATION_AUTO_CONNECT": GOOGLE_EMAIL_AUTHENTICATION_AUTO_CONNECT,
         **(

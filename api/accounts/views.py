@@ -20,6 +20,7 @@ from .permissions import (
 from .serializers import (
     AuditLogSerializer,
     MeSerializer,
+    MeUpdateSerializer,
     NotificationSerializer,
     RedactorManageSerializer,
     RedactorUserSerializer,
@@ -43,12 +44,26 @@ def _send_outcome_email(user, subject, body):
     send_mail_safe(subject, body, None, [user.email], fail_silently=True)
 
 
-class CurrentUserStateView(generics.RetrieveAPIView):
+class CurrentUserStateView(generics.RetrieveUpdateAPIView):
     serializer_class = MeSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_object(self):
         return self.request.user
+
+    def get_serializer_class(self):
+        if self.request.method in {"PATCH", "PUT"}:
+            return MeUpdateSerializer
+        return MeSerializer
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(MeSerializer(instance, context=self.get_serializer_context()).data)
 
 
 class WriterApplicationCreateView(generics.CreateAPIView):

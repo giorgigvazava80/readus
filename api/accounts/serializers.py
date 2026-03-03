@@ -1,10 +1,12 @@
 import os
+from datetime import date
 
 import bleach
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.utils import timezone
 from rest_framework import serializers
 
 from .constants import (
@@ -34,6 +36,14 @@ from .utils import (
 
 
 User = get_user_model()
+
+
+def _calculate_age(birth_date: date) -> int:
+    today = timezone.now().date()
+    age = today.year - birth_date.year
+    if (today.month, today.day) < (birth_date.month, birth_date.day):
+        age -= 1
+    return age
 
 
 class CustomRegisterSerializer(RegisterSerializer):
@@ -93,6 +103,9 @@ class MeSerializer(serializers.ModelSerializer):
     forced_password_change = serializers.SerializerMethodField()
     permissions = serializers.SerializerMethodField()
     effective_role = serializers.SerializerMethodField()
+    birth_date = serializers.SerializerMethodField()
+    age = serializers.SerializerMethodField()
+    profile_photo = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -102,6 +115,9 @@ class MeSerializer(serializers.ModelSerializer):
             "email",
             "first_name",
             "last_name",
+            "birth_date",
+            "age",
+            "profile_photo",
             "role_registered",
             "is_email_verified",
             "is_writer_approved",
@@ -135,6 +151,107 @@ class MeSerializer(serializers.ModelSerializer):
 
     def get_effective_role(self, obj):
         return get_effective_role(obj)
+
+    def get_birth_date(self, obj):
+        value = get_profile(obj).birth_date
+        return value.isoformat() if value else None
+
+    def get_age(self, obj):
+        value = get_profile(obj).birth_date
+        if not value:
+            return None
+        return _calculate_age(value)
+
+    def get_profile_photo(self, obj):
+        photo = get_profile(obj).profile_photo
+        if not photo:
+            return None
+
+        request = self.context.get("request")
+        url = photo.url
+        return request.build_absolute_uri(url) if request else url
+
+
+class MeUpdateSerializer(serializers.Serializer):
+    username = serializers.CharField(required=False, max_length=150)
+    first_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
+    last_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
+    birth_date = serializers.DateField(required=False, allow_null=True)
+    profile_photo = serializers.ImageField(required=False, allow_null=True)
+    remove_profile_photo = serializers.BooleanField(required=False, default=False)
+
+    def validate(self, attrs):
+        raw_birth_date = self.initial_data.get("birth_date", serializers.empty)
+        if raw_birth_date == "":
+            attrs["birth_date"] = None
+        return attrs
+
+    def validate_birth_date(self, value):
+        if value is None:
+            return value
+
+        today = timezone.now().date()
+        if value > today:
+            raise serializers.ValidationError("Birth date cannot be in the future.")
+
+        age = _calculate_age(value)
+        if age < 1 or age > 120:
+            raise serializers.ValidationError("Birth date must produce an age between 1 and 120.")
+
+        return value
+
+    def validate_username(self, value):
+        normalized = value.strip()
+        if not normalized:
+            raise serializers.ValidationError("Username cannot be blank.")
+
+        existing = User.objects.filter(username=normalized).exclude(pk=self.instance.pk).exists()
+        if existing:
+            raise serializers.ValidationError("A user with that username already exists.")
+
+        return normalized
+
+    def update(self, instance, validated_data):
+        profile = get_profile(instance)
+        user_changed_fields = []
+        profile_changed_fields = []
+
+        if "username" in validated_data:
+            instance.username = validated_data["username"]
+            user_changed_fields.append("username")
+
+        if "first_name" in validated_data:
+            instance.first_name = validated_data["first_name"].strip()
+            user_changed_fields.append("first_name")
+
+        if "last_name" in validated_data:
+            instance.last_name = validated_data["last_name"].strip()
+            user_changed_fields.append("last_name")
+
+        if user_changed_fields:
+            instance.save(update_fields=user_changed_fields)
+
+        if "birth_date" in validated_data:
+            profile.birth_date = validated_data["birth_date"]
+            profile_changed_fields.append("birth_date")
+
+        remove_profile_photo = validated_data.get("remove_profile_photo", False)
+        photo_in_payload = "profile_photo" in validated_data
+        if remove_profile_photo:
+            if profile.profile_photo:
+                profile.profile_photo.delete(save=False)
+            profile.profile_photo = None
+            profile_changed_fields.append("profile_photo")
+        elif photo_in_payload:
+            if profile.profile_photo and profile.profile_photo != validated_data["profile_photo"]:
+                profile.profile_photo.delete(save=False)
+            profile.profile_photo = validated_data["profile_photo"]
+            profile_changed_fields.append("profile_photo")
+
+        if profile_changed_fields:
+            profile.save(update_fields=[*set(profile_changed_fields), "updated_at"])
+
+        return instance
 
 
 class WriterApplicationSerializer(serializers.ModelSerializer):

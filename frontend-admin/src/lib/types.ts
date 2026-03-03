@@ -21,6 +21,9 @@ export interface MeUser {
   email: string;
   first_name?: string;
   last_name?: string;
+  birth_date?: string | null;
+  age?: number | null;
+  profile_photo?: string | null;
   role_registered: RegisteredRole;
   is_email_verified: boolean;
   is_writer_approved: boolean;

@@ -16,3 +16,5 @@ pypdf==5.2.0
 Pillow==11.1.0
 cryptography>=44,<46
 redis==5.2.1
+cloudinary
+django-cloudinary-storage

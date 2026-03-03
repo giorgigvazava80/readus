@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { fetchContentDetail, updateChapter } from "@/lib/api";
 import { CONTENT_STATUS_STYLES } from "@/lib/content";
 import { useAutosave } from "@/hooks/useAutosave";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
 
 interface ChapterDraft {
@@ -35,6 +36,7 @@ const WriterChapterEditorPage = () => {
   const chapterId = Number(id);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const detailQuery = useQuery({
     queryKey: ["writer", "chapters", chapterId],
@@ -113,41 +115,26 @@ const WriterChapterEditorPage = () => {
   }
 
   return (
-    <div className="container mx-auto max-w-5xl space-y-6 px-6 py-10">
-      <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card">
+    <div className="container mx-auto max-w-5xl space-y-5 px-3 py-5 sm:space-y-6 sm:px-6 sm:py-10">
+      <section className="rounded-2xl border border-border/70 bg-card/80 p-4 shadow-card sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1">
               <ScrollText className="h-3.5 w-3.5 text-primary" />
               <span className="font-ui text-xs text-muted-foreground">თავის რედაქტორი</span>
             </div>
-            <h1 className="mt-3 font-display text-3xl font-semibold text-foreground">თავის რედაქტირება</h1>
+            <h1 className="mt-3 font-display text-2xl font-semibold text-foreground sm:text-3xl">თავის რედაქტირება</h1>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {draft.book ? (
               <Link to={`/writer/books/${draft.book}/chapters`}>
-                <Button variant="outline" className="gap-2">
+                <Button variant="outline" size={isMobile ? "sm" : "default"} className="gap-2">
                   <ListTree className="h-4 w-4" />
                   Back to თავები
                 </Button>
               </Link>
             ) : null}
-            <Button
-              className="gap-2"
-              onClick={async () => {
-                try {
-                  await autosave.saveNow();
-                  toast({ title: "თავი შენახულია" });
-                } catch {
-                  toast({ variant: "destructive", title: "შენახვა ვერ მოხერხდა" });
-                }
-              }}
-              disabled={autosave.isSaving}
-            >
-              <Save className="h-4 w-4" />
-              შენახვა ახლავე
-            </Button>
           </div>
         </div>
 
@@ -168,8 +155,8 @@ const WriterChapterEditorPage = () => {
         ) : null}
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <div className="md:col-span-2 space-y-2">
+      <section className="grid grid-cols-3 gap-3">
+        <div className="col-span-2 space-y-2">
           <Label className="font-ui">სათაური (არასავალდებულო)</Label>
           <Input
             value={draft.title}
@@ -190,15 +177,34 @@ const WriterChapterEditorPage = () => {
         </div>
       </section>
 
-      <section>
+      <section className="space-y-2">
         <Label className="font-ui">თავის ტექსტი</Label>
         <RichTextEditor
           value={draft.body}
           onChange={(body) => setDraft((prev) => ({ ...prev, body }))}
-          minHeightClass="min-h-[420px]"
+          minHeightClass="min-h-[200px] sm:min-h-[420px]"
           placeholder="Write chapter text..."
         />
       </section>
+
+      <div className="flex justify-end">
+        <Button
+          size={isMobile ? "sm" : "default"}
+          className="w-full gap-2 sm:w-auto"
+          onClick={async () => {
+            try {
+              await autosave.saveNow();
+              toast({ title: "თავი შენახულია" });
+            } catch {
+              toast({ variant: "destructive", title: "შენახვა ვერ მოხერხდა" });
+            }
+          }}
+          disabled={autosave.isSaving}
+        >
+          <Save className="h-4 w-4" />
+          შენახვა ახლავე
+        </Button>
+      </div>
     </div>
   );
 };

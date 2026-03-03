@@ -292,7 +292,7 @@ const PublicReadPage = () => {
         transition={{ delay: 0.2 }}
         className="container mx-auto px-6 py-12 scroll-mt-20"
       >
-        <div className={cn("mx-auto max-w-2xl", readingFontSizeClass)}>
+        <div className={cn("mx-auto w-full md:w-[95%] lg:w-[75%]", readingFontSizeClass)}>
           <div className="mb-6 h-1.5 w-16 rounded-full bg-primary" />
           <ReadingFontSizeControl value={fontSize} onChange={handleReadingFontSizeChange} />
 
