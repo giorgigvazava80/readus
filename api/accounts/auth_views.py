@@ -2,7 +2,6 @@ import logging
 from urllib.parse import urlsplit
 
 from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
-from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -15,6 +14,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .oauth_client import CompatOAuth2Client
+from .google_adapter import ReadusGoogleOAuth2Adapter
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +96,7 @@ class VerifyEmailAndLoginView(VerifyEmailView):
 
 
 class GoogleLoginView(SocialLoginView):
-    adapter_class = GoogleOAuth2Adapter
+    adapter_class = ReadusGoogleOAuth2Adapter
     client_class = CompatOAuth2Client
     callback_url = settings.SOCIAL_AUTH_GOOGLE_CALLBACK_URL or None
 
