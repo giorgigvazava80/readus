@@ -230,8 +230,8 @@ export default function RichTextEditor({
 
   return (
     <div className={cn("rounded-xl border border-border/70 bg-card/70 flex flex-col min-w-0 w-full", className)}>
-      <div className="border-b border-border/70 p-1.5 sm:p-2.5 w-full min-w-0">
-        <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
+      <div className="border-b border-border/70 p-1.5 sm:p-2.5 w-full min-w-0 overflow-x-auto scrollbar-thin">
+        <div className="flex items-center gap-1.5 md:gap-2 whitespace-nowrap min-w-max pb-1">
           <select
             value={blockType}
             className="h-8 rounded-md border border-border/70 bg-background px-2 text-xs font-ui"

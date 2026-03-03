@@ -171,20 +171,36 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
         </p>
       )}
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="md:col-span-2 space-y-2">
-          <Label className="font-ui">{t("work.title")} (არასავალდებულო)</Label>
-          <Input value={draft.title} onChange={(e) => setDraft(p => ({ ...p, title: e.target.value }))} className="font-ui" />
+      <section className="shrink-0 flex items-center gap-3">
+        <div className="flex-[3] space-y-1.5">
+          <Label className="font-ui text-xs sm:text-sm">{t("work.title")} (არასავალდებულო)</Label>
+          <Input
+            value={draft.title}
+            onChange={(e) => setDraft(p => ({ ...p, title: e.target.value }))}
+            className="font-ui"
+          />
         </div>
-        <div className="space-y-2">
-          <Label className="font-ui">{t("editor.order")}</Label>
-          <Input type="number" min={1} value={draft.order} onChange={(e) => setDraft(p => ({ ...p, order: Math.max(1, Number(e.target.value)) }))} className="font-ui" />
+        <div className="flex-[1] space-y-1.5 min-w-[60px]">
+          <Label className="font-ui text-xs sm:text-sm">{t("editor.order")}</Label>
+          <Input
+            type="number"
+            min={1}
+            value={draft.order}
+            onChange={(e) => setDraft(p => ({ ...p, order: Math.max(1, Number(e.target.value || 1)) }))}
+            className="font-ui"
+          />
         </div>
-      </div>
-      <div className="space-y-2">
-        <Label className="font-ui">{t("work.chapter")}ს ტექსტი</Label>
-        <RichTextEditor value={draft.body} onChange={(body) => setDraft(p => ({ ...p, body }))} minHeightClass="min-h-[420px]" placeholder="Write chapter text..." />
-      </div>
+      </section>
+      <section className="flex flex-col flex-1 min-h-0 space-y-1.5">
+        <Label className="font-ui text-xs sm:text-sm shrink-0">{t("work.chapter")}ს ტექსტი</Label>
+        <RichTextEditor
+          value={draft.body}
+          onChange={(body) => setDraft(p => ({ ...p, body }))}
+          className="flex-1 flex flex-col min-h-0"
+          minHeightClass="flex-1 overflow-y-auto min-h-0 min-h-[300px] sm:min-h-[420px]"
+          placeholder="Write chapter text..."
+        />
+      </section>
     </div>
   );
 }
@@ -330,8 +346,8 @@ const WriterBookEditorPage = () => {
   const status = detailQuery.data.status;
 
   return (
-    <div className="container mx-auto max-w-6xl space-y-6 px-6 py-10">
-      <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card">
+    <div className="container mx-auto max-w-6xl flex flex-col h-[calc(100dvh-64px)] lg:h-auto gap-3 lg:space-y-6 px-3 lg:px-6 py-3 lg:py-10">
+      <section className="shrink-0 rounded-2xl border border-border/70 bg-card/80 p-3 lg:p-6 shadow-card">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1">
@@ -399,9 +415,29 @@ const WriterBookEditorPage = () => {
         ) : null}
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-4 lg:items-start">
+      <section className="flex flex-col flex-1 lg:grid lg:gap-6 lg:grid-cols-4 lg:items-start min-h-0">
+
+        {/* Mobile Navigation Row */}
+        <div className="lg:hidden shrink-0 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-border/20">
+          <Button variant={activeSection === "settings" ? "default" : "outline"} onClick={() => setActiveSection("settings")} size="sm" className="shrink-0 h-8 font-ui rounded-full">Overview & Settings</Button>
+          {(draft.foreword || activeSection === "foreword") && (
+            <Button variant={activeSection === "foreword" ? "default" : "outline"} onClick={() => setActiveSection("foreword")} size="sm" className="shrink-0 h-8 font-ui rounded-full">{t("work.foreword")}</Button>
+          )}
+          {chapters.map((ch) => (
+            <Button key={ch.id} variant={activeSection === ch.id ? "default" : "outline"} onClick={() => setActiveSection(ch.id)} size="sm" className="shrink-0 h-8 font-ui rounded-full">
+              {ch.title || `Chapter ${ch.order}`}
+            </Button>
+          ))}
+          {(draft.afterword || activeSection === "afterword") && (
+            <Button variant={activeSection === "afterword" ? "default" : "outline"} onClick={() => setActiveSection("afterword")} size="sm" className="shrink-0 h-8 font-ui rounded-full">{t("work.afterword")}</Button>
+          )}
+          <Button variant="outline" onClick={() => addChapterMutation.mutate()} disabled={addChapterMutation.isPending} size="sm" className="shrink-0 h-8 font-ui rounded-full border-dashed">
+            <Plus className="h-3.5 w-3.5 mr-1" /> Add
+          </Button>
+        </div>
+
         {/* SIDEBAR: Table of სარჩევი */}
-        <aside className="rounded-2xl border border-border/70 bg-card/80 p-5 shadow-card lg:col-span-1 lg:sticky lg:top-24">
+        <aside className="hidden lg:block shrink-0 rounded-2xl border border-border/70 bg-card/80 p-5 shadow-card lg:col-span-1 lg:sticky lg:top-24">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <ListTree className="h-4 w-4 text-primary" />
@@ -471,7 +507,7 @@ const WriterBookEditorPage = () => {
         </aside>
 
         {/* EDITOR AREA */}
-        <article className="lg:col-span-3 rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card min-h-[600px]">
+        <article className="flex flex-col flex-1 min-h-0 lg:col-span-3 rounded-2xl border border-border/70 bg-card/80 p-3 lg:p-6 shadow-card overflow-y-auto">
           {activeSection === "settings" && (
             <div className="space-y-8 animate-in fade-in duration-300">
               <div className="grid gap-5 md:grid-cols-2">
