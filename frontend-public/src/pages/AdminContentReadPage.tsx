@@ -19,12 +19,7 @@ const statusStyles: Record<string, string> = {
   rejected: "border-red-500/30 bg-red-500/10 text-red-700",
 };
 
-const categoryLabels: Record<ContentCategory, string> = {
-  books: "წიგნი",
-  chapters: "თავი",
-  poems: "Poem",
-  stories: "მოთხრობა",
-};
+
 
 interface BookContentSection {
   key: string;
@@ -44,6 +39,13 @@ const AdminContentReadPage = () => {
   const category = allowedCategories.includes(rawCategory as ContentCategory)
     ? (rawCategory as ContentCategory)
     : null;
+
+  const categoryLabels: Record<ContentCategory, string> = {
+    books: t("work.book"),
+    chapters: t("work.chapter"),
+    poems: "Poem",
+    stories: t("work.story"),
+  };
 
   const detailQuery = useQuery({
     queryKey: ["admin", "content-read", category, contentId],
@@ -102,8 +104,8 @@ const AdminContentReadPage = () => {
     if (content.foreword?.trim()) {
       items.push({
         key: "foreword",
-        label: "წინასიტყვაობა",
-        heading: "წინასიტყვაობა",
+        label: t("work.foreword"),
+        heading: t("work.foreword"),
         html: content.foreword,
         kind: "foreword",
       });
@@ -115,7 +117,7 @@ const AdminContentReadPage = () => {
         key: `chapter-${chapter.id}`,
         label: chapterLabel,
         heading: chapterLabel,
-        html: chapter.body || "<p>თავის ტექსტი ჯერ არ არის.</p>",
+        html: chapter.body || `<p>${t("work.chapter")}ს ტექსტი ჯერ არ არის.</p>`,
         kind: "chapter",
         chapter,
       });
@@ -124,8 +126,8 @@ const AdminContentReadPage = () => {
     if (content.afterword?.trim()) {
       items.push({
         key: "afterword",
-        label: "ბოლოსიტყვაობა",
-        heading: "ბოლოსიტყვაობა",
+        label: t("work.afterword"),
+        heading: t("work.afterword"),
         html: content.afterword,
         kind: "afterword",
       });
@@ -134,8 +136,8 @@ const AdminContentReadPage = () => {
     if (content.source_type === "upload" && content.extracted_text?.trim()) {
       items.push({
         key: "uploaded-text",
-        label: "ატვირთული ტექსტი",
-        heading: "ატვირთული ტექსტი",
+        label: t("work.uploadedText"),
+        heading: t("work.uploadedText"),
         html: content.extracted_text,
         kind: "uploaded_text",
       });
@@ -201,7 +203,7 @@ const AdminContentReadPage = () => {
   if (detailQuery.isLoading) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">კონტენტი იტვირთება...</p>
+        <p className="font-ui text-sm text-muted-foreground">{t("work.contentLoading")}</p>
       </div>
     );
   }
@@ -259,7 +261,7 @@ const AdminContentReadPage = () => {
       {category === "books" ? (
         <>
           <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card">
-            <h2 className="font-display text-2xl text-foreground">წიგნის დამტკიცების ნაბიჯები</h2>
+            <h2 className="font-display text-2xl text-foreground">{t("work.book")}ს დამტკიცების ნაბიჯები</h2>
             <p className="mt-1 font-ui text-sm text-muted-foreground">
               1) Review წინასიტყვაობა and every chapter, 2) fix rejected chapters, 3) approve the book when everything is approved.
             </p>
@@ -335,8 +337,8 @@ const AdminContentReadPage = () => {
                       type="button"
                       onClick={() => setActiveSectionKey(section.key)}
                       className={`block w-full rounded-lg border px-3 py-2 text-left font-ui text-sm transition-colors ${activeBookSection?.key === section.key
-                          ? "border-primary/45 bg-primary/10 text-primary"
-                          : "border-border/60 bg-background/65 text-foreground hover:border-primary/40 hover:text-primary"
+                        ? "border-primary/45 bg-primary/10 text-primary"
+                        : "border-border/60 bg-background/65 text-foreground hover:border-primary/40 hover:text-primary"
                         }`}
                     >
                       <div className="flex items-center justify-between gap-2">
@@ -358,7 +360,7 @@ const AdminContentReadPage = () => {
             <article className="space-y-6 rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card lg:col-span-2">
               {content.upload_file ? (
                 <p className="font-ui text-sm text-muted-foreground">
-                  ატვირთული ფაილი: <a className="underline" href={content.upload_file} target="_blank" rel="noreferrer">ფაილის გახსნა</a>
+                  ატვირთული ფაილი: <a className="underline" href={content.upload_file} target="_blank" rel="noreferrer">{t("editor.openFile")}</a>
                 </p>
               ) : null}
 
@@ -381,7 +383,7 @@ const AdminContentReadPage = () => {
               {activeBookSection?.kind === "chapter" && activeBookSection.chapter ? (
                 <div className="rounded-xl border border-border/70 bg-background/70 p-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-ui text-sm text-muted-foreground">თავის სტატუსი:</span>
+                    <span className="font-ui text-sm text-muted-foreground">{t("work.chapter")}ს სტატუსი:</span>
                     <Badge variant="outline" className={statusStyles[activeBookSection.chapter.status]}>
                       {activeBookSection.chapter.status}
                     </Badge>
@@ -444,7 +446,7 @@ const AdminContentReadPage = () => {
           <article className="rounded-2xl border border-border/70 bg-card/80 p-8 text-foreground/90 shadow-card">
             {content.upload_file ? (
               <p className="mb-4 font-ui text-sm text-muted-foreground">
-                ატვირთული ფაილი: <a className="underline" href={content.upload_file} target="_blank" rel="noreferrer">ფაილის გახსნა</a>
+                ატვირთული ფაილი: <a className="underline" href={content.upload_file} target="_blank" rel="noreferrer">{t("editor.openFile")}</a>
               </p>
             ) : null}
 
@@ -453,12 +455,12 @@ const AdminContentReadPage = () => {
             ) : content.extracted_text ? (
               <pre className="prose-literary whitespace-pre-wrap">{content.extracted_text}</pre>
             ) : (
-              <p className="font-ui text-sm text-muted-foreground">ტექსტი ხელმისაწვდომი არ არის.</p>
+              <p className="font-ui text-sm text-muted-foreground">{t("editor.textLabel")} ხელმისაწვდომი არ არის.</p>
             )}
           </article>
 
           <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card">
-            <h2 className="font-display text-2xl text-foreground">განხილვის გადაწყვეტილება</h2>
+            <h2 className="font-display text-2xl text-foreground">{t("admin.reviewDec")}</h2>
             <Textarea
               className="mt-3 font-ui"
               placeholder="უარყოფის reason (required only for reject)"

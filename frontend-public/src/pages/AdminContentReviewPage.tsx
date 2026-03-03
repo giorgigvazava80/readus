@@ -1,4 +1,5 @@
-﻿import { Link } from "react-router-dom";
+import { useI18n } from "@/i18n";
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BookOpenCheck, Search } from "lucide-react";
@@ -27,6 +28,7 @@ const statusStyles: Record<string, string> = {
 };
 
 const AdminContentReviewPage = () => {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
 
   const [category, setCategory] = useState<ContentCategory>("books");
@@ -66,7 +68,7 @@ const AdminContentReviewPage = () => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <div className="flex items-center gap-2">
           <BookOpenCheck className="h-5 w-5 text-primary" />
-          <h1 className="font-display text-3xl font-semibold text-foreground">კონტენტის განხილვა</h1>
+          <h1 className="font-display text-3xl font-semibold text-foreground">{t("admin.contentReview")}</h1>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-3">
@@ -98,7 +100,7 @@ const AdminContentReviewPage = () => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">ყველა</SelectItem>
+              <SelectItem value="all">{t("admin.all")}</SelectItem>
               <SelectItem value="draft">შავი ვერსია</SelectItem>
               <SelectItem value="approved">დამტკიცებული</SelectItem>
               <SelectItem value="rejected">უარყოფილი</SelectItem>
@@ -107,7 +109,7 @@ const AdminContentReviewPage = () => {
 
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="ძებნა" className="pl-9 font-ui" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("admin.search")} className="pl-9 font-ui" />
           </div>
         </div>
       </section>
@@ -130,7 +132,7 @@ const AdminContentReviewPage = () => {
                     </span>
                   </div>
                 </div>
-                <p className="mt-1 text-muted-foreground">შექმნის დრო: {new Date(item.created_at).toLocaleString()}</p>
+                <p className="mt-1 text-muted-foreground">{t("admin.createdTime")}: {new Date(item.created_at).toLocaleString()}</p>
                 {item.description ? <p className="mt-2 text-foreground">{toExcerpt(item.description)}</p> : null}
                 {item.rejection_reason ? <p className="mt-2 text-red-700">მიმდინარე უარყოფის მიზეზი: {item.rejection_reason}</p> : null}
 
@@ -143,7 +145,7 @@ const AdminContentReviewPage = () => {
 
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Link to={`/admin/content-review/${category}/${item.id}`}>
-                    <Button variant="outline">გახსნა და წაკითხვა</Button>
+                    <Button variant="outline">{t("admin.openRead")}</Button>
                   </Link>
                   <Button onClick={() => handleReview(item.id, "approved")}>დამტკიცება</Button>
                   <Button variant="destructive" onClick={() => handleReview(item.id, "rejected")}>უარყოფა</Button>
@@ -157,12 +159,12 @@ const AdminContentReviewPage = () => {
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-border/80 bg-background/65 p-5 font-ui text-sm text-muted-foreground">
-            {query.isLoading ? "კონტენტის რიგი იტვირთება..." : "ჩანაწერები ვერ მოიძებნა."}
+            {query.isLoading ? t("admin.loadingQueue") : t("admin.noRecords")}
           </div>
         )}
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-          <p className="font-ui text-xs text-muted-foreground">სულ: {query.data?.count || 0}</p>
+          <p className="font-ui text-xs text-muted-foreground">{t("admin.total")}: {query.data?.count || 0}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setPage((prev) => prev - 1)} disabled={page <= 1}>
               Previous

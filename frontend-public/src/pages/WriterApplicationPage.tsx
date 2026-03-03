@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n";
 ﻿import { FormEvent, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -18,6 +19,7 @@ const statusStyles: Record<string, string> = {
 };
 
 const WriterApplicationPage = () => {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const { me } = useSession();
 
@@ -46,7 +48,7 @@ const WriterApplicationPage = () => {
     event.preventDefault();
 
     if (!sampleText.trim() && !sampleFile) {
-      toast.error("მიუთითე ნიმუშის ტექსტი ან ატვირთე ფაილი.");
+      toast.error(t("work.provideTextOrFile"));
       return;
     }
 
@@ -56,7 +58,7 @@ const WriterApplicationPage = () => {
       setSampleText("");
       setSampleFile(null);
       await queryClient.invalidateQueries({ queryKey: ["writer-applications", "mine"] });
-      toast.success("ავტორის განაცხადი გაგზავნილია.");
+      toast.success(t("writer.appSubmitted"));
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to submit application.";
       toast.error(message);
@@ -69,19 +71,17 @@ const WriterApplicationPage = () => {
     <div className="container mx-auto space-y-8 px-6 py-10">
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <h1 className="font-display text-4xl font-semibold text-foreground">ავტორის განაცხადი</h1>
-        <p className="mt-2 font-body text-base text-muted-foreground">
-          გაგზავნე წერითი ნიმუში ტექსტით, ფაილით ან ორივეთი. სარედაქციო განხილვის შემდეგ სტატუსი განახლდება.
-        </p>
+        <p className="mt-2 font-body text-base text-muted-foreground">{t("writer.appDesc")}</p>
 
         <form onSubmit={handleSubmit} className="mt-7 space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="sampleText" className="font-ui">ნიმუშის ტექსტი</Label>
+            <Label htmlFor="sampleText" className="font-ui">{t("writer.sampleText")}</Label>
             <Textarea
               id="sampleText"
               rows={10}
               value={sampleText}
               onChange={(e) => setSampleText(e.target.value)}
-              placeholder="ჩასვი შენი ნიმუშის ტექსტი"
+              placeholder={t("writer.pasteSample")}
               className="font-body leading-relaxed"
             />
           </div>
@@ -112,7 +112,7 @@ const WriterApplicationPage = () => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <div className="flex items-center gap-2">
           <Clock3 className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-2xl font-semibold text-foreground">ჩემი განაცხადების ისტორია</h2>
+          <h2 className="font-display text-2xl font-semibold text-foreground">{t("writer.history")}</h2>
         </div>
 
         {applicationsQuery.data?.results?.length ? (
@@ -127,7 +127,7 @@ const WriterApplicationPage = () => {
                     {app.status}
                   </span>
                 </p>
-                <p className="mt-2 text-muted-foreground">შექმნის დრო: {new Date(app.created_at).toLocaleString()}</p>
+                <p className="mt-2 text-muted-foreground">{t("admin.createdTime")}: {new Date(app.created_at).toLocaleString()}</p>
                 {app.reviewed_at ? <p className="text-muted-foreground">Reviewed: {new Date(app.reviewed_at).toLocaleString()}</p> : null}
                 {app.review_comment ? (
                   <p className="mt-3 rounded-lg border border-border/70 bg-card/75 p-3 text-foreground">
@@ -141,17 +141,13 @@ const WriterApplicationPage = () => {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    <FileText className="h-4 w-4" />
-                    გაგზავნილი ფაილის გახსნა
-                  </a>
+                    <FileText className="h-4 w-4" />{t("writer.openSampleFile")}</a>
                 ) : null}
               </div>
             ))}
           </div>
         ) : (
-          <div className="mt-4 rounded-xl border border-dashed border-border/80 bg-background/65 p-5 font-ui text-sm text-muted-foreground">
-            განაცხადები ჯერ არ არის.
-          </div>
+          <div className="mt-4 rounded-xl border border-dashed border-border/80 bg-background/65 p-5 font-ui text-sm text-muted-foreground">{t("writer.noApps")}</div>
         )}
       </section>
     </div>

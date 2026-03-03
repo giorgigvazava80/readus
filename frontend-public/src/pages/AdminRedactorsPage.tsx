@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n";
 ﻿import { FormEvent, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ShieldPlus, UserMinus } from "lucide-react";
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { createRedactor, deleteRedactor, fetchRedactors, updateRedactor } from "@/lib/api";
 
 const AdminRedactorsPage = () => {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const redactorsQuery = useQuery({
     queryKey: ["admin", "redactors"],
@@ -161,7 +163,7 @@ const AdminRedactorsPage = () => {
                 {[
                   ["is_active", "Active"],
                   ["can_review_writer_applications", "განაცხადების განხილვა"],
-                  ["can_review_content", "კონტენტის განხილვა"],
+                  ["can_review_content", t("admin.contentReview")],
                   ["can_manage_content", "კონტენტის მართვა"],
                   ["can_manage_redactors", "რედაქტორების მართვა"],
                 ].map(([field, label]) => (

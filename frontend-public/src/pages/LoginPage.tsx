@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import { useI18n } from "@/i18n";
 import { fetchMe, login, loginWithGoogleCode, logout } from "@/lib/api";
-import { consumeGoogleOAuthState, createGoogleOAuthState } from "@/lib/oauth";
+import { consumeGoogleOAuthState, createGoogleOAuthState, GOOGLE_OAUTH_SCOPE } from "@/lib/oauth";
 import { isAdminAppHost } from "@/lib/runtime";
 
 const LoginPage = () => {
@@ -89,7 +89,7 @@ const LoginPage = () => {
       client_id: googleClientId,
       redirect_uri: googleRedirectUri,
       response_type: "code",
-      scope: "openid email profile",
+      scope: GOOGLE_OAUTH_SCOPE,
       access_type: "offline",
       include_granted_scopes: "true",
       prompt: "select_account",

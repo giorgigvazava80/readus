@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n";
 ﻿import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -12,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { fetchContentDetail, updateChapter } from "@/lib/api";
 import { CONTENT_STATUS_STYLES } from "@/lib/content";
 import { useAutosave } from "@/hooks/useAutosave";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
 
 interface ChapterDraft {
@@ -31,10 +33,12 @@ function toDraft(data: { title?: string; order?: number; body?: string; book?: n
 }
 
 const WriterChapterEditorPage = () => {
+  const { t } = useI18n();
   const { id } = useParams();
   const chapterId = Number(id);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const detailQuery = useQuery({
     queryKey: ["writer", "chapters", chapterId],
@@ -90,7 +94,7 @@ const WriterChapterEditorPage = () => {
   if (!Number.isFinite(chapterId)) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">თავის ID არასწორია.</p>
+        <p className="font-ui text-sm text-muted-foreground">{t("work.chapter")}ს ID არასწორია.</p>
       </div>
     );
   }
@@ -98,7 +102,7 @@ const WriterChapterEditorPage = () => {
   if (detailQuery.isLoading) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">თავის რედაქტორი იტვირთება...</p>
+        <p className="font-ui text-sm text-muted-foreground">{t("work.chapter")}ს რედაქტორი იტვირთება...</p>
       </div>
     );
   }
@@ -106,48 +110,33 @@ const WriterChapterEditorPage = () => {
   if (detailQuery.isError || !detailQuery.data) {
     return (
       <div className="container mx-auto space-y-3 px-6 py-10">
-        <p className="font-ui text-sm text-red-700">თავის ჩატვირთვა ვერ მოხერხდა.</p>
-        <Button variant="outline" onClick={() => navigate("/writer/new")}>ახალი ნაშრომის შექმნა</Button>
+        <p className="font-ui text-sm text-red-700">{t("work.chapter")}ს ჩატვირთვა ვერ მოხერხდა.</p>
+        <Button variant="outline" onClick={() => navigate("/writer/new")}>{t("work.newWork")}ს შექმნა</Button>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto max-w-5xl space-y-6 px-6 py-10">
-      <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card">
+    <div className="container mx-auto max-w-5xl flex flex-col h-[calc(100dvh-64px)] sm:h-auto gap-3 px-3 py-3 sm:gap-6 sm:px-6 sm:py-10">
+      <section className="shrink-0 rounded-2xl border border-border/70 bg-card/80 p-3 shadow-card sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1">
               <ScrollText className="h-3.5 w-3.5 text-primary" />
-              <span className="font-ui text-xs text-muted-foreground">თავის რედაქტორი</span>
+              <span className="font-ui text-xs text-muted-foreground">{t("work.chapter")}ს რედაქტორი</span>
             </div>
-            <h1 className="mt-3 font-display text-3xl font-semibold text-foreground">თავის რედაქტირება</h1>
+            <h1 className="mt-3 font-display text-2xl font-semibold text-foreground sm:text-3xl">{t("work.chapter")}ს რედაქტირება</h1>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {draft.book ? (
               <Link to={`/writer/books/${draft.book}/chapters`}>
-                <Button variant="outline" className="gap-2">
+                <Button variant="outline" size={isMobile ? "sm" : "default"} className="gap-2">
                   <ListTree className="h-4 w-4" />
                   Back to თავები
                 </Button>
               </Link>
             ) : null}
-            <Button
-              className="gap-2"
-              onClick={async () => {
-                try {
-                  await autosave.saveNow();
-                  toast({ title: "თავი შენახულია" });
-                } catch {
-                  toast({ variant: "destructive", title: "შენახვა ვერ მოხერხდა" });
-                }
-              }}
-              disabled={autosave.isSaving}
-            >
-              <Save className="h-4 w-4" />
-              შენახვა ახლავე
-            </Button>
           </div>
         </div>
 
@@ -168,9 +157,9 @@ const WriterChapterEditorPage = () => {
         ) : null}
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <div className="md:col-span-2 space-y-2">
-          <Label className="font-ui">სათაური (არასავალდებულო)</Label>
+      <section className="shrink-0 flex items-center gap-3">
+        <div className="flex-[3] space-y-1.5">
+          <Label className="font-ui text-xs sm:text-sm">{t("work.title")} (არასავალდებულო)</Label>
           <Input
             value={draft.title}
             onChange={(event) => setDraft((prev) => ({ ...prev, title: event.target.value }))}
@@ -178,8 +167,8 @@ const WriterChapterEditorPage = () => {
           />
         </div>
 
-        <div className="space-y-2">
-          <Label className="font-ui">რიგი</Label>
+        <div className="flex-[1] space-y-1.5 min-w-[60px]">
+          <Label className="font-ui text-xs sm:text-sm">{t("editor.order")}</Label>
           <Input
             type="number"
             min={1}
@@ -190,15 +179,33 @@ const WriterChapterEditorPage = () => {
         </div>
       </section>
 
-      <section>
-        <Label className="font-ui">თავის ტექსტი</Label>
+      <section className="flex flex-col flex-1 min-h-0 space-y-1.5">
+        <Label className="font-ui text-xs sm:text-sm shrink-0">{t("work.chapter")}ს ტექსტი</Label>
         <RichTextEditor
           value={draft.body}
           onChange={(body) => setDraft((prev) => ({ ...prev, body }))}
-          minHeightClass="min-h-[420px]"
+          className="flex-1 flex flex-col min-h-0"
+          minHeightClass="flex-1 overflow-y-auto min-h-0"
           placeholder="Write chapter text..."
         />
       </section>
+
+      <div className="shrink-0 flex justify-end">
+        <Button
+          size={isMobile ? "sm" : "default"}
+          className="w-full gap-2 sm:w-auto"
+          onClick={async () => {
+            try {
+              await autosave.saveNow();
+              toast({ title: t("editor.chapterSaved") });
+            } catch {
+              toast({ variant: "destructive", title: t("editor.saveFailed") });
+            }
+          }}
+          disabled={autosave.isSaving}
+        >
+          <Save className="h-4 w-4" />{t("editor.saveNow")}</Button>
+      </div>
     </div>
   );
 };

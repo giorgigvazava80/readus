@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n";
 ﻿import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -43,6 +44,7 @@ function getEditPath(category: ContentCategory, id: number): string {
 }
 
 const MyWorksPage = () => {
+  const { t } = useI18n();
   const { me } = useSession();
 
   const [category, setCategory] = useState<ContentCategory>("books");
@@ -74,24 +76,20 @@ const MyWorksPage = () => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="font-display text-4xl font-semibold text-foreground">ჩემი ნაშრომები</h1>
-            <p className="mt-2 font-body text-base text-muted-foreground">
-              გაფილტრე გაგზავნილი ნაშრომები სტატუსის, თარიღის დიაპაზონისა და საკვანძო სიტყვების მიხედვით.
-            </p>
+            <h1 className="font-display text-4xl font-semibold text-foreground">{t("work.myWorks")}</h1>
+            <p className="mt-2 font-body text-base text-muted-foreground">{t("writer.filterSub")}</p>
           </div>
           {me?.is_writer_approved ? (
             <Link to="/writer/new">
               <Button className="gap-2">
-                <PlusSquare className="h-4 w-4" />
-                ახალი ნაშრომი
-              </Button>
+                <PlusSquare className="h-4 w-4" />{t("work.newWork")}</Button>
             </Link>
           ) : null}
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-5">
           <div className="space-y-2">
-            <Label className="font-ui">ტიპი</Label>
+            <Label className="font-ui">{t("work.type")}</Label>
             <Select
               value={category}
               onValueChange={(value) => {
@@ -113,7 +111,7 @@ const MyWorksPage = () => {
           </div>
 
           <div className="space-y-2">
-            <Label className="font-ui">სტატუსი</Label>
+            <Label className="font-ui">{t("work.status")}</Label>
             <Select
               value={status}
               onValueChange={(value) => {
@@ -135,7 +133,7 @@ const MyWorksPage = () => {
           </div>
 
           <div className="space-y-2">
-            <Label className="font-ui">ძებნა</Label>
+            <Label className="font-ui">{t("admin.search")}</Label>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -144,14 +142,14 @@ const MyWorksPage = () => {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                placeholder="სათაური ან ტექსტი"
+                placeholder={t("work.titleOrText")}
                 className="pl-9 font-ui"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label className="font-ui">თარიღიდან</Label>
+            <Label className="font-ui">{t("work.fromDate")}</Label>
             <div className="relative">
               <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="pl-9 font-ui" />
@@ -159,7 +157,7 @@ const MyWorksPage = () => {
           </div>
 
           <div className="space-y-2">
-            <Label className="font-ui">თარიღამდე</Label>
+            <Label className="font-ui">{t("work.toDate")}</Label>
             <div className="relative">
               <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="pl-9 font-ui" />
@@ -169,7 +167,7 @@ const MyWorksPage = () => {
       </section>
 
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
-        {worksQuery.isLoading ? <p className="font-ui text-sm text-muted-foreground">ნაშრომები იტვირთება...</p> : null}
+        {worksQuery.isLoading ? <p className="font-ui text-sm text-muted-foreground">{t("writer.loading")}</p> : null}
 
         {worksQuery.data?.results?.length ? (
           <div className="space-y-3">
@@ -201,20 +199,20 @@ const MyWorksPage = () => {
                 {me?.is_writer_approved ? (
                   <div className="mt-4 flex items-center justify-between">
                     <Link to={getEditPath(category, item.id)}>
-                      <Button variant="outline" size="sm">რედაქტორის გახსნა</Button>
+                      <Button variant="outline" size="sm">{t("work.openEditor")}</Button>
                     </Link>
                     <Button
                       variant="ghost"
                       size="sm"
                       className="text-muted-foreground hover:text-red-600 hover:bg-red-50"
                       onClick={async () => {
-                        if (window.confirm("ნამდვილად გსურს ამ ნაშრომის წაშლა? მოქმედება შეუქცევადია.")) {
+                        if (window.confirm(t("work.deleteConfirm"))) {
                           try {
                             await deleteContentItem(category as any, item.id);
                             worksQuery.refetch();
-                            toast({ title: "ნაშრომი წაიშალა" });
+                            toast({ title: t("work.deleted") });
                           } catch (error) {
-                            toast({ variant: "destructive", title: "წაშლა ვერ მოხერხდა" });
+                            toast({ variant: "destructive", title: t("work.deleteFailed") });
                           }
                         }
                       }}
@@ -230,15 +228,13 @@ const MyWorksPage = () => {
           !worksQuery.isLoading ? (
             <div className="rounded-xl border border-dashed border-border/80 bg-background/65 p-5 font-ui text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                ნამუშევრები ვერ მოიძებნა არჩეული ფილტრებისთვის.
-              </div>
+                <Filter className="h-4 w-4" />{t("work.noneFound")}</div>
             </div>
           ) : null
         )}
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-          <p className="font-ui text-xs text-muted-foreground">სულ: {worksQuery.data?.count || 0}</p>
+          <p className="font-ui text-xs text-muted-foreground">{t("admin.total")}: {worksQuery.data?.count || 0}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setPage((prev) => prev - 1)} disabled={!canPrev}>
               Previous

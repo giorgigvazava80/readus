@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { useI18n } from "@/i18n";
 import { register, resendVerification } from "@/lib/api";
-import { createGoogleOAuthState } from "@/lib/oauth";
+import { createGoogleOAuthState, GOOGLE_OAUTH_SCOPE } from "@/lib/oauth";
 import type { RegisteredRole } from "@/lib/types";
 
 const RegisterPage = () => {
@@ -91,7 +91,7 @@ const RegisterPage = () => {
       client_id: googleClientId,
       redirect_uri: googleRedirectUri,
       response_type: "code",
-      scope: "openid email profile",
+      scope: GOOGLE_OAUTH_SCOPE,
       access_type: "offline",
       include_granted_scopes: "true",
       prompt: "select_account",

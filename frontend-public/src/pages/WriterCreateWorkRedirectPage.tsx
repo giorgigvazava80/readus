@@ -1,4 +1,5 @@
-﻿import { useEffect } from "react";
+import { useI18n } from "@/i18n";
+import { useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
@@ -10,13 +11,14 @@ interface WriterCreateWorkRedirectPageProps {
 }
 
 const WriterCreateWorkRedirectPage = ({ type }: WriterCreateWorkRedirectPageProps) => {
+  const { t } = useI18n();
   const navigate = useNavigate();
 
   const createMutation = useMutation({
     mutationFn: async () => {
       if (type === "books") {
         const created = await createBook({
-          title: "უსათაურო წიგნი",
+          title: t("editor.untitledBook"),
           description: "",
           foreword: "<p></p>",
           afterword: "<p></p>",
@@ -28,18 +30,18 @@ const WriterCreateWorkRedirectPage = ({ type }: WriterCreateWorkRedirectPageProp
 
       if (type === "poems") {
         const created = await createPoem({
-          title: "უსათაურო ლექსი",
+          title: t("editor.untitledPoem"),
           description: "",
-          body: "<p>დაიწყე ლექსის წერა...</p>",
+          body: `<p>${t("editor.startPoem")}</p>`,
           source_type: "manual",
         });
         return `/writer/poems/${created.id}/edit`;
       }
 
       const created = await createStory({
-        title: "უსათაურო მოთხრობა",
+        title: t("editor.untitledStory"),
         description: "",
-        body: "<p>დაიწყე მოთხრობის წერა...</p>",
+        body: `<p>${t("editor.startStory")}</p>`,
         source_type: "manual",
       });
       return `/writer/stories/${created.id}/edit`;
@@ -50,7 +52,7 @@ const WriterCreateWorkRedirectPage = ({ type }: WriterCreateWorkRedirectPageProp
     onError: (error) => {
       toast({
         variant: "destructive",
-        title: "შავი ვერსიის შექმნა ვერ მოხერხდა",
+        title: t("editor.draftFailed"),
         description: error instanceof Error ? error.message : "სცადე ხელახლა.",
       });
       navigate("/writer/new", { replace: true });
@@ -65,7 +67,7 @@ const WriterCreateWorkRedirectPage = ({ type }: WriterCreateWorkRedirectPageProp
 
   return (
     <div className="container mx-auto px-6 py-10">
-      <p className="font-ui text-sm text-muted-foreground">შავი ვერსიის რედაქტორი იქმნება...</p>
+      <p className="font-ui text-sm text-muted-foreground">{t("editor.draftCreating")}</p>
     </div>
   );
 };

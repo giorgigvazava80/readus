@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n";
 ﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -39,6 +40,7 @@ interface BookDraft {
 }
 
 const hasTextContent = (html?: string | null) => {
+  const { t } = useI18n();
   if (!html) return false;
   const stripped = html.replace(/<[^>]+>/g, "").trim();
   return stripped.length > 0;
@@ -55,7 +57,7 @@ function toDraft(data: {
   is_hidden?: boolean;
 }): BookDraft {
   return {
-    title: data.title || "უსათაურო წიგნი",
+    title: data.title || t("editor.untitledBook"),
     description: data.description || "",
     foreword: data.foreword || "",
     afterword: data.afterword || "",
@@ -92,7 +94,7 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
     mutationFn: () => deleteChapter(chapterId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["writer", "book", bookId] });
-      toast({ title: "თავი წაიშალა" });
+      toast({ title: t("editor.chapterDeleted") });
       onDelete();
     }
   });
@@ -119,17 +121,17 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
   }, [detailQuery.data, chapterმონიშვნაSaved]);
 
   if (detailQuery.isLoading) {
-    return <p className="font-ui text-sm text-muted-foreground p-6">თავი იტვირთება...</p>;
+    return <p className="font-ui text-sm text-muted-foreground p-6">{t("work.chapter")} იტვირთება...</p>;
   }
   if (!detailQuery.data) {
-    return <p className="font-ui text-sm text-red-700 p-6">თავის ჩატვირთვა ვერ მოხერხდა.</p>;
+    return <p className="font-ui text-sm text-red-700 p-6">{t("work.chapter")}ს ჩატვირთვა ვერ მოხერხდა.</p>;
   }
 
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-4">
         <div className="flex items-center gap-3">
-          <h2 className="font-display text-2xl font-semibold text-foreground">თავის რედაქტირება</h2>
+          <h2 className="font-display text-2xl font-semibold text-foreground">{t("work.chapter")}ს რედაქტირება</h2>
           <Badge variant="outline" className={CONTENT_STATUS_STYLES[detailQuery.data.status] || ""}>{detailQuery.data.status}</Badge>
           <SaveStateBadge
             isSaving={autosave.isSaving}
@@ -144,9 +146,9 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
             onClick={async () => {
               try {
                 await autosave.saveNow();
-                toast({ title: "თავი შენახულია" });
+                toast({ title: t("editor.chapterSaved") });
               } catch (error) {
-                toast({ variant: "destructive", title: "შენახვა ვერ მოხერხდა" });
+                toast({ variant: "destructive", title: t("editor.saveFailed") });
               }
             }}
             disabled={autosave.isSaving}
@@ -158,7 +160,7 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
               deleteMutation.mutate();
             }
           }} className="gap-2 h-9" disabled={deleteMutation.isPending}>
-            <Trash className="h-3.5 w-3.5" /> {deleteMutation.isPending ? "იშლება..." : "წაშლა"}
+            <Trash className="h-3.5 w-3.5" /> {deleteMutation.isPending ? t("editor.deleting") : t("editor.delete")}
           </Button>
         </div>
       </div>
@@ -171,16 +173,16 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2 space-y-2">
-          <Label className="font-ui">სათაური (არასავალდებულო)</Label>
+          <Label className="font-ui">{t("work.title")} (არასავალდებულო)</Label>
           <Input value={draft.title} onChange={(e) => setDraft(p => ({ ...p, title: e.target.value }))} className="font-ui" />
         </div>
         <div className="space-y-2">
-          <Label className="font-ui">რიგი</Label>
+          <Label className="font-ui">{t("editor.order")}</Label>
           <Input type="number" min={1} value={draft.order} onChange={(e) => setDraft(p => ({ ...p, order: Math.max(1, Number(e.target.value)) }))} className="font-ui" />
         </div>
       </div>
       <div className="space-y-2">
-        <Label className="font-ui">თავის ტექსტი</Label>
+        <Label className="font-ui">{t("work.chapter")}ს ტექსტი</Label>
         <RichTextEditor value={draft.body} onChange={(body) => setDraft(p => ({ ...p, body }))} minHeightClass="min-h-[420px]" placeholder="Write chapter text..." />
       </div>
     </div>
@@ -203,7 +205,7 @@ const WriterBookEditorPage = () => {
   });
 
   const [draft, setDraft] = useState<BookDraft>({
-    title: "უსათაურო წიგნი",
+    title: t("editor.untitledBook"),
     description: "",
     foreword: "",
     afterword: "",
@@ -225,7 +227,7 @@ const WriterBookEditorPage = () => {
   const saveMutation = useMutation({
     mutationFn: async (payload: BookDraft) => {
       if (payload.source_type === "upload" && !uploadFile && !detailQuery.data?.upload_file) {
-        throw new Error("ჯერ ატვირთვის ფაილი აირჩიე.");
+        throw new Error(t("editor.noUploadFile"));
       }
 
       return updateBook(bookId, {
@@ -302,7 +304,7 @@ const WriterBookEditorPage = () => {
   if (!Number.isFinite(bookId)) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">წიგნის ID არასწორია.</p>
+        <p className="font-ui text-sm text-muted-foreground">{t("work.book")}ს ID არასწორია.</p>
       </div>
     );
   }
@@ -310,7 +312,7 @@ const WriterBookEditorPage = () => {
   if (detailQuery.isLoading) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">წიგნის რედაქტორი იტვირთება...</p>
+        <p className="font-ui text-sm text-muted-foreground">{t("work.book")}ს რედაქტორი იტვირთება...</p>
       </div>
     );
   }
@@ -318,8 +320,8 @@ const WriterBookEditorPage = () => {
   if (detailQuery.isError || !detailQuery.data) {
     return (
       <div className="container mx-auto space-y-3 px-6 py-10">
-        <p className="font-ui text-sm text-red-700">ამ წიგნის ჩატვირთვა ვერ მოხერხდა.</p>
-        <Button variant="outline" onClick={() => navigate("/writer/new")}>ახალი ნაშრომის შექმნა</Button>
+        <p className="font-ui text-sm text-red-700">{t("editor.bookLoadFailed")}</p>
+        <Button variant="outline" onClick={() => navigate("/writer/new")}>{t("work.newWork")}ს შექმნა</Button>
       </div>
     );
   }
@@ -333,9 +335,9 @@ const WriterBookEditorPage = () => {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1">
               <BookOpenText className="h-3.5 w-3.5 text-primary" />
-              <span className="font-ui text-xs text-muted-foreground">წიგნის რედაქტორი</span>
+              <span className="font-ui text-xs text-muted-foreground">{t("work.book")}ს რედაქტორი</span>
             </div>
-            <h1 className="mt-3 font-display text-3xl font-semibold text-foreground">წიგნის რედაქტირება</h1>
+            <h1 className="mt-3 font-display text-3xl font-semibold text-foreground">{t("work.book")}ს რედაქტირება</h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -344,11 +346,11 @@ const WriterBookEditorPage = () => {
               onClick={async () => {
                 try {
                   await autosave.saveNow();
-                  toast({ title: "შენახულია" });
+                  toast({ title: t("editor.saved") });
                 } catch (error) {
                   toast({
                     variant: "destructive",
-                    title: "შენახვა ვერ მოხერხდა",
+                    title: t("editor.saveFailed"),
                     description: error instanceof Error ? error.message : "Please fix validation issues and try again.",
                   });
                 }
@@ -363,13 +365,13 @@ const WriterBookEditorPage = () => {
               size="icon"
               className="h-10 w-10"
               onClick={async () => {
-                if (window.confirm("ნამდვილად გსურს მთელი წიგნისა და ყველა თავის წაშლა? მოქმედება შეუქცევადია.")) {
+                if (window.confirm(t("editor.deleteBookConfirm"))) {
                   try {
                     await deleteContentItem("books", bookId);
-                    toast({ title: "წიგნი წაიშალა" });
+                    toast({ title: t("editor.bookDeleted") });
                     navigate("/writer/new");
                   } catch (error) {
-                    toast({ variant: "destructive", title: "წაშლა ვერ მოხერხდა" });
+                    toast({ variant: "destructive", title: t("work.deleteFailed") });
                   }
                 }
               }}
@@ -402,7 +404,7 @@ const WriterBookEditorPage = () => {
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <ListTree className="h-4 w-4 text-primary" />
-              <h2 className="font-display text-xl font-semibold text-foreground">სარჩევი</h2>
+              <h2 className="font-display text-xl font-semibold text-foreground">{t("editor.toc")}</h2>
             </div>
           </div>
           <div className="mt-4 space-y-2">
@@ -424,7 +426,7 @@ const WriterBookEditorPage = () => {
                   : "border-border/60 bg-background/65 text-foreground hover:border-primary/40 hover:text-primary"
                   }`}
               >
-                <span>წინასიტყვაობა {!hasTextContent(draft.foreword) && <span className="text-muted-foreground/60 text-xs ml-1">(ცარიელია)</span>}</span>
+                <span>{t("work.foreword")} {!hasTextContent(draft.foreword) && <span className="text-muted-foreground/60 text-xs ml-1">{t("editor.empty")}</span>}</span>
               </button>
             )}
 
@@ -461,7 +463,7 @@ const WriterBookEditorPage = () => {
                   : "border-border/60 bg-background/65 text-foreground hover:border-primary/40 hover:text-primary"
                   }`}
               >
-                <span>ბოლოსიტყვაობა {!hasTextContent(draft.afterword) && <span className="text-muted-foreground/60 text-xs ml-1">(ცარიელია)</span>}</span>
+                <span>{t("work.afterword")} {!hasTextContent(draft.afterword) && <span className="text-muted-foreground/60 text-xs ml-1">{t("editor.empty")}</span>}</span>
               </button>
             )}
           </div>
@@ -473,7 +475,7 @@ const WriterBookEditorPage = () => {
             <div className="space-y-8 animate-in fade-in duration-300">
               <div className="grid gap-5 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="font-ui">სათაური</Label>
+                  <Label className="font-ui">{t("work.title")}</Label>
                   <Input
                     value={draft.title}
                     onChange={(event) => setDraft((prev) => ({ ...prev, title: event.target.value }))}
@@ -481,7 +483,7 @@ const WriterBookEditorPage = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-ui">თავების ნუმერაცია</Label>
+                  <Label className="font-ui">{t("editor.chapterNum")}</Label>
                   <Select
                     value={draft.numbering_style}
                     onValueChange={(value) => setDraft((prev) => ({ ...prev, numbering_style: value as NumberingStyle }))}
@@ -490,21 +492,21 @@ const WriterBookEditorPage = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="separator">გამყოფი (***)</SelectItem>
-                      <SelectItem value="arabic">არაბული (1,2,3)</SelectItem>
-                      <SelectItem value="roman">რომაული (I,II,III)</SelectItem>
+                      <SelectItem value="separator">{t("editor.sep")}</SelectItem>
+                      <SelectItem value="arabic">{t("editor.arabic")}</SelectItem>
+                      <SelectItem value="roman">{t("editor.roman")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <Label className="font-ui font-semibold text-base">წიგნის აღწერა</Label>
+                <Label className="font-ui font-semibold text-base">{t("work.book")}ს აღწერა</Label>
                 <Textarea
                   value={draft.description}
                   onChange={(e) => setDraft(p => ({ ...p, description: e.target.value }))}
                   rows={6}
-                  placeholder="ჩაწერე მოკლე ტექსტური აღწერა..."
+                  placeholder={t("editor.shortDesc")}
                   className="font-ui text-sm resize-y"
                 />
 
@@ -517,7 +519,7 @@ const WriterBookEditorPage = () => {
                   ) : (
                     <div className="flex flex-col gap-3 animate-in slide-in-from-top-2 duration-200">
                       <div className="flex items-center justify-between">
-                        <span className="font-ui text-sm font-medium">აირჩიე დასამატებელი სექცია</span>
+                        <span className="font-ui text-sm font-medium">{t("editor.chooseSection")}</span>
                         <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowAddNav(false)}>
                           <X className="h-4 w-4" />
                         </Button>
@@ -528,9 +530,7 @@ const WriterBookEditorPage = () => {
                           disabled={Boolean(draft.foreword)}
                           className="bg-primary/10 text-primary hover:bg-primary/20 shadow-none border-primary/20"
                           variant="outline"
-                        >
-                          წინასიტყვაობა
-                        </Button>
+                        >{t("work.foreword")}</Button>
                         <Button
                           onClick={() => addChapterMutation.mutate()}
                           disabled={addChapterMutation.isPending}
@@ -544,12 +544,10 @@ const WriterBookEditorPage = () => {
                           disabled={chapters.length === 0 || Boolean(draft.afterword)}
                           className="bg-primary/10 text-primary hover:bg-primary/20 shadow-none border-primary/20"
                           variant="outline"
-                        >
-                          ბოლოსიტყვაობა
-                        </Button>
+                        >{t("work.afterword")}</Button>
                       </div>
                       {chapters.length === 0 && (
-                        <p className="text-[11px] text-muted-foreground font-ui">ბოლოსიტყვაობის დამატებამდე აუცილებელია მინიმუმ ერთი თავის შექმნა.</p>
+                        <p className="text-[11px] text-muted-foreground font-ui">{t("editor.afterwordReq")}</p>
                       )}
                     </div>
                   )}
@@ -558,7 +556,7 @@ const WriterBookEditorPage = () => {
 
               <div className="space-y-6 pt-4 border-t border-border/40">
                 <div className="space-y-2">
-                  <Label className="font-ui">წყაროს ტიპი და ატვირთვის პარამეტრები</Label>
+                  <Label className="font-ui">{t("work.sourceType")} და ატვირთვის პარამეტრები</Label>
                   <Select
                     value={draft.source_type}
                     onValueChange={(value) => {
@@ -570,8 +568,8 @@ const WriterBookEditorPage = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="manual">ხელით ტექსტის რედაქტორი</SelectItem>
-                      <SelectItem value="upload">ფაილის ატვირთვა</SelectItem>
+                      <SelectItem value="manual">{t("editor.manualEditor")}</SelectItem>
+                      <SelectItem value="upload">{t("work.fileUpload")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -579,7 +577,7 @@ const WriterBookEditorPage = () => {
                 {draft.source_type === "upload" && (
                   <div className="space-y-3 rounded-lg border border-border/40 bg-background/50 p-4">
                     <div>
-                      <Label htmlFor="bookUpload" className="font-ui">დოკუმენტის ატვირთვა</Label>
+                      <Label htmlFor="bookUpload" className="font-ui">{t("editor.docUpload")}</Label>
                       <Input
                         id="bookUpload"
                         type="file"
@@ -587,15 +585,13 @@ const WriterBookEditorPage = () => {
                         onChange={(event) => setUploadFile(event.target.files?.[0] || null)}
                         className="mt-2"
                       />
-                      <p className="mt-2 font-ui text-[11px] text-muted-foreground">დაშვებულია: PDF, DOC, DOCX, TXT (მაქს. 20MB).</p>
+                      <p className="mt-2 font-ui text-[11px] text-muted-foreground">{t("editor.allowed")}: PDF, DOC, DOCX, TXT (მაქს. 20MB).</p>
                     </div>
 
                     {detailQuery.data.upload_file ? (
                       <p className="font-ui text-sm text-muted-foreground">
                         Current file:{" "}
-                        <a className="underline" href={detailQuery.data.upload_file} target="_blank" rel="noreferrer">
-                          ფაილის გახსნა
-                        </a>
+                        <a className="underline" href={detailQuery.data.upload_file} target="_blank" rel="noreferrer">{t("editor.openFile")}</a>
                       </p>
                     ) : null}
                   </div>
@@ -605,7 +601,7 @@ const WriterBookEditorPage = () => {
                   <div className="space-y-2 rounded-xl border border-border/70 bg-background/70 p-4 flex-1">
                     <div className="flex items-start justify-between gap-4">
                       <div className="space-y-1">
-                        <Label htmlFor="bookAnonymousToggle" className="font-ui text-sm">გამოქვეყნება ანონიმურად</Label>
+                        <Label htmlFor="bookAnonymousToggle" className="font-ui text-sm">{t("editor.publishAnon")}</Label>
                         <p className="font-ui text-[11px] text-muted-foreground">
                           Hidden from readers. Visible to admins.
                         </p>
@@ -621,10 +617,8 @@ const WriterBookEditorPage = () => {
                   <div className="space-y-2 rounded-xl border border-border/70 bg-background/70 p-4 flex-1">
                     <div className="flex items-start justify-between gap-4">
                       <div className="space-y-1">
-                        <Label htmlFor="bookHiddenToggle" className="font-ui text-sm">საჯაროდ დამალვა</Label>
-                        <p className="font-ui text-[11px] text-muted-foreground">
-                          შენს ბიბლიოთეკაში ამას მხოლოდ შენ და პერსონალი ხედავს.
-                        </p>
+                        <Label htmlFor="bookHiddenToggle" className="font-ui text-sm">{t("editor.hiddenPub")}</Label>
+                        <p className="font-ui text-[11px] text-muted-foreground">{t("editor.hiddenDesc")}</p>
                       </div>
                       <Switch
                         id="bookHiddenToggle"
@@ -637,8 +631,8 @@ const WriterBookEditorPage = () => {
 
                 <div className="space-y-4">
                   <div>
-                    <h3 className="font-display text-base font-semibold text-foreground">ყდის სურათი</h3>
-                    <p className="font-ui text-xs text-muted-foreground">ჩანს ნაშრომის ბარათზე. JPG, PNG, WEBP — მაქს. 5MB.</p>
+                    <h3 className="font-display text-base font-semibold text-foreground">{t("editor.coverImage")}</h3>
+                    <p className="font-ui text-xs text-muted-foreground">{t("editor.coverVisible")} JPG, PNG, WEBP — მაქს. 5MB.</p>
                   </div>
                   <div className="flex flex-wrap items-start gap-5">
                     {currentCoverUrl ? (
@@ -666,7 +660,7 @@ const WriterBookEditorPage = () => {
                         onClick={() => coverInputRef.current?.click()}
                       >
                         <ImagePlus className="h-6 w-6" />
-                        <span className="px-2 text-center font-ui text-xs">ყდის დამატება</span>
+                        <span className="px-2 text-center font-ui text-xs">{t("editor.addCover")}</span>
                       </div>
                     )}
 
@@ -698,7 +692,7 @@ const WriterBookEditorPage = () => {
                         {currentCoverUrl ? "Change cover" : "Upload cover"}
                       </button>
                       {coverImage && (
-                        <p className="font-ui text-xs text-muted-foreground">არჩეულია: {coverImage.name} (შეინახება შემდეგ შენახვაზე)</p>
+                        <p className="font-ui text-xs text-muted-foreground">{t("editor.selected")} {coverImage.name} (შეინახება შემდეგ შენახვაზე)</p>
                       )}
                     </div>
                   </div>
@@ -710,15 +704,15 @@ const WriterBookEditorPage = () => {
           {activeSection === "foreword" && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-4">
-                <h2 className="font-display text-2xl font-semibold text-foreground">წინასიტყვაობის რედაქტირება</h2>
+                <h2 className="font-display text-2xl font-semibold text-foreground">{t("editor.editForeword")}</h2>
                 <Button
                   className="gap-2"
                   onClick={async () => {
                     try {
                       await autosave.saveNow();
-                      toast({ title: "წინასიტყვაობა შენახულია" });
+                      toast({ title: t("editor.forewordSaved") });
                     } catch (error) {
-                      toast({ variant: "destructive", title: "შენახვა ვერ მოხერხდა" });
+                      toast({ variant: "destructive", title: t("editor.saveFailed") });
                     }
                   }}
                   disabled={autosave.isSaving}
@@ -727,8 +721,8 @@ const WriterBookEditorPage = () => {
                 </Button>
               </div>
               <div className="space-y-2">
-                <Label className="font-ui">წინასიტყვაობის ტექსტი</Label>
-                <RichTextEditor value={draft.foreword} onChange={(foreword) => setDraft(p => ({ ...p, foreword }))} minHeightClass="min-h-[420px]" placeholder="დაწერე წინასიტყვაობა აქ..." />
+                <Label className="font-ui">{t("editor.forewordText")}</Label>
+                <RichTextEditor value={draft.foreword} onChange={(foreword) => setDraft(p => ({ ...p, foreword }))} minHeightClass="min-h-[420px]" placeholder={t("editor.writeForeword")} />
               </div>
             </div>
           )}
@@ -736,15 +730,15 @@ const WriterBookEditorPage = () => {
           {activeSection === "afterword" && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-4">
-                <h2 className="font-display text-2xl font-semibold text-foreground">ბოლოსიტყვაობის რედაქტირება</h2>
+                <h2 className="font-display text-2xl font-semibold text-foreground">{t("editor.editAfterword")}</h2>
                 <Button
                   className="gap-2"
                   onClick={async () => {
                     try {
                       await autosave.saveNow();
-                      toast({ title: "ბოლოსიტყვაობა შენახულია" });
+                      toast({ title: t("editor.afterwordSaved") });
                     } catch (error) {
-                      toast({ variant: "destructive", title: "შენახვა ვერ მოხერხდა" });
+                      toast({ variant: "destructive", title: t("editor.saveFailed") });
                     }
                   }}
                   disabled={autosave.isSaving}
@@ -753,8 +747,8 @@ const WriterBookEditorPage = () => {
                 </Button>
               </div>
               <div className="space-y-2">
-                <Label className="font-ui">ბოლოსიტყვაობის ტექსტი</Label>
-                <RichTextEditor value={draft.afterword} onChange={(afterword) => setDraft(p => ({ ...p, afterword }))} minHeightClass="min-h-[420px]" placeholder="დაწერე ბოლოსიტყვაობა აქ..." />
+                <Label className="font-ui">{t("editor.afterwordText")}</Label>
+                <RichTextEditor value={draft.afterword} onChange={(afterword) => setDraft(p => ({ ...p, afterword }))} minHeightClass="min-h-[420px]" placeholder={t("editor.writeAfterword")} />
               </div>
             </div>
           )}

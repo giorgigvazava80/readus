@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n";
 ﻿import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FileSearch, Search } from "lucide-react";
@@ -7,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { fetchAuditLogs } from "@/lib/api";
 
 const AdminAuditLogsPage = () => {
+  const { t } = useI18n();
   const [q, setQ] = useState("");
   const [actor, setActor] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -34,7 +36,7 @@ const AdminAuditLogsPage = () => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <div className="flex items-center gap-2">
           <FileSearch className="h-5 w-5 text-primary" />
-          <h1 className="font-display text-3xl font-semibold text-foreground">აუდიტის ჩანაწერები</h1>
+          <h1 className="font-display text-3xl font-semibold text-foreground">{t("admin.logs")}</h1>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-4">
@@ -46,7 +48,7 @@ const AdminAuditLogsPage = () => {
                 setQ(e.target.value);
                 setPage(1);
               }}
-              placeholder="ქმედება ან აღწერა"
+              placeholder={t("admin.actionDesc")}
               className="pl-9 font-ui"
             />
           </div>
@@ -56,7 +58,7 @@ const AdminAuditLogsPage = () => {
               setActor(e.target.value);
               setPage(1);
             }}
-            placeholder="შემსრულებლის ელფოსტა"
+            placeholder={t("admin.executorEmail")}
             className="font-ui"
           />
           <Input
@@ -107,7 +109,7 @@ const AdminAuditLogsPage = () => {
         )}
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-          <p className="font-ui text-xs text-muted-foreground">სულ: {query.data?.count || 0}</p>
+          <p className="font-ui text-xs text-muted-foreground">{t("admin.total")}: {query.data?.count || 0}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setPage((prev) => prev - 1)} disabled={page <= 1}>
               Previous

@@ -1,4 +1,5 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useI18n } from "@/i18n";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
@@ -9,6 +10,7 @@ import type { ChapterDetail } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
 
 const WriterBookChaptersPage = () => {
+  const { t } = useI18n();
   const { id } = useParams();
   const bookId = Number(id);
   const navigate = useNavigate();
@@ -34,11 +36,11 @@ const WriterBookChaptersPage = () => {
         book: bookId,
         title: `Chapter ${nextOrder}`,
         order: nextOrder,
-        body: "<p>დაიწყე თავის წერა...</p>",
+        body: `<p>${t("editor.startChapter")}</p>`,
       });
     },
     onSuccess: (chapter) => {
-      toast({ title: "თავი დაემატა" });
+      toast({ title: t("editor.chapterAdded") });
       queryClient.invalidateQueries({ queryKey: ["writer", "book", bookId] });
       const createdId = (chapter as { id: number }).id;
       navigate(`/writer/chapters/${createdId}/edit`);
@@ -56,7 +58,7 @@ const WriterBookChaptersPage = () => {
     mutationFn: (chapterId: number) => deleteChapter(chapterId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["writer", "book", bookId] });
-      toast({ title: "თავი წაიშალა" });
+      toast({ title: t("editor.chapterDeleted") });
     },
   });
 
@@ -66,7 +68,7 @@ const WriterBookChaptersPage = () => {
       queryClient.invalidateQueries({ queryKey: ["writer", "book", bookId] });
     },
     onError: () => {
-      toast({ variant: "destructive", title: "თავების გადალაგება ვერ მოხერხდა" });
+      toast({ variant: "destructive", title: t("editor.chapterReorderFailed") });
       queryClient.invalidateQueries({ queryKey: ["writer", "book", bookId] });
     },
   });
@@ -96,7 +98,7 @@ const WriterBookChaptersPage = () => {
   if (!Number.isFinite(bookId)) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">წიგნის ID არასწორია.</p>
+        <p className="font-ui text-sm text-muted-foreground">{t("work.book")}ს ID არასწორია.</p>
       </div>
     );
   }
@@ -104,7 +106,7 @@ const WriterBookChaptersPage = () => {
   if (detailQuery.isLoading) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">თავები იტვირთება...</p>
+        <p className="font-ui text-sm text-muted-foreground">{t("editor.chaptersLoading")}</p>
       </div>
     );
   }
@@ -112,8 +114,8 @@ const WriterBookChaptersPage = () => {
   if (detailQuery.isError || !detailQuery.data) {
     return (
       <div className="container mx-auto space-y-3 px-6 py-10">
-        <p className="font-ui text-sm text-red-700">წიგნის თავების ჩატვირთვა ვერ მოხერხდა.</p>
-        <Button variant="outline" onClick={() => navigate("/writer/new")}>ახალი ნაშრომის შექმნა</Button>
+        <p className="font-ui text-sm text-red-700">{t("work.book")}ს თავების ჩატვირთვა ვერ მოხერხდა.</p>
+        <Button variant="outline" onClick={() => navigate("/writer/new")}>{t("work.newWork")}ს შექმნა</Button>
       </div>
     );
   }
@@ -130,7 +132,7 @@ const WriterBookChaptersPage = () => {
           </div>
           <div className="flex gap-2">
             <Link to={`/writer/books/${bookId}/edit`}>
-              <Button variant="outline">წიგნზე დაბრუნება</Button>
+              <Button variant="outline">{t("editor.backToBook")}</Button>
             </Link>
             <Button onClick={() => addMutation.mutate()} disabled={addMutation.isPending} className="gap-2">
               <Plus className="h-4 w-4" />
@@ -146,7 +148,7 @@ const WriterBookChaptersPage = () => {
             <div key={chapter.id} className="rounded-xl border border-border/70 bg-card/75 p-4 shadow-card">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="font-ui text-xs uppercase tracking-wide text-muted-foreground">რიგი {chapter.order}</p>
+                  <p className="font-ui text-xs uppercase tracking-wide text-muted-foreground">{t("editor.order")} {chapter.order}</p>
                   <p className="font-display text-xl text-foreground">
                     {chapter.title || `Chapter ${chapter.auto_label || chapter.order}`}
                   </p>
@@ -170,7 +172,7 @@ const WriterBookChaptersPage = () => {
                     <ArrowDown className="h-4 w-4" />
                   </Button>
                   <Link to={`/writer/chapters/${chapter.id}/edit`}>
-                    <Button>რედაქტირება</Button>
+                    <Button>{t("editor.edit")}</Button>
                   </Link>
                   <Button
                     variant="outline"
@@ -186,9 +188,7 @@ const WriterBookChaptersPage = () => {
             </div>
           ))
         ) : (
-          <div className="rounded-xl border border-dashed border-border/80 bg-background/65 p-6 font-ui text-sm text-muted-foreground">
-            თავები ჯერ არ არის. შექმენი პირველი თავი.
-          </div>
+          <div className="rounded-xl border border-dashed border-border/80 bg-background/65 p-6 font-ui text-sm text-muted-foreground">{t("editor.noChapters")}</div>
         )}
       </section>
     </div>

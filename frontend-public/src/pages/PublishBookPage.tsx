@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n";
 ﻿import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BookPlus } from "lucide-react";
@@ -17,6 +18,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 const PublishBookPage = () => {
+  const { t } = useI18n();
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
@@ -68,7 +70,7 @@ const PublishBookPage = () => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <div className="flex items-center gap-2">
           <BookPlus className="h-5 w-5 text-primary" />
-          <h1 className="font-display text-4xl font-semibold text-foreground">წიგნის გამოქვეყნება</h1>
+          <h1 className="font-display text-4xl font-semibold text-foreground">{t("work.book")}ს გამოქვეყნება</h1>
         </div>
         <p className="mt-2 font-body text-base text-muted-foreground">
           Create a new book submission. Status and moderation updates are managed by the existing content review API.
@@ -76,12 +78,12 @@ const PublishBookPage = () => {
 
         <form onSubmit={handleSubmit} className="mt-7 space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="title" className="font-ui">სათაური</Label>
+            <Label htmlFor="title" className="font-ui">{t("work.title")}</Label>
             <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="font-ui" />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description" className="font-ui">აღწერა</Label>
+            <Label htmlFor="description" className="font-ui">{t("work.desc")}</Label>
             <Textarea
               id="description"
               value={description}
@@ -99,22 +101,22 @@ const PublishBookPage = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="separator">გამყოფი (***)</SelectItem>
-                  <SelectItem value="arabic">არაბული (1,2,3)</SelectItem>
-                  <SelectItem value="roman">რომაული (I,II,III)</SelectItem>
+                  <SelectItem value="separator">{t("editor.sep")}</SelectItem>
+                  <SelectItem value="arabic">{t("editor.arabic")}</SelectItem>
+                  <SelectItem value="roman">{t("editor.roman")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label className="font-ui">წყაროს ტიპი</Label>
+              <Label className="font-ui">{t("work.sourceType")}</Label>
               <Select value={sourceType} onValueChange={(value) => setSourceType(value as "manual" | "upload")}>
                 <SelectTrigger className="font-ui">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="manual">ხელით</SelectItem>
-                  <SelectItem value="upload">ფაილის ატვირთვა</SelectItem>
+                  <SelectItem value="upload">{t("work.fileUpload")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -122,7 +124,7 @@ const PublishBookPage = () => {
 
           {sourceType === "upload" ? (
             <div className="space-y-2">
-              <Label htmlFor="uploadFile" className="font-ui">ფაილის ატვირთვა</Label>
+              <Label htmlFor="uploadFile" className="font-ui">{t("work.fileUpload")}</Label>
               <Input
                 id="uploadFile"
                 type="file"
@@ -133,7 +135,7 @@ const PublishBookPage = () => {
           ) : null}
 
           <div className="space-y-2">
-            <Label htmlFor="foreword" className="font-ui">წინასიტყვაობა</Label>
+            <Label htmlFor="foreword" className="font-ui">{t("work.foreword")}</Label>
             <Textarea
               id="foreword"
               value={foreword}
@@ -144,7 +146,7 @@ const PublishBookPage = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="afterword" className="font-ui">ბოლოსიტყვაობა</Label>
+            <Label htmlFor="afterword" className="font-ui">{t("work.afterword")}</Label>
             <Textarea
               id="afterword"
               value={afterword}

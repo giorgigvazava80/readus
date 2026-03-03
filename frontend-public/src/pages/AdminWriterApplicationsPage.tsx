@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n";
 ﻿import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ClipboardCheck, Search } from "lucide-react";
@@ -9,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { fetchPendingWriterApplications, reviewWriterApplication } from "@/lib/api";
 
 const AdminWriterApplicationsPage = () => {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -39,7 +41,7 @@ const AdminWriterApplicationsPage = () => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <div className="flex items-center gap-2">
           <ClipboardCheck className="h-5 w-5 text-primary" />
-          <h1 className="font-display text-3xl font-semibold text-foreground">ავტორის განაცხადები</h1>
+          <h1 className="font-display text-3xl font-semibold text-foreground">{t("admin.writerApps")}</h1>
         </div>
         <div className="mt-4 max-w-lg">
           <div className="relative">
@@ -63,7 +65,7 @@ const AdminWriterApplicationsPage = () => {
             {query.data.results.map((item) => (
               <div key={item.id} className="rounded-xl border border-border/70 bg-background/70 p-4 font-ui text-sm">
                 <p className="font-display text-xl font-semibold text-foreground">Application #{item.id}</p>
-                <p className="mt-1 text-muted-foreground">შექმნის დრო: {new Date(item.created_at).toLocaleString()}</p>
+                <p className="mt-1 text-muted-foreground">{t("admin.createdTime")}: {new Date(item.created_at).toLocaleString()}</p>
                 {item.sample_text ? <p className="mt-3 whitespace-pre-wrap text-foreground">{item.sample_text}</p> : null}
                 {item.sample_file ? (
                   <p className="mt-2">

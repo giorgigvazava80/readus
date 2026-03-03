@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n";
 ﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
@@ -59,7 +60,7 @@ function toDraft(data: {
   is_hidden?: boolean;
 }): TextWorkDraft {
   return {
-    title: data.title || "უსათაურო",
+    title: data.title || t("editor.untitled"),
     description: data.description || "",
     body: data.body || "",
     source_type: data.source_type || "manual",
@@ -69,6 +70,7 @@ function toDraft(data: {
 }
 
 const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
+  const { t } = useI18n();
   const { id } = useParams();
   const contentId = Number(id);
   const navigate = useNavigate();
@@ -82,7 +84,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
   });
 
   const [draft, setDraft] = useState<TextWorkDraft>({
-    title: "უსათაურო",
+    title: t("editor.untitled"),
     description: "",
     body: "",
     source_type: "manual",
@@ -98,7 +100,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
   const saveMutation = useMutation({
     mutationFn: async (payload: TextWorkDraft) => {
       if (payload.source_type === "upload" && !uploadFile && !detailQuery.data?.upload_file) {
-        throw new Error("ჯერ ატვირთვის ფაილი აირჩიე.");
+        throw new Error(t("editor.noUploadFile"));
       }
 
       return meta.update(contentId, {
@@ -161,7 +163,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
   if (detailQuery.isLoading) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">რედაქტორი იტვირთება...</p>
+        <p className="font-ui text-sm text-muted-foreground">{t("editor.editorLoading")}</p>
       </div>
     );
   }
@@ -169,8 +171,8 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
   if (detailQuery.isError || !detailQuery.data) {
     return (
       <div className="container mx-auto space-y-3 px-6 py-10">
-        <p className="font-ui text-sm text-red-700">ამ ნაშრომის ჩატვირთვა ვერ მოხერხდა.</p>
-        <Button variant="outline" onClick={() => navigate("/writer/new")}>ახალი ნაშრომის შექმნა</Button>
+        <p className="font-ui text-sm text-red-700">{t("editor.workLoadFail")}</p>
+        <Button variant="outline" onClick={() => navigate("/writer/new")}>{t("work.newWork")}ს შექმნა</Button>
       </div>
     );
   }
@@ -194,20 +196,18 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
             onClick={async () => {
               try {
                 await autosave.saveNow();
-                toast({ title: "შენახულია" });
+                toast({ title: t("editor.saved") });
               } catch (error) {
                 toast({
                   variant: "destructive",
-                  title: "შენახვა ვერ მოხერხდა",
-                  description: error instanceof Error ? error.message : "გთხოვ, გადაამოწმე სავალდებულო ველები.",
+                  title: t("editor.saveFailed"),
+                  description: error instanceof Error ? error.message : t("editor.verifyFields"),
                 });
               }
             }}
             disabled={autosave.isSaving}
           >
-            <Save className="h-4 w-4" />
-            შენახვა ახლავე
-          </Button>
+            <Save className="h-4 w-4" />{t("editor.saveNow")}</Button>
           <Button
             variant="destructive"
             size="icon"
@@ -217,10 +217,10 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
               if (window.confirm(`Are you sure you want to delete this ${label}? This action cannot be undone.`)) {
                 try {
                   await deleteContentItem(type, contentId);
-                  toast({ title: "ნაშრომი წაიშალა" });
+                  toast({ title: t("work.deleted") });
                   navigate("/writer/new");
                 } catch (error) {
-                  toast({ variant: "destructive", title: "წაშლა ვერ მოხერხდა" });
+                  toast({ variant: "destructive", title: t("work.deleteFailed") });
                 }
               }
             }}
@@ -248,7 +248,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
 
       <section className="grid gap-5 md:grid-cols-3">
         <div className="space-y-2">
-          <Label className="font-ui">სათაური</Label>
+          <Label className="font-ui">{t("work.title")}</Label>
           <Input
             value={draft.title}
             onChange={(event) => setDraft((prev) => ({ ...prev, title: event.target.value }))}
@@ -257,7 +257,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label className="font-ui">წყაროს ტიპი</Label>
+          <Label className="font-ui">{t("work.sourceType")}</Label>
           <Select
             value={draft.source_type}
             onValueChange={(value) => {
@@ -269,8 +269,8 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="manual">ხელით წერა</SelectItem>
-              <SelectItem value="upload">ფაილის ატვირთვა</SelectItem>
+              <SelectItem value="manual">{t("work.manualWrite")}</SelectItem>
+              <SelectItem value="upload">{t("work.fileUpload")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -279,7 +279,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
           <div className="flex-1 space-y-2 rounded-xl border border-border/70 bg-background/70 p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
-                <Label htmlFor="textAnonymousToggle" className="font-ui text-sm">გამოქვეყნება ანონიმურად</Label>
+                <Label htmlFor="textAnonymousToggle" className="font-ui text-sm">{t("editor.publishAnon")}</Label>
                 <p className="font-ui text-[11px] text-muted-foreground">
                   Hidden from readers. Visible to admins.
                 </p>
@@ -295,10 +295,8 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
           <div className="flex-1 space-y-2 rounded-xl border border-border/70 bg-background/70 p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
-                <Label htmlFor="textHiddenToggle" className="font-ui text-sm">საჯაროდ დამალვა</Label>
-                <p className="font-ui text-[11px] text-muted-foreground">
-                  შენს ბიბლიოთეკაში ამას მხოლოდ შენ და პერსონალი ხედავს.
-                </p>
+                <Label htmlFor="textHiddenToggle" className="font-ui text-sm">{t("editor.hiddenPub")}</Label>
+                <p className="font-ui text-[11px] text-muted-foreground">{t("editor.hiddenDesc")}</p>
               </div>
               <Switch
                 id="textHiddenToggle"
@@ -311,7 +309,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
       </section>
 
       <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card">
-        <h2 className="mb-1 font-display text-base font-semibold text-foreground">ყდის სურათი</h2>
+        <h2 className="mb-1 font-display text-base font-semibold text-foreground">{t("editor.coverImage")}</h2>
         <p className="mb-4 font-ui text-xs text-muted-foreground">
           არასავალდებულო. ჩანს ნაშრომის ბარათზე. JPG, PNG, WEBP ან GIF — მაქს. 5MB.
         </p>
@@ -341,7 +339,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
               onClick={() => coverInputRef.current?.click()}
             >
               <ImagePlus className="h-6 w-6" />
-              <span className="px-2 text-center font-ui text-xs">ყდის დამატება</span>
+              <span className="px-2 text-center font-ui text-xs">{t("editor.addCover")}</span>
             </div>
           )}
 
@@ -373,10 +371,10 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
               {currentCoverUrl ? "Change cover" : "Upload cover"}
             </button>
             {coverImage && (
-              <p className="font-ui text-xs text-muted-foreground">არჩეულია: {coverImage.name} — შეინახება შემდეგ შენახვაზე.</p>
+              <p className="font-ui text-xs text-muted-foreground">{t("editor.selected")} {coverImage.name} — შეინახება შემდეგ შენახვაზე.</p>
             )}
             {!coverImage && detailQuery.data?.cover_image && (
-              <p className="font-ui text-xs text-muted-foreground">მიმდინარე ყდა შენახულია სერვერზე.</p>
+              <p className="font-ui text-xs text-muted-foreground">{t("editor.coverSavedServer")}</p>
             )}
           </div>
         </div>
@@ -385,50 +383,46 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
       {draft.source_type === "upload" ? (
         <section className="space-y-3 rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card">
           <div>
-            <Label htmlFor="textWorkUpload" className="font-ui">ფაილის ატვირთვა</Label>
+            <Label htmlFor="textWorkUpload" className="font-ui">{t("work.fileUpload")}</Label>
             <Input
               id="textWorkUpload"
               type="file"
               accept=".pdf,.doc,.docx,.txt"
               onChange={(event) => setUploadFile(event.target.files?.[0] || null)}
             />
-            <p className="mt-2 font-ui text-xs text-muted-foreground">დაშვებულია: PDF, DOC, DOCX, TXT (მაქს. 20MB).</p>
+            <p className="mt-2 font-ui text-xs text-muted-foreground">{t("editor.allowed")}: PDF, DOC, DOCX, TXT (მაქს. 20MB).</p>
           </div>
 
           {detailQuery.data.upload_file ? (
             <p className="font-ui text-sm text-muted-foreground">
               Current file:{" "}
-              <a className="underline" href={detailQuery.data.upload_file} target="_blank" rel="noreferrer">
-                ფაილის გახსნა
-              </a>
+              <a className="underline" href={detailQuery.data.upload_file} target="_blank" rel="noreferrer">{t("editor.openFile")}</a>
             </p>
           ) : null}
 
           {!detailQuery.data.upload_file && !uploadFile ? (
-            <p className="rounded-lg border border-amber-500/35 bg-amber-500/10 p-3 font-ui text-sm text-amber-800">
-              ატვირთვის რეჟიმში შენახვამდე აირჩიე ფაილი.
-            </p>
+            <p className="rounded-lg border border-amber-500/35 bg-amber-500/10 p-3 font-ui text-sm text-amber-800">{t("editor.uploadBeforeSave")}</p>
           ) : null}
         </section>
       ) : (
         <section className="space-y-4">
           <div className="space-y-2">
-            <Label className="font-ui">აღწერა</Label>
+            <Label className="font-ui">{t("work.desc")}</Label>
             <RichTextEditor
               value={draft.description}
               onChange={(description) => setDraft((prev) => ({ ...prev, description }))}
               minHeightClass="min-h-[180px]"
-              placeholder="მოკლე აღწერა მკითხველებისთვის..."
+              placeholder={t("editor.shortDescView")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="font-ui">ტექსტი</Label>
+            <Label className="font-ui">{t("editor.textLabel")}</Label>
             <RichTextEditor
               value={draft.body}
               onChange={(body) => setDraft((prev) => ({ ...prev, body }))}
               minHeightClass="min-h-[420px]"
-              placeholder="დაწერე სრული ტექსტი აქ..."
+              placeholder={t("editor.writeFullText")}
             />
           </div>
         </section>

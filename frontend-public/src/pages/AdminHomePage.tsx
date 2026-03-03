@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n";
 ﻿import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ClipboardCheck, FileClock, PenSquare, Shield } from "lucide-react";
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { fetchContent, fetchPendingWriterApplications } from "@/lib/api";
 
 const AdminHomePage = () => {
+  const { t } = useI18n();
   const pendingApplicationsQuery = useQuery({
     queryKey: ["admin", "writer-applications", "pending", 1],
     queryFn: () => fetchPendingWriterApplications(1),
@@ -55,25 +57,19 @@ const AdminHomePage = () => {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1">
               <Shield className="h-4 w-4 text-primary" />
-              <span className="font-ui text-xs text-muted-foreground">ადმინის პორტალი</span>
+              <span className="font-ui text-xs text-muted-foreground">{t("admin.adminPortal")}</span>
             </div>
-            <h1 className="mt-4 font-display text-4xl font-semibold text-foreground">მოდერაციის პანელი</h1>
-            <p className="mt-2 font-body text-base text-muted-foreground">
-              განხილვის რიგები და მოდერაციის დატვირთვის მიმოხილვა.
-            </p>
+            <h1 className="mt-4 font-display text-4xl font-semibold text-foreground">{t("admin.modPanel")}</h1>
+            <p className="mt-2 font-body text-base text-muted-foreground">{t("admin.modOverview")}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link to="/admin/writer-applications">
               <Button variant="outline" className="gap-2">
-                <ClipboardCheck className="h-4 w-4" />
-                ავტორის განაცხადები
-              </Button>
+                <ClipboardCheck className="h-4 w-4" />{t("admin.writerApps")}</Button>
             </Link>
             <Link to="/admin/content-review">
               <Button className="gap-2">
-                <PenSquare className="h-4 w-4" />
-                კონტენტის განხილვა
-              </Button>
+                <PenSquare className="h-4 w-4" />{t("admin.contentReview")}</Button>
             </Link>
           </div>
         </div>
