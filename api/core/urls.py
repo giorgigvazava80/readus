@@ -19,6 +19,18 @@ def healthcheck(_request):
     return JsonResponse({"status": "ok"})
 
 
+def socialaccount_signup_placeholder(_request):
+    return JsonResponse(
+        {
+            "detail": (
+                "Social signup form route is unavailable in API mode. "
+                "Complete signup through the frontend flow."
+            )
+        },
+        status=400,
+    )
+
+
 schema_view = get_schema_view(
     openapi.Info(
         title="API Docs.",
@@ -32,6 +44,11 @@ schema_view = get_schema_view(
 urlpatterns = [
     path("health/", healthcheck, name="healthcheck"),
     path("admin/", admin.site.urls),
+    path(
+        "auth/social/signup/",
+        socialaccount_signup_placeholder,
+        name="socialaccount_signup",
+    ),
     path("auth/", include("dj_rest_auth.urls")),
     path("auth/social/google/", GoogleLoginView.as_view(), name="google_login"),
     path("auth/social/facebook/", FacebookLoginView.as_view(), name="facebook_login"),
