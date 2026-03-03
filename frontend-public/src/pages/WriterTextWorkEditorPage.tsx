@@ -60,7 +60,7 @@ function toDraft(data: {
   is_hidden?: boolean;
 }): TextWorkDraft {
   return {
-    title: data.title || t("editor.untitled"),
+    title: data.title || "",
     description: data.description || "",
     body: data.body || "",
     source_type: data.source_type || "manual",
@@ -137,6 +137,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
       return;
     }
     const nextDraft = toDraft(detailQuery.data);
+    if (!nextDraft.title) nextDraft.title = t("editor.untitled");
     setDraft(nextDraft);
     setUploadFile(null);
     setCoverImage(null);

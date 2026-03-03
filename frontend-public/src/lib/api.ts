@@ -89,6 +89,15 @@ interface RedactorPayload {
   is_active?: boolean;
 }
 
+export interface ProfileUpdatePayload {
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  birth_date?: string | null;
+  profile_photo?: File | null;
+  remove_profile_photo?: boolean;
+}
+
 export interface ContentListFilters {
   mine?: boolean;
   status?: ContentStatus;
@@ -518,13 +527,31 @@ export async function fetchMe(): Promise<MeUser | null> {
   }
 }
 
-export async function updateProfile(payload: {
-  first_name?: string;
-  last_name?: string;
-  username?: string;
-}): Promise<void> {
+export async function updateProfile(payload: ProfileUpdatePayload): Promise<void> {
+  const shouldUseMultipart = payload.profile_photo instanceof File || payload.remove_profile_photo === true;
+
+  if (shouldUseMultipart) {
+    const form = new FormData();
+    if (payload.username !== undefined) form.append("username", payload.username);
+    if (payload.first_name !== undefined) form.append("first_name", payload.first_name);
+    if (payload.last_name !== undefined) form.append("last_name", payload.last_name);
+    if (payload.birth_date !== undefined) form.append("birth_date", payload.birth_date === null ? "" : payload.birth_date);
+    if (payload.profile_photo instanceof File) form.append("profile_photo", payload.profile_photo);
+    if (payload.remove_profile_photo) form.append("remove_profile_photo", "true");
+
+    await apiRequest(
+      "/api/accounts/me/",
+      {
+        method: "PATCH",
+        body: form,
+      },
+      true,
+    );
+    return;
+  }
+
   await apiRequest(
-    "/auth/user/",
+    "/api/accounts/me/",
     {
       method: "PATCH",
       body: JSON.stringify(payload),

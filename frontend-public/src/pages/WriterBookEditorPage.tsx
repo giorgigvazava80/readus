@@ -1,5 +1,5 @@
 import { useI18n } from "@/i18n";
-﻿import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { BookOpenText, ImagePlus, ListTree, Save, X, Plus, Trash } from "lucide-react";
@@ -40,7 +40,6 @@ interface BookDraft {
 }
 
 const hasTextContent = (html?: string | null) => {
-  const { t } = useI18n();
   if (!html) return false;
   const stripped = html.replace(/<[^>]+>/g, "").trim();
   return stripped.length > 0;
@@ -267,7 +266,7 @@ const WriterBookEditorPage = () => {
       return;
     }
 
-    const nextDraft = toDraft(detailQuery.data);
+    const nextDraft = toDraft(detailQuery.data, t("editor.untitledBook"));
     setDraft(nextDraft);
     setUploadFile(null);
     setCoverImage(null);
