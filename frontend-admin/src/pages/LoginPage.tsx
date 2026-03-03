@@ -48,10 +48,12 @@ const LoginPage = () => {
       return;
     }
 
+    const normalizedCode = code.replace(/ /g, "+");
+
     const run = async () => {
       setLoading(true);
       try {
-        await loginWithGoogleCode(code, googleRedirectUri);
+        await loginWithGoogleCode(normalizedCode, googleRedirectUri);
         const me = await fetchMe();
         if (!me) {
           throw new Error(t("login.error.loadUser", "მიმდინარე მომხმარებლის ჩატვირთვა ვერ მოხერხდა."));
