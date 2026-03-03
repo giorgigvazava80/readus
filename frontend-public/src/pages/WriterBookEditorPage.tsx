@@ -54,9 +54,9 @@ function toDraft(data: {
   source_type?: SourceType;
   is_anonymous?: boolean;
   is_hidden?: boolean;
-}): BookDraft {
+}, defaultTitle: string): BookDraft {
   return {
-    title: data.title || t("editor.untitledBook"),
+    title: data.title || defaultTitle,
     description: data.description || "",
     foreword: data.foreword || "",
     afterword: data.afterword || "",
@@ -71,6 +71,7 @@ function toDraft(data: {
 // Inline თავის რედაქტორი Component
 // ──────────────────────────────────────────────────────────
 function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: number, bookId: number, onDelete: () => void }) {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const detailQuery = useQuery({
     queryKey: ["writer", "chapters", chapterId],
@@ -192,6 +193,7 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
 // Main Editor Page
 // ──────────────────────────────────────────────────────────
 const WriterBookEditorPage = () => {
+  const { t } = useI18n();
   const { id } = useParams();
   const bookId = Number(id);
   const queryClient = useQueryClient();
