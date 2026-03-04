@@ -21,18 +21,17 @@ const CategoryFilter = ({ active, onChange }: CategoryFilterProps) => {
   const { t } = useI18n();
 
   return (
-    <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 scrollbar-none sm:flex-wrap">
+    <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 scrollbar-none sm:flex-wrap sm:gap-2.5">
       {categories.map((cat) => {
         const isActive = active === cat.key;
         return (
           <button
             key={cat.key}
             onClick={() => onChange(cat.key)}
-            className={`relative flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium font-ui transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-3.5 sm:py-1.5 ${
-              isActive
+            className={`relative flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium font-ui transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-5 sm:py-2.5 whitespace-nowrap ${isActive
                 ? "border-transparent text-white shadow-sm"
                 : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
-            }`}
+              }`}
             style={isActive ? { background: "var(--hero-gradient)" } : undefined}
           >
             {isActive && (
@@ -43,8 +42,8 @@ const CategoryFilter = ({ active, onChange }: CategoryFilterProps) => {
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
-            <span className="relative flex items-center gap-1.5">
-              <cat.icon className="h-3.5 w-3.5" />
+            <span className="relative flex items-center gap-2">
+              <cat.icon className="h-4 w-4" />
               {t(cat.labelKey, cat.defaultLabel)}
             </span>
           </button>

@@ -1,6 +1,6 @@
 ﻿import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, Clock, Share2 } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Share2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -232,8 +232,8 @@ const PublicReadPage = () => {
 
         <div className="container relative mx-auto px-6 py-8 md:py-12">
           <Link to="/browse">
-            <Button variant="ghost" size="sm" className="mb-6 gap-1.5 font-ui text-sm text-muted-foreground -ml-3">
-              <ArrowLeft className="h-3.5 w-3.5" /> {t("reader.backToLibrary", "Back to library")}
+            <Button variant="outline" size="default" className="mb-6 gap-2 font-ui text-sm -ml-1 h-11 px-5 rounded-xl border-border/60 hover:bg-primary/5 hover:border-primary/40 transition-all">
+              <ArrowLeft className="h-4 w-4" /> {t("reader.backToLibrary", "Back to library")}
             </Button>
           </Link>
 
@@ -374,34 +374,62 @@ const PublicReadPage = () => {
           )}
 
           {category === "books" && sections.length > 0 && (
-            <div className="mt-16 flex flex-wrap items-center justify-center gap-2">
-              <Button
-                variant={currentPage === 0 ? "default" : "outline"}
-                onClick={() => navigateToPage(0)}
-                className={`font-ui ${currentPage !== 0 ? "bg-background" : ""}`}
-              >
-                {t("reader.contents", "Contents")}
-              </Button>
-              {sections.map((sec, idx) => (
+            <div className="mt-16 space-y-6">
+              {/* Previous / Next navigation — easy and obvious */}
+              {currentPage > 0 && (
+                <div className="flex items-center justify-between gap-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => navigateToPage(Math.max(0, currentPage - 1))}
+                    className="gap-2 font-ui h-12 px-6 rounded-xl border-border/60 hover:bg-primary/5 hover:border-primary/40 transition-all"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    {currentPage === 1 ? t("reader.contents", "Contents") : t("reader.previous", "Previous")}
+                  </Button>
+                  {currentPage < sections.length && (
+                    <Button
+                      onClick={() => navigateToPage(currentPage + 1)}
+                      className="gap-2 font-ui h-12 px-6 rounded-xl shadow-warm hover:shadow-lg transition-all"
+                    >
+                      {t("reader.next", "Next")}
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              {/* Chapter pills */}
+              <div className="flex flex-wrap items-center justify-center gap-2">
                 <Button
-                  key={sec.id}
-                  variant={currentPage === idx + 1 ? "default" : "outline"}
-                  onClick={() => navigateToPage(idx + 1)}
-                  className={`w-10 h-10 p-0 font-ui ${currentPage !== idx + 1 ? 'bg-background' : ''}`}
+                  variant={currentPage === 0 ? "default" : "outline"}
+                  onClick={() => navigateToPage(0)}
+                  className={`font-ui h-10 rounded-xl ${currentPage !== 0 ? "bg-background border-border/60" : ""}`}
                 >
-                  {idx + 1}
+                  {t("reader.contents", "Contents")}
                 </Button>
-              ))}
+                {sections.map((sec, idx) => (
+                  <Button
+                    key={sec.id}
+                    variant={currentPage === idx + 1 ? "default" : "outline"}
+                    onClick={() => navigateToPage(idx + 1)}
+                    className={`w-10 h-10 p-0 font-ui rounded-xl ${currentPage !== idx + 1 ? 'bg-background border-border/60' : ''}`}
+                  >
+                    {idx + 1}
+                  </Button>
+                ))}
+              </div>
             </div>
           )}
 
           <Separator className="my-12" />
 
-          <div className="text-center">
-            <p className="font-display text-lg italic text-muted-foreground">{t("reader.previewEnd", "End of preview")}</p>
-            <p className="mt-2 font-ui text-sm text-muted-foreground">
-              {t("reader.previewCta", "Join as a reader to like, comment, and follow authors.")}
-            </p>
+          <div className="text-center pb-4">
+            <Link to="/browse">
+              <Button variant="outline" className="gap-2 font-ui h-11 px-6 rounded-xl border-border/60 hover:bg-primary/5">
+                <ArrowLeft className="h-4 w-4" />
+                {t("reader.backToLibrary", "Back to library")}
+              </Button>
+            </Link>
           </div>
         </div>
       </motion.article>

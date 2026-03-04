@@ -124,7 +124,7 @@ const WriterNewWorkPage = () => {
         order: nextOrder,
         body: `<p>${t("editor.startChapter")}</p>`,
       })) as { id: number };
-      return { route: `/writer/chapters/${chapter.id}/edit` };
+      return { route: `/writer/books/${selectedBookId}/edit?chapter=${chapter.id}` };
     },
     onSuccess: ({ route }) => {
       toast({ title: t("editor.draftCreated"), description: t("editor.editorOpening") });
@@ -170,8 +170,8 @@ const WriterNewWorkPage = () => {
                   if (card.value === "chapter") { setSourceType("manual"); setUploadFile(null); }
                 }}
                 className={`relative flex items-start gap-4 rounded-xl border-2 bg-gradient-to-br p-4 text-left transition-all duration-200 ${selected
-                    ? `${card.border} ${card.color} shadow-md`
-                    : "border-border/60 bg-background/60 hover:border-primary/30 hover:bg-card/80"
+                  ? `${card.border} ${card.color} shadow-md`
+                  : "border-border/60 bg-background/60 hover:border-primary/30 hover:bg-card/80"
                   }`}
               >
                 <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-2xl shadow-sm ${selected ? "bg-card shadow-md" : "bg-muted/60"
@@ -205,8 +205,8 @@ const WriterNewWorkPage = () => {
                   type="button"
                   onClick={() => { setSourceType(src); setUploadFile(null); }}
                   className={`flex items-center gap-3 rounded-xl border-2 p-3 transition-all ${sourceType === src
-                      ? "border-primary bg-primary/5"
-                      : "border-border/60 bg-background/60 hover:border-primary/30"
+                    ? "border-primary bg-primary/5"
+                    : "border-border/60 bg-background/60 hover:border-primary/30"
                     }`}
                 >
                   <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${sourceType === src ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>

@@ -1,7 +1,7 @@
 import { useI18n } from "@/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { BookOpenText, ImagePlus, X, Plus, Trash, Save, ChevronDown, Settings, FileText, AlignLeft, ChevronRight, Menu } from "lucide-react";
 
 import RichTextEditor from "@/components/editor/RichTextEditor";
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 import { fetchContentDetail, resolveMediaUrl, updateBook, createChapter, updateChapter, deleteChapter, deleteContentItem } from "@/lib/api";
 import { CONTENT_STATUS_STYLES } from "@/lib/content";
@@ -72,6 +73,7 @@ function toDraft(data: {
 // ──────────────────────────────────────────────────────────
 function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: number, bookId: number, onDelete: () => void }) {
   const { t } = useI18n();
+  const { confirm } = useConfirm();
   const queryClient = useQueryClient();
   const detailQuery = useQuery({
     queryKey: ["writer", "chapters", chapterId],
@@ -189,8 +191,8 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
 
       {/* Desktop action buttons (mobile uses sticky bar) */}
       <div className="hidden sm:flex items-center justify-end gap-3 pt-2">
-        <Button variant="destructive" size="sm" onClick={() => {
-          if (window.confirm("Are you sure you want to delete this chapter?")) {
+        <Button variant="destructive" size="sm" onClick={async () => {
+          if (await confirm({ title: "Delete chapter?", description: "Are you sure you want to delete this chapter?", destructive: true, confirmText: "Delete" })) {
             deleteMutation.mutate();
           }
         }} className="gap-2 h-10" disabled={deleteMutation.isPending}>
@@ -215,8 +217,8 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
 
       {/* Mobile delete button (save is in sticky bar) */}
       <div className="flex sm:hidden">
-        <Button variant="destructive" size="sm" onClick={() => {
-          if (window.confirm("Are you sure you want to delete this chapter?")) {
+        <Button variant="destructive" size="sm" onClick={async () => {
+          if (await confirm({ title: "Delete chapter?", destructive: true, confirmText: "Delete" })) {
             deleteMutation.mutate();
           }
         }} className="gap-2 h-11 w-full text-sm" disabled={deleteMutation.isPending}>
@@ -232,10 +234,12 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
 // ──────────────────────────────────────────────────────────
 const WriterBookEditorPage = () => {
   const { t } = useI18n();
+  const { confirm } = useConfirm();
   const { id } = useParams();
   const bookId = Number(id);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // mobile sidebar open state
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -265,6 +269,20 @@ const WriterBookEditorPage = () => {
 
   const [activeSection, setActiveSection] = useState<"settings" | "foreword" | "afterword" | number>("settings");
   const [showAddNav, setShowAddNav] = useState(false);
+
+  useEffect(() => {
+    const chapterId = searchParams.get("chapter");
+    if (chapterId) {
+      const parsed = parseInt(chapterId, 10);
+      if (Number.isFinite(parsed)) {
+        setActiveSection(parsed);
+      }
+      // Clean up URL so it doesn't get stuck
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("chapter");
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const saveMutation = useMutation({
     mutationFn: async (payload: BookDraft) => {
@@ -672,7 +690,7 @@ const WriterBookEditorPage = () => {
                         size="sm"
                         className="gap-2 h-10"
                         onClick={async () => {
-                          if (window.confirm(t("editor.deleteBookConfirm"))) {
+                          if (await confirm({ title: t("editor.deleteBookConfirm"), description: "This action cannot be undone.", destructive: true, confirmText: "Delete Book" })) {
                             try {
                               await deleteContentItem("books", bookId);
                               toast({ title: t("editor.bookDeleted") });
@@ -904,7 +922,7 @@ const WriterBookEditorPage = () => {
                         variant="destructive"
                         className="w-full h-11 gap-2 font-ui"
                         onClick={async () => {
-                          if (window.confirm(t("editor.deleteBookConfirm"))) {
+                          if (await confirm({ title: t("editor.deleteBookConfirm"), destructive: true, confirmText: "Delete Book" })) {
                             try {
                               await deleteContentItem("books", bookId);
                               toast({ title: t("editor.bookDeleted") });

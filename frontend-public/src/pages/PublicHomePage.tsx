@@ -1,6 +1,6 @@
 ﻿import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Feather, Users, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Feather, Users, Sparkles, Eye, UserPlus, PenTool } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
@@ -73,6 +73,7 @@ const PublicHomePage = () => {
   const steps = [
     {
       step: "01",
+      icon: Eye,
       title: t("home.step1.title", "Read Publicly"),
       desc: t(
         "home.step1.desc",
@@ -81,6 +82,7 @@ const PublicHomePage = () => {
     },
     {
       step: "02",
+      icon: UserPlus,
       title: t("home.step2.title", "Join as Reader"),
       desc: t(
         "home.step2.desc",
@@ -89,6 +91,7 @@ const PublicHomePage = () => {
     },
     {
       step: "03",
+      icon: PenTool,
       title: t("home.step3.title", "Become a Writer"),
       desc: t(
         "home.step3.desc",
@@ -135,16 +138,16 @@ const PublicHomePage = () => {
   const authorsCount = new Set(works.map((work) => work.author)).size;
 
   const now = new Date();
-  const monthKey = `${now.getFullYear()}-${now.getMonth()}`;
+  const monthKey = `${now.getFullYear()} -${now.getMonth()} `;
   const newThisMonth = works.filter((work) => {
     const created = new Date(work.createdAt);
-    return `${created.getFullYear()}-${created.getMonth()}` === monthKey;
+    return `${created.getFullYear()} -${created.getMonth()} ` === monthKey;
   }).length;
 
   const stats = [
     {
       icon: BookOpen,
-      value: `${publishedCount}+`,
+      value: `${publishedCount} +`,
       label: t("home.stats.published", "Published works"),
       color: "hsl(24 60% 55%)",
       bg: "hsl(24 60% 55% / 0.15)",
@@ -152,7 +155,7 @@ const PublicHomePage = () => {
     },
     {
       icon: Users,
-      value: `${authorsCount}+`,
+      value: `${authorsCount} +`,
       label: t("home.stats.authors", "Authors"),
       color: "hsl(215 40% 45%)",
       bg: "hsl(215 40% 45% / 0.15)",
@@ -160,7 +163,7 @@ const PublicHomePage = () => {
     },
     {
       icon: Feather,
-      value: `${newThisMonth}+`,
+      value: `${newThisMonth} +`,
       label: t("home.stats.newThisMonth", "New this month"),
       color: "hsl(150 25% 45%)",
       bg: "hsl(150 25% 45% / 0.15)",
@@ -224,13 +227,14 @@ const PublicHomePage = () => {
               )}
             </p>
 
-            <div className="mt-10 flex flex-wrap gap-4">
+            <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <Link to="/browse">
                 <Button
                   size="lg"
-                  className="gap-2 font-ui font-semibold shadow-warm hover:shadow-lg hover:scale-[1.02] transition-all duration-300 h-12 px-8"
+                  className="w-full sm:w-auto gap-3 font-ui font-semibold shadow-warm hover:shadow-lg hover:scale-[1.02] transition-all duration-300 h-14 sm:h-14 px-10 text-base rounded-xl"
                 >
-                  {t("home.hero.browseCta", "Go to Library")}
+                  <BookOpen className="h-5 w-5" />
+                  {t("home.hero.browseCta", "Browse Library")}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
@@ -238,9 +242,10 @@ const PublicHomePage = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="gap-2 font-ui hover:bg-primary/5 hover:border-primary/40 transition-all duration-300 h-12 px-8 border-border/80"
+                  className="w-full sm:w-auto gap-3 font-ui hover:bg-primary/5 hover:border-primary/40 transition-all duration-300 h-14 sm:h-14 px-10 text-base border-border/80 rounded-xl"
                 >
-                  {t("home.hero.joinCta", "Join as Reader or Writer")}
+                  <UserPlus className="h-5 w-5" />
+                  {t("home.hero.joinCta", "Create Free Account")}
                 </Button>
               </Link>
             </div>
@@ -304,10 +309,10 @@ const PublicHomePage = () => {
                 className="group relative rounded-2xl border border-white/10 bg-background/80 backdrop-blur-sm p-8 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
               >
                 <div
-                  className="inline-flex h-14 w-14 items-center justify-center rounded-xl text-xl font-bold font-display text-primary mb-5"
+                  className="inline-flex h-14 w-14 items-center justify-center rounded-xl mb-5"
                   style={{ background: "hsl(36 70% 50% / 0.1)" }}
                 >
-                  {item.step}
+                  <item.icon className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="font-display text-2xl font-semibold text-foreground">{item.title}</h3>
                 <p className="mt-3 font-ui text-sm leading-relaxed text-muted-foreground">{item.desc}</p>

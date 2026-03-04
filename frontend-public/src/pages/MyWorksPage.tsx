@@ -18,7 +18,9 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -34,18 +36,16 @@ import { useSession } from "@/hooks/useSession";
 import { toast } from "@/hooks/use-toast";
 import type { ContentCategory, ContentStatus } from "@/lib/types";
 
-const categories: ContentCategory[] = ["books", "chapters", "poems", "stories"];
+const categories: ContentCategory[] = ["books", "poems", "stories"];
 
 const categoryIcons: Record<string, React.ReactNode> = {
   books: <BookOpen className="h-4 w-4" />,
-  chapters: <FileText className="h-4 w-4" />,
   poems: <Feather className="h-4 w-4" />,
   stories: <PlusSquare className="h-4 w-4" />,
 };
 
 const categoryEmojis: Record<string, string> = {
   books: "📚",
-  chapters: "📖",
   poems: "🖋️",
   stories: "📝",
 };
@@ -73,6 +73,7 @@ function getReadPath(category: ContentCategory, id: number): string | null {
 
 const MyWorksPage = () => {
   const { t } = useI18n();
+  const { confirm } = useConfirm();
   const { me } = useSession();
   const [searchParams] = useSearchParams();
 
@@ -111,7 +112,12 @@ const MyWorksPage = () => {
   const canNext = Boolean(worksQuery.data?.next);
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm(t("work.deleteConfirm"))) return;
+    const isConfirmed = await confirm({
+      title: t("work.deleteConfirm"),
+      destructive: true,
+      confirmText: "Delete",
+    });
+    if (!isConfirmed) return;
     setDeletingId(id);
     try {
       await deleteContentItem(category as any, id);
@@ -153,8 +159,8 @@ const MyWorksPage = () => {
             type="button"
             onClick={() => { setCategory(cat); setPage(1); }}
             className={`flex items-center gap-2 rounded-full border-2 px-4 py-2 font-ui text-sm font-medium transition-all ${category === cat
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border/60 bg-background/60 text-muted-foreground hover:border-primary/30 hover:text-foreground"
+              ? "border-primary bg-primary/10 text-primary"
+              : "border-border/60 bg-background/60 text-muted-foreground hover:border-primary/30 hover:text-foreground"
               }`}
           >
             <span>{categoryEmojis[cat]}</span>

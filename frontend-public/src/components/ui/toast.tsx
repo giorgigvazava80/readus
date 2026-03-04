@@ -40,8 +40,41 @@ const toastVariants = cva(
 const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> & VariantProps<typeof toastVariants>
->(({ className, variant, ...props }, ref) => {
-  return <ToastPrimitives.Root ref={ref} className={cn(toastVariants({ variant }), className)} {...props} />;
+>(({ className, variant, onOpenChange, ...props }, ref) => {
+  const touchStart = React.useRef<{ x: number; y: number } | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStart.current) return;
+    const deltaX = e.changedTouches[0].clientX - touchStart.current.x;
+    const deltaY = e.changedTouches[0].clientY - touchStart.current.y;
+    touchStart.current = null;
+
+    // Multi-directional swipe dismiss (left, right, or up)
+    if (Math.abs(deltaX) > 50 || deltaY < -50) {
+      if (onOpenChange) {
+        onOpenChange(false);
+      } else {
+        // Fallback to finding dismiss button
+        const closeBtn = (e.currentTarget as HTMLElement).querySelector('[toast-close]') as HTMLButtonElement | null;
+        closeBtn?.click();
+      }
+    }
+  };
+
+  return (
+    <ToastPrimitives.Root
+      ref={ref}
+      className={cn(toastVariants({ variant }), className)}
+      onOpenChange={onOpenChange}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      {...props}
+    />
+  );
 });
 Toast.displayName = ToastPrimitives.Root.displayName;
 
@@ -67,7 +100,7 @@ const ToastClose = React.forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cn(
-      "absolute right-2 top-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity group-hover:opacity-100 group-[.destructive]:text-red-300 hover:text-foreground group-[.destructive]:hover:text-red-50 focus:opacity-100 focus:outline-none focus:ring-2 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600",
+      "absolute right-2 top-2 rounded-md p-1.5 opacity-70 transition-all hover:opacity-100 hover:bg-foreground/10 text-foreground group-[.destructive]:text-red-300 group-[.destructive]:hover:bg-red-500/20 group-[.destructive]:hover:text-red-50 focus:opacity-100 focus:outline-none focus:ring-2 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600",
       className,
     )}
     toast-close=""

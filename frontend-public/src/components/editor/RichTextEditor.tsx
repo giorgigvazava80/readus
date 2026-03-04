@@ -24,6 +24,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { cn } from "@/lib/utils";
 
 interface RichTextEditorProps {
@@ -33,6 +34,7 @@ interface RichTextEditorProps {
   className?: string;
   disabled?: boolean;
   minHeightClass?: string;
+  isPoem?: boolean;
 }
 
 function normalizeHtml(value: string): string {
@@ -96,12 +98,14 @@ export default function RichTextEditor({
   className,
   disabled = false,
   minHeightClass = "min-h-[200px] sm:min-h-[300px]",
+  isPoem = false,
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement | null>(null);
   const [commandStates, setCommandStates] = useState<Record<CommandStateKey, boolean>>(createDefaultCommandStates);
   const [blockType, setBlockType] = useState<BlockType>("p");
   // Mobile: show/hide advanced toolbar row
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const { promptText } = useConfirm();
 
   const syncToolbarState = useCallback(() => {
     const node = editorRef.current;
@@ -347,8 +351,8 @@ export default function RichTextEditor({
               type="button" variant="ghost" size="icon"
               className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground transition-colors hover:border-border/70 hover:bg-muted/70 hover:text-foreground"
               onMouseDown={(event) => event.preventDefault()}
-              onClick={() => {
-                const href = window.prompt("Enter link URL (include https://)", "https://");
+              onClick={async () => {
+                const href = await promptText({ title: "Insert Link", description: "Enter link URL (include https://)", placeholder: "https://", confirmText: "Insert", cancelText: "Cancel", defaultValue: "https://" });
                 if (href) runCommand("createLink", href);
               }}
               disabled={disabled} title="Insert link" aria-label="Insert link"
@@ -360,8 +364,8 @@ export default function RichTextEditor({
               type="button" variant="ghost" size="icon"
               className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground transition-colors hover:border-border/70 hover:bg-muted/70 hover:text-foreground"
               onMouseDown={(event) => event.preventDefault()}
-              onClick={() => {
-                const src = window.prompt("Image URL", "https://");
+              onClick={async () => {
+                const src = await promptText({ title: "Embed Image", description: "Image URL", placeholder: "https://", confirmText: "Embed", cancelText: "Cancel", defaultValue: "https://" });
                 if (src) runCommand("insertImage", src);
               }}
               disabled={disabled} title="Embed image" aria-label="Embed image"
@@ -434,7 +438,7 @@ export default function RichTextEditor({
               type="button" variant="ghost" size="icon"
               className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground hover:border-border/70 hover:bg-muted/70"
               onMouseDown={(e) => e.preventDefault()}
-              onClick={() => { const href = window.prompt("Enter link URL", "https://"); if (href) runCommand("createLink", href); }}
+              onClick={async () => { const href = await promptText({ title: "Insert Link", description: "Enter link URL", placeholder: "https://", confirmText: "Insert", defaultValue: "https://" }); if (href) runCommand("createLink", href); }}
               disabled={disabled} title="Insert link" aria-label="Insert link"
             >
               <Link2 className="h-4 w-4" />
@@ -443,7 +447,7 @@ export default function RichTextEditor({
               type="button" variant="ghost" size="icon"
               className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground hover:border-border/70 hover:bg-muted/70"
               onMouseDown={(e) => e.preventDefault()}
-              onClick={() => { const src = window.prompt("Image URL", "https://"); if (src) runCommand("insertImage", src); }}
+              onClick={async () => { const src = await promptText({ title: "Embed Image", description: "Image URL", placeholder: "https://", confirmText: "Embed", defaultValue: "https://" }); if (src) runCommand("insertImage", src); }}
               disabled={disabled} title="Embed image" aria-label="Embed image"
             >
               <ImagePlus className="h-4 w-4" />
@@ -468,6 +472,7 @@ export default function RichTextEditor({
           "editor-content prose-literary w-full overflow-auto rounded-b-xl bg-background/70 p-4 sm:p-5 outline-none",
           minHeightClass,
           disabled ? "cursor-not-allowed resize-none opacity-70" : "cursor-text resize-y",
+          isPoem && "font-serif whitespace-pre-wrap text-lg leading-loose"
         )}
         contentEditable={!disabled}
         suppressContentEditableWarning

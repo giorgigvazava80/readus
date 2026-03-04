@@ -103,54 +103,63 @@ const PublicBrowsePage = () => {
   }, [worksQuery.data, category, search]);
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 py-10 md:py-14">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        {/* Page header */}
-        <div className="mb-8">
-          <h1 className="font-display text-3xl font-bold text-foreground md:text-4xl">{t("browse.title", "Library")}</h1>
-          <p className="mt-1.5 font-ui text-sm text-muted-foreground">
-            {t("browse.subtitle", "Discover books, stories, and poetry from the community")}
-          </p>
-        </div>
+    <div>
+      {/* Hero header */}
+      <div className="border-b border-border/30 bg-muted/20 py-10 md:py-14">
+        <div className="container mx-auto px-4 sm:px-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="font-display text-4xl font-bold text-foreground md:text-5xl">
+              {t("browse.title", "Library")}
+            </h1>
+            <p className="mt-2 font-ui text-base text-muted-foreground max-w-lg">
+              {t("browse.subtitle", "Discover books, stories, and poetry from the community")}
+            </p>
 
-        {/* Sticky filter bar */}
-        <div className="sticky top-0 z-40 -mx-4 sm:-mx-6 px-4 sm:px-6 py-4 mb-10 bg-background/95 backdrop-blur-md border-b border-border/40 shadow-sm transition-all duration-300">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3 flex-wrap">
-              <CategoryFilter active={category} onChange={setCategory} />
-              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-ui font-medium text-muted-foreground border border-white/10 bg-black/5">
-                {worksQuery.isLoading ? "..." : t("browse.worksCount", "{count} {plural}").replace("{count}", String(filtered.length)).replace("{plural}", filtered.length === 1 ? t("browse.work", "work") : t("browse.works", "works"))}
-              </span>
-            </div>
-            <div className="relative w-full sm:w-72">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            {/* Search bar — big and prominent */}
+            <div className="relative mt-6 w-full max-w-xl">
+              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder={t("browse.searchPlaceholder", "Search by title or author...")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 font-ui h-10 text-sm bg-background/50 border-white/10 focus:border-primary/30 transition-colors"
+                className="pl-12 pr-4 font-ui h-14 text-base rounded-xl bg-background border-border/60 focus:border-primary/40 shadow-sm transition-colors"
               />
             </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Sticky filter bar */}
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border/40 shadow-sm">
+        <div className="container mx-auto px-4 sm:px-6 py-3">
+          <div className="flex items-center justify-between gap-4">
+            <CategoryFilter active={category} onChange={setCategory} />
+            <span className="hidden sm:inline-flex items-center rounded-full px-3 py-1 text-xs font-ui font-medium text-muted-foreground border border-border/50 bg-muted/30">
+              {worksQuery.isLoading ? "..." : t("browse.worksCount", "{count} {plural}").replace("{count}", String(filtered.length)).replace("{plural}", filtered.length === 1 ? t("browse.work", "work") : t("browse.works", "works"))}
+            </span>
           </div>
         </div>
+      </div>
 
+      {/* Content */}
+      <div className="container mx-auto px-4 sm:px-6 py-8 md:py-10">
         {/* Loading skeleton */}
         {worksQuery.isLoading ? (
-          <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="rounded-xl border bg-card shadow-card overflow-hidden animate-pulse">
-                <div className="h-24 bg-muted" />
-                <div className="p-5 space-y-2">
+              <div key={i} className="rounded-2xl border bg-card shadow-card overflow-hidden animate-pulse">
+                <div className="h-28 bg-muted" />
+                <div className="p-5 space-y-3">
                   <div className="h-3 bg-muted rounded w-1/3" />
                   <div className="h-5 bg-muted rounded w-3/4" />
                   <div className="h-3 bg-muted rounded w-1/2" />
-                  <div className="h-12 bg-muted rounded mt-3" />
+                  <div className="h-14 bg-muted rounded mt-3" />
                 </div>
               </div>
             ))}
           </div>
         ) : filtered.length > 0 ? (
-          <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((work, index) => (
               <WorkCard key={`${work.category}-${work.id}`} work={work} index={index} />
             ))}
@@ -162,24 +171,24 @@ const PublicBrowsePage = () => {
             className="flex flex-col items-center justify-center py-24 text-center"
           >
             <div
-              className="flex h-16 w-16 items-center justify-center rounded-full mb-4"
+              className="flex h-20 w-20 items-center justify-center rounded-full mb-5"
               style={{ background: "hsl(36 70% 50% / 0.1)" }}
             >
-              <BookOpen className="h-7 w-7 text-primary/60" />
+              <BookOpen className="h-9 w-9 text-primary/60" />
             </div>
-            <h3 className="font-display text-lg font-semibold text-foreground">{t("browse.noneFoundTitle", "No works found")}</h3>
-            <p className="mt-1.5 font-body text-sm text-muted-foreground max-w-xs">
+            <h3 className="font-display text-xl font-semibold text-foreground">{t("browse.noneFoundTitle", "No works found")}</h3>
+            <p className="mt-2 font-body text-sm text-muted-foreground max-w-xs">
               {t("browse.noneFoundDesc", "Try changing your search or selected category.")}
             </p>
             <button
               onClick={() => { setSearch(""); setCategory("all"); }}
-              className="mt-4 font-ui text-sm text-primary hover:underline"
+              className="mt-5 inline-flex items-center gap-2 font-ui text-sm font-medium text-primary hover:underline px-4 py-2 rounded-lg hover:bg-primary/5 transition-colors"
             >
               {t("browse.clearFilters", "Clear filters")}
             </button>
           </motion.div>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 };
