@@ -5,6 +5,7 @@ import {
   AlignLeft,
   AlignRight,
   Bold,
+  ChevronDown,
   Highlighter,
   ImagePlus,
   Indent,
@@ -94,17 +95,17 @@ export default function RichTextEditor({
   placeholder = "Start writing...",
   className,
   disabled = false,
-  minHeightClass = "min-h-[180px] sm:min-h-[300px]",
+  minHeightClass = "min-h-[200px] sm:min-h-[300px]",
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement | null>(null);
   const [commandStates, setCommandStates] = useState<Record<CommandStateKey, boolean>>(createDefaultCommandStates);
   const [blockType, setBlockType] = useState<BlockType>("p");
+  // Mobile: show/hide advanced toolbar row
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const syncToolbarState = useCallback(() => {
     const node = editorRef.current;
-    if (!node) {
-      return;
-    }
+    if (!node) return;
 
     const selection = window.getSelection();
     const isSelectionInsideEditor = Boolean(
@@ -154,9 +155,7 @@ export default function RichTextEditor({
 
   useEffect(() => {
     const node = editorRef.current;
-    if (!node) {
-      return;
-    }
+    if (!node) return;
 
     if (document.activeElement === node) {
       syncToolbarState();
@@ -171,34 +170,23 @@ export default function RichTextEditor({
   }, [syncToolbarState, value]);
 
   useEffect(() => {
-    const handleSelectionChange = () => {
-      syncToolbarState();
-    };
-
+    const handleSelectionChange = () => syncToolbarState();
     document.addEventListener("selectionchange", handleSelectionChange);
-    return () => {
-      document.removeEventListener("selectionchange", handleSelectionChange);
-    };
+    return () => document.removeEventListener("selectionchange", handleSelectionChange);
   }, [syncToolbarState]);
 
   const pushChange = useCallback(() => {
     const node = editorRef.current;
-    if (!node) {
-      return;
-    }
+    if (!node) return;
     onChange(node.innerHTML);
     syncToolbarState();
   }, [onChange, syncToolbarState]);
 
   const runCommand = useCallback(
     (command: string, commandValue?: string) => {
-      if (disabled) {
-        return;
-      }
+      if (disabled) return;
       const node = editorRef.current;
-      if (!node) {
-        return;
-      }
+      if (!node) return;
 
       node.focus();
       document.execCommand(command, false, commandValue);
@@ -208,33 +196,82 @@ export default function RichTextEditor({
     [disabled, pushChange, syncToolbarState],
   );
 
-  const toolbarButtons = useMemo(
+  // Primary buttons — always visible on all screen sizes
+  const primaryButtons = useMemo(
     () => [
       { label: "Bold", icon: Bold, command: "bold", stateKey: "bold" as const },
       { label: "Italic", icon: Italic, command: "italic", stateKey: "italic" as const },
       { label: "Underline", icon: Underline, command: "underline", stateKey: "underline" as const },
       { label: "Strike", icon: Strikethrough, command: "strikeThrough", stateKey: "strikeThrough" as const },
-      { label: "Quote", icon: Quote, command: "formatBlock", value: "blockquote", stateKey: "blockquote" as const },
-      { label: "Rule", icon: Minus, command: "insertHorizontalRule" },
       { label: "Bullets", icon: List, command: "insertUnorderedList", stateKey: "insertUnorderedList" as const },
       { label: "Numbers", icon: ListOrdered, command: "insertOrderedList", stateKey: "insertOrderedList" as const },
       { label: "Left", icon: AlignLeft, command: "justifyLeft", stateKey: "justifyLeft" as const },
       { label: "Center", icon: AlignCenter, command: "justifyCenter", stateKey: "justifyCenter" as const },
       { label: "Right", icon: AlignRight, command: "justifyRight", stateKey: "justifyRight" as const },
-      { label: "Justify", icon: AlignJustify, command: "justifyFull", stateKey: "justifyFull" as const },
-      { label: "Indent", icon: Indent, command: "indent" },
-      { label: "Outdent", icon: Outdent, command: "outdent" },
+      { label: "Quote", icon: Quote, command: "formatBlock", value: "blockquote", stateKey: "blockquote" as const },
     ],
     [],
   );
 
+  // Advanced buttons — always visible on md+, hidden behind toggle on mobile
+  const advancedButtons = useMemo(
+    () => [
+      { label: "Justify", icon: AlignJustify, command: "justifyFull", stateKey: "justifyFull" as const },
+      { label: "Indent", icon: Indent, command: "indent" },
+      { label: "Outdent", icon: Outdent, command: "outdent" },
+      { label: "Rule", icon: Minus, command: "insertHorizontalRule" },
+    ],
+    [],
+  );
+
+  const renderToolbarButton = (item: typeof primaryButtons[number] | typeof advancedButtons[number]) => {
+    const isActive =
+      item.stateKey === "blockquote"
+        ? blockType === "blockquote"
+        : item.stateKey
+          ? commandStates[item.stateKey as CommandStateKey]
+          : false;
+
+    return (
+      <Button
+        key={item.label}
+        type="button"
+        variant="ghost"
+        size="icon"
+        className={cn(
+          "h-9 w-9 shrink-0 border transition-colors",
+          isActive
+            ? "border-primary/45 bg-primary/15 text-primary hover:bg-primary/20"
+            : "border-transparent text-muted-foreground hover:border-border/70 hover:bg-muted/70 hover:text-foreground",
+        )}
+        onMouseDown={(event) => event.preventDefault()}
+        onClick={() => {
+          if (item.stateKey === "blockquote") {
+            runCommand("formatBlock", blockType === "blockquote" ? "p" : "blockquote");
+            return;
+          }
+          runCommand(item.command, (item as { value?: string }).value);
+        }}
+        disabled={disabled}
+        title={item.label}
+        aria-label={item.label}
+        aria-pressed={isActive}
+      >
+        <item.icon className="h-4 w-4" />
+      </Button>
+    );
+  };
+
   return (
     <div className={cn("rounded-xl border border-border/70 bg-card/70 flex flex-col min-w-0 w-full", className)}>
-      <div className="border-b border-border/70 p-1.5 sm:p-2.5 w-full min-w-0 overflow-x-auto scrollbar-thin">
-        <div className="flex items-center gap-1.5 md:gap-2 whitespace-nowrap min-w-max pb-1">
+
+      {/* ─── Primary toolbar row (always visible) ────────── */}
+      <div className="border-b border-border/70 p-2 w-full min-w-0">
+        <div className="flex items-center gap-1 flex-wrap">
+          {/* Style/Font/Size selects — compact on mobile */}
           <select
             value={blockType}
-            className="h-8 rounded-md border border-border/70 bg-background px-2 text-xs font-ui"
+            className="h-9 rounded-md border border-border/70 bg-background px-2 text-xs font-ui max-w-[100px] sm:max-w-none"
             onChange={(event) => runCommand("formatBlock", event.target.value)}
             disabled={disabled}
             aria-label="Paragraph style"
@@ -248,155 +285,187 @@ export default function RichTextEditor({
 
           <select
             defaultValue={FONT_OPTIONS[0].value}
-            className="h-8 rounded-md border border-border/70 bg-background px-2 text-xs font-ui"
+            className="hidden sm:block h-9 rounded-md border border-border/70 bg-background px-2 text-xs font-ui"
             onChange={(event) => runCommand("fontName", event.target.value)}
             disabled={disabled}
             aria-label="Font family"
           >
             {FONT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
+              <option key={option.value} value={option.value}>{option.label}</option>
             ))}
           </select>
 
           <select
             defaultValue={SIZE_OPTIONS[1].value}
-            className="h-8 rounded-md border border-border/70 bg-background px-2 text-xs font-ui"
+            className="h-9 rounded-md border border-border/70 bg-background px-2 text-xs font-ui"
             onChange={(event) => runCommand("fontSize", event.target.value)}
             disabled={disabled}
             aria-label="Font size"
           >
             {SIZE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
+              <option key={option.value} value={option.value}>{option.label}</option>
             ))}
           </select>
 
-          <div className="mx-1 h-6 w-px bg-border/70" />
+          <div className="mx-0.5 h-6 w-px bg-border/70 hidden sm:block" />
 
-          {toolbarButtons.map((item) => {
-            const isActive =
-              item.stateKey === "blockquote"
-                ? blockType === "blockquote"
-                : item.stateKey
-                  ? commandStates[item.stateKey]
-                  : false;
+          {/* Primary format buttons */}
+          {primaryButtons.map(renderToolbarButton)}
 
-            return (
-              <Button
-                key={item.label}
-                type="button"
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "h-8 w-8 shrink-0 border transition-colors",
-                  isActive
-                    ? "border-primary/45 bg-primary/15 text-primary hover:bg-primary/20"
-                    : "border-transparent text-muted-foreground hover:border-border/70 hover:bg-muted/70 hover:text-foreground",
-                )}
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => {
-                  if (item.stateKey === "blockquote") {
-                    runCommand("formatBlock", blockType === "blockquote" ? "p" : "blockquote");
-                    return;
-                  }
-                  runCommand(item.command, item.value);
-                }}
+          <div className="mx-0.5 h-6 w-px bg-border/70 hidden sm:block" />
+
+          {/* Advanced buttons: always visible on sm+, hidden on mobile */}
+          <div className="hidden sm:flex items-center gap-1">
+            {advancedButtons.map(renderToolbarButton)}
+
+            <div className="mx-0.5 h-6 w-px bg-border/70" />
+
+            {/* Color pickers */}
+            <label className="flex shrink-0 items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui cursor-pointer hover:border-primary/40 transition-colors" title="Text color">
+              <Pilcrow className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-muted-foreground hidden lg:inline">Text</span>
+              <Input
+                type="color"
+                className="h-6 w-8 border-none p-0"
+                onChange={(event) => runCommand("foreColor", event.target.value)}
                 disabled={disabled}
-                title={item.label}
-                aria-pressed={isActive}
-              >
-                <item.icon className="h-4 w-4" />
-              </Button>
-            );
-          })}
+              />
+            </label>
 
-          <div className="mx-1 h-6 w-px bg-border/70" />
+            <label className="flex shrink-0 items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui cursor-pointer hover:border-primary/40 transition-colors" title="Highlight color">
+              <Highlighter className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-muted-foreground hidden lg:inline">Highlight</span>
+              <Input
+                type="color"
+                className="h-6 w-8 border-none p-0"
+                onChange={(event) => runCommand("hiliteColor", event.target.value)}
+                disabled={disabled}
+              />
+            </label>
 
-          <label className="flex shrink-0 items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui">
-            <Pilcrow className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-muted-foreground">Text</span>
-            <Input
-              type="color"
-              className="h-6 w-8 border-none p-0"
-              onChange={(event) => runCommand("foreColor", event.target.value)}
-              disabled={disabled}
-            />
-          </label>
+            <Button
+              type="button" variant="ghost" size="icon"
+              className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground transition-colors hover:border-border/70 hover:bg-muted/70 hover:text-foreground"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => {
+                const href = window.prompt("Enter link URL (include https://)", "https://");
+                if (href) runCommand("createLink", href);
+              }}
+              disabled={disabled} title="Insert link" aria-label="Insert link"
+            >
+              <Link2 className="h-4 w-4" />
+            </Button>
 
-          <label className="flex shrink-0 items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui">
-            <Highlighter className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-muted-foreground">Highlight</span>
-            <Input
-              type="color"
-              className="h-6 w-8 border-none p-0"
-              onChange={(event) => runCommand("hiliteColor", event.target.value)}
-              disabled={disabled}
-            />
-          </label>
+            <Button
+              type="button" variant="ghost" size="icon"
+              className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground transition-colors hover:border-border/70 hover:bg-muted/70 hover:text-foreground"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => {
+                const src = window.prompt("Image URL", "https://");
+                if (src) runCommand("insertImage", src);
+              }}
+              disabled={disabled} title="Embed image" aria-label="Embed image"
+            >
+              <ImagePlus className="h-4 w-4" />
+            </Button>
 
+            <Button
+              type="button" variant="ghost" size="icon"
+              className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground transition-colors hover:border-border/70 hover:bg-muted/70 hover:text-foreground"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => runCommand("insertHTML", "<table><tbody><tr><td>Cell</td><td>Cell</td></tr><tr><td>Cell</td><td>Cell</td></tr></tbody></table><p></p>")}
+              disabled={disabled} title="Insert table" aria-label="Insert table"
+            >
+              <Table className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Mobile "More" toggle */}
           <Button
             type="button"
             variant="ghost"
-            size="icon"
-            className="h-8 w-8 shrink-0 border border-transparent text-muted-foreground transition-colors hover:border-border/70 hover:bg-muted/70 hover:text-foreground"
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => {
-              const href = window.prompt("Enter link URL (include https://)", "https://");
-              if (href) {
-                runCommand("createLink", href);
-              }
-            }}
-            disabled={disabled}
-            title="Insert link"
+            size="sm"
+            className={cn(
+              "sm:hidden h-9 px-2 gap-1 border font-ui text-xs ml-auto",
+              showAdvanced
+                ? "border-primary/40 bg-primary/10 text-primary"
+                : "border-transparent text-muted-foreground hover:border-border/70 hover:bg-muted/70"
+            )}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => setShowAdvanced(v => !v)}
+            aria-label="More formatting options"
           >
-            <Link2 className="h-4 w-4" />
-          </Button>
-
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 shrink-0 border border-transparent text-muted-foreground transition-colors hover:border-border/70 hover:bg-muted/70 hover:text-foreground"
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => {
-              const src = window.prompt("Image URL", "https://");
-              if (src) {
-                runCommand("insertImage", src);
-              }
-            }}
-            disabled={disabled}
-            title="Embed image"
-          >
-            <ImagePlus className="h-4 w-4" />
-          </Button>
-
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 shrink-0 border border-transparent text-muted-foreground transition-colors hover:border-border/70 hover:bg-muted/70 hover:text-foreground"
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() =>
-              runCommand(
-                "insertHTML",
-                "<table><tbody><tr><td>Cell</td><td>Cell</td></tr><tr><td>Cell</td><td>Cell</td></tr></tbody></table><p></p>",
-              )
-            }
-            disabled={disabled}
-            title="Insert table"
-          >
-            <Table className="h-4 w-4" />
+            More
+            <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showAdvanced && "rotate-180")} />
           </Button>
         </div>
+
+        {/* ─── Mobile advanced row ──────────────────────────── */}
+        {showAdvanced && (
+          <div className="sm:hidden flex items-center gap-1 flex-wrap pt-2 mt-2 border-t border-border/50 animate-in slide-in-from-top-1 duration-150">
+            {/* Font selector (hidden in primary row on mobile) */}
+            <select
+              defaultValue={FONT_OPTIONS[0].value}
+              className="h-9 rounded-md border border-border/70 bg-background px-2 text-xs font-ui"
+              onChange={(event) => runCommand("fontName", event.target.value)}
+              disabled={disabled}
+              aria-label="Font family"
+            >
+              {FONT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+
+            {advancedButtons.map(renderToolbarButton)}
+
+            <div className="mx-0.5 h-6 w-px bg-border/70" />
+
+            {/* Color pickers on mobile */}
+            <label className="flex shrink-0 items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui cursor-pointer" title="Text color">
+              <Pilcrow className="h-3.5 w-3.5 text-muted-foreground" />
+              <Input type="color" className="h-6 w-8 border-none p-0" onChange={(event) => runCommand("foreColor", event.target.value)} disabled={disabled} />
+            </label>
+            <label className="flex shrink-0 items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui cursor-pointer" title="Highlight">
+              <Highlighter className="h-3.5 w-3.5 text-muted-foreground" />
+              <Input type="color" className="h-6 w-8 border-none p-0" onChange={(event) => runCommand("hiliteColor", event.target.value)} disabled={disabled} />
+            </label>
+
+            <Button
+              type="button" variant="ghost" size="icon"
+              className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground hover:border-border/70 hover:bg-muted/70"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => { const href = window.prompt("Enter link URL", "https://"); if (href) runCommand("createLink", href); }}
+              disabled={disabled} title="Insert link" aria-label="Insert link"
+            >
+              <Link2 className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button" variant="ghost" size="icon"
+              className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground hover:border-border/70 hover:bg-muted/70"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => { const src = window.prompt("Image URL", "https://"); if (src) runCommand("insertImage", src); }}
+              disabled={disabled} title="Embed image" aria-label="Embed image"
+            >
+              <ImagePlus className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button" variant="ghost" size="icon"
+              className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground hover:border-border/70 hover:bg-muted/70"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => runCommand("insertHTML", "<table><tbody><tr><td>Cell</td><td>Cell</td></tr><tr><td>Cell</td><td>Cell</td></tr></tbody></table><p></p>")}
+              disabled={disabled} title="Insert table" aria-label="Insert table"
+            >
+              <Table className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </div>
 
+      {/* ─── Editor content ───────────────────────────────── */}
       <div
         ref={editorRef}
         className={cn(
-          "editor-content prose-literary w-full overflow-auto rounded-b-xl bg-background/70 p-5 outline-none",
+          "editor-content prose-literary w-full overflow-auto rounded-b-xl bg-background/70 p-4 sm:p-5 outline-none",
           minHeightClass,
           disabled ? "cursor-not-allowed resize-none opacity-70" : "cursor-text resize-y",
         )}
@@ -409,9 +478,10 @@ export default function RichTextEditor({
         onMouseUp={syncToolbarState}
       />
 
-      <div className="border-t border-border/70 px-3 py-2 font-ui text-xs text-muted-foreground">
-        Shortcuts: Ctrl/Cmd+B, Ctrl/Cmd+I, Ctrl/Cmd+U
+      {/* ─── Shortcuts hint ───────────────────────────────── */}
+      <div className="border-t border-border/70 px-3 py-2 font-ui text-xs text-muted-foreground hidden sm:block">
+        Shortcuts: Ctrl/Cmd+B Bold · Ctrl/Cmd+I Italic · Ctrl/Cmd+U Underline
       </div>
-    </div >
+    </div>
   );
 }

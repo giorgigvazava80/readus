@@ -1,18 +1,47 @@
 ﻿import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, BookOpenText, ClipboardCheck, Feather, ShieldAlert, UserCircle2 } from "lucide-react";
+import {
+  Bell,
+  BookOpenText,
+  CheckCircle2,
+  ChevronRight,
+  ClipboardCheck,
+  Clock,
+  Feather,
+  PlusSquare,
+  ShieldAlert,
+  UserCircle2,
+  XCircle,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/useSession";
 import { useI18n } from "@/i18n";
 import { fetchContent, fetchMyWriterApplications, fetchNotifications } from "@/lib/api";
 
-const statusStyles: Record<string, string> = {
-  approved: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700",
-  rejected: "border-red-500/30 bg-red-500/10 text-red-700",
-  pending: "border-amber-500/30 bg-amber-500/10 text-amber-700",
+function timeAgo(dateStr: string): string {
+  const ms = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(ms / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
+const statusConfig = {
+  approved: { icon: <CheckCircle2 className="h-4 w-4" />, color: "text-emerald-700", bg: "bg-emerald-500/10 border-emerald-500/30" },
+  rejected: { icon: <XCircle className="h-4 w-4" />, color: "text-red-700", bg: "bg-red-500/10 border-red-500/30" },
+  pending: { icon: <Clock className="h-4 w-4" />, color: "text-amber-700", bg: "bg-amber-500/10 border-amber-500/30" },
 };
+
+const workCardConfig = [
+  { key: "books", labelKey: "dashboard.books", defaultLabel: "Books", icon: "📚", href: "/my-works?cat=books" },
+  { key: "chapters", labelKey: "dashboard.chapters", defaultLabel: "Chapters", icon: "📖", href: "/my-works?cat=chapters" },
+  { key: "poems", labelKey: "dashboard.poems", defaultLabel: "Poems", icon: "🖋️", href: "/my-works?cat=poems" },
+  { key: "stories", labelKey: "dashboard.stories", defaultLabel: "Stories", icon: "📝", href: "/my-works?cat=stories" },
+];
 
 const DashboardPage = () => {
   const queryClient = useQueryClient();
@@ -40,13 +69,7 @@ const DashboardPage = () => {
         fetchContent("poems", { mine: true, page: 1 }),
         fetchContent("stories", { mine: true, page: 1 }),
       ]);
-
-      return {
-        books: books.count,
-        chapters: chapters.count,
-        poems: poems.count,
-        stories: stories.count,
-      };
+      return { books: books.count, chapters: chapters.count, poems: poems.count, stories: stories.count };
     },
     enabled: Boolean(me),
   });
@@ -59,139 +82,165 @@ const DashboardPage = () => {
     }
   }, [latestApplication?.status, me, queryClient]);
 
-  const workCards = [
-    { key: "books", label: t("dashboard.books", t("work.books")), value: worksSummaryQuery.data?.books ?? 0 },
-    { key: "chapters", label: t("dashboard.chapters", "თავები"), value: worksSummaryQuery.data?.chapters ?? 0 },
-    { key: "poems", label: t("dashboard.poems", "Poems"), value: worksSummaryQuery.data?.poems ?? 0 },
-    { key: "stories", label: t("dashboard.stories", t("work.stories")), value: worksSummaryQuery.data?.stories ?? 0 },
-  ];
-
   const roleLabel = me ? t(`role.${me.effective_role}`, me.effective_role) : "";
 
   return (
-    <div className="container mx-auto space-y-8 px-6 py-10">
-      <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card backdrop-blur-sm">
+    <div className="container mx-auto space-y-6 px-4 py-8 sm:px-6 sm:py-10">
+
+      {/* Hero welcome section */}
+      <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card backdrop-blur-sm sm:p-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1">
               <UserCircle2 className="h-4 w-4 text-primary" />
               <span className="font-ui text-xs text-muted-foreground">{t("dashboard.workspace", "Personal Workspace")}</span>
             </div>
-            <h1 className="mt-4 font-display text-4xl font-semibold leading-tight text-foreground">{t("dashboard.title", "Dashboard")}</h1>
-            <p className="mt-2 font-body text-base text-muted-foreground">
-              {t("dashboard.signedInAs", "Signed in as")} <span className="font-semibold text-foreground">{me?.username}</span> ({roleLabel}).
+            <h1 className="mt-4 font-display text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
+              {t("dashboard.greeting", "Hello")}, <span className="text-primary">{me?.username}</span> 👋
+            </h1>
+            <p className="mt-1.5 font-ui text-sm text-muted-foreground">
+              {t("dashboard.role", "Signed in as")} <span className="font-medium text-foreground">{roleLabel}</span>
             </p>
           </div>
+
           <div className="flex flex-wrap gap-3">
             {me?.is_writer_approved ? (
               <Link to="/writer/new">
-                <Button>{t("dashboard.newWork", t("work.newWork"))}</Button>
+                <Button className="gap-2 h-11 font-ui">
+                  <PlusSquare className="h-4 w-4" />
+                  {t("dashboard.newWork", t("work.newWork"))}
+                </Button>
               </Link>
             ) : (
               <Link to="/writer-application">
-                <Button>{t("dashboard.writerApplication", "ავტორის განაცხადი")}</Button>
+                <Button className="gap-2 h-11 font-ui">
+                  <Feather className="h-4 w-4" />
+                  {t("dashboard.writerApplication", "Apply as Writer")}
+                </Button>
               </Link>
             )}
             <Link to="/my-works">
-              <Button variant="outline">{t("nav.myWorks", t("work.myWorks"))}</Button>
+              <Button variant="outline" className="h-11 font-ui">{t("nav.myWorks", "My Works")}</Button>
             </Link>
             <Link to="/settings">
-              <Button variant="outline">{t("nav.settings", "Settings")}</Button>
+              <Button variant="outline" className="h-11 font-ui">{t("nav.settings", "Settings")}</Button>
             </Link>
           </div>
         </div>
 
-        {!me?.is_email_verified ? (
-          <p className="mt-5 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 font-ui text-sm text-amber-700">
-            {t("dashboard.verifyEmail", "Verify your email before using protected features.")}
-          </p>
-        ) : null}
-
-        {me?.forced_password_change ? (
-          <p className="mt-3 rounded-lg border border-red-500/40 bg-red-500/10 p-3 font-ui text-sm text-red-700">
-            {t("dashboard.forcePassword", "Password change is required before continuing.")}
-          </p>
-        ) : null}
-      </section>
-
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {workCards.map((item) => (
-          <div key={item.key} className="rounded-xl border border-border/70 bg-card/80 p-5 shadow-card">
-            <p className="font-ui text-xs uppercase tracking-wide text-muted-foreground">{item.label}</p>
-            <p className="mt-2 font-display text-3xl font-semibold text-foreground">{item.value}</p>
-          </div>
-        ))}
-      </section>
-
-      {!me?.is_writer_approved ? (
-        <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
-          <div className="flex items-center gap-2">
-            <ClipboardCheck className="h-5 w-5 text-primary" />
-            <h2 className="font-display text-2xl font-semibold text-foreground">{t("dashboard.writerStatus", t("writer.appStatus"))}</h2>
-          </div>
-          {latestApplication ? (
-            <div className="mt-4 rounded-xl border border-border/70 bg-background/70 p-4 font-ui text-sm">
-              <p>
-                {t("dashboard.status", t("work.status"))}: {" "}
-                <span
-                  className={`rounded-full border px-2 py-0.5 text-xs font-medium ${statusStyles[latestApplication.status] || "border-border bg-muted text-foreground"}`}
-                >
-                  {latestApplication.status}
-                </span>
-              </p>
-              <p className="mt-2 text-muted-foreground">{t("dashboard.submitted", "Submitted")}: {new Date(latestApplication.created_at).toLocaleString()}</p>
-              {latestApplication.review_comment ? (
-                <p className="mt-3 rounded-lg border border-border/70 bg-card/80 p-3 text-foreground">
-                  {t("dashboard.reviewerComment", "Reviewer comment")}: {latestApplication.review_comment}
-                </p>
-              ) : null}
-            </div>
-          ) : (
-            <div className="mt-4 rounded-xl border border-dashed border-border/80 bg-background/65 p-5 font-ui text-sm text-muted-foreground">
-              {t("dashboard.noWriterApp", "No writer application yet. Submit one to unlock writer privileges after approval.")}
-            </div>
-          )}
-        </section>
-      ) : null}
-
-      <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
-        <div className="flex items-center gap-2">
-          <Bell className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-2xl font-semibold text-foreground">{t("dashboard.notifications", "Recent Notifications")}</h2>
-        </div>
-
-        {notificationsQuery.data?.results?.length ? (
-          <div className="mt-4 space-y-3">
-            {notificationsQuery.data.results.slice(0, 5).map((item) => (
-              <div key={item.id} className="rounded-xl border border-border/70 bg-background/70 p-4">
-                <p className="font-display text-lg text-foreground">{item.title}</p>
-                <p className="mt-1 font-ui text-sm text-muted-foreground">{item.message}</p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-4 rounded-xl border border-dashed border-border/80 bg-background/65 p-5 font-ui text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <BookOpenText className="h-4 w-4" />
-              {t("dashboard.noNotifications", "No notifications yet.")}
+        {/* Alerts */}
+        {!me?.is_email_verified && (
+          <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
+            <span className="text-xl">📧</span>
+            <div>
+              <p className="font-ui text-sm font-medium text-amber-800">{t("dashboard.verifyEmailTitle", "Verify your email")}</p>
+              <p className="font-ui text-xs text-amber-700 mt-0.5">{t("dashboard.verifyEmail", "Verify your email before using protected features.")}</p>
             </div>
           </div>
         )}
-
-        {(writerApplicationQuery.isLoading || worksSummaryQuery.isLoading || notificationsQuery.isLoading) ? (
-          <p className="mt-4 font-ui text-xs text-muted-foreground">{t("dashboard.updating", "Updating dashboard...")}</p>
-        ) : null}
-
-        {writerApplicationQuery.isError || worksSummaryQuery.isError || notificationsQuery.isError ? (
-          <p className="mt-4 flex items-center gap-2 rounded-lg border border-red-500/35 bg-red-500/10 p-3 font-ui text-sm text-red-700">
-            <ShieldAlert className="h-4 w-4" />
-            {t("dashboard.partialError", "Some dashboard sections failed to load.")}
-          </p>
-        ) : null}
+        {me?.forced_password_change && (
+          <div className="mt-3 flex items-start gap-3 rounded-xl border border-red-500/40 bg-red-500/10 p-4">
+            <span className="text-xl">🔒</span>
+            <p className="font-ui text-sm text-red-700">{t("dashboard.forcePassword", "Password change is required before continuing.")}</p>
+          </div>
+        )}
       </section>
 
-      {me?.is_writer_approved ? (
-        <section className="rounded-2xl border border-border/70 bg-gradient-to-r from-primary/10 via-card/80 to-accent/10 p-6 shadow-card">
+      {/* Stats grid */}
+      <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {workCardConfig.map((item) => {
+          const value = worksSummaryQuery.data?.[item.key as keyof typeof worksSummaryQuery.data] ?? 0;
+          return (
+            <Link key={item.key} to={item.href}>
+              <div className="group rounded-xl border border-border/70 bg-card/80 p-5 shadow-card transition-all hover:border-primary/40 hover:shadow-md cursor-pointer">
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl">{item.icon}</span>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                </div>
+                <p className="mt-3 font-display text-3xl font-semibold text-foreground">
+                  {worksSummaryQuery.isLoading ? "—" : value}
+                </p>
+                <p className="mt-1 font-ui text-xs uppercase tracking-wide text-muted-foreground">
+                  {t(item.labelKey, item.defaultLabel)}
+                </p>
+              </div>
+            </Link>
+          );
+        })}
+      </section>
+
+      {/* Writer application status */}
+      {!me?.is_writer_approved && (
+        <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card sm:p-7">
+          <div className="flex items-center gap-2 mb-4">
+            <ClipboardCheck className="h-5 w-5 text-primary" />
+            <h2 className="font-display text-xl font-semibold text-foreground">{t("dashboard.writerStatus", "Writer Application Status")}</h2>
+          </div>
+
+          {/* Step progress */}
+          <div className="flex items-center gap-0 mb-5">
+            {[
+              { label: "Apply", done: Boolean(latestApplication) },
+              { label: "Under review", done: latestApplication?.status === "approved" || latestApplication?.status === "rejected" },
+              { label: "Approved", done: latestApplication?.status === "approved" },
+            ].map((step, i, arr) => (
+              <div key={step.label} className="flex items-center flex-1">
+                <div className="flex flex-col items-center">
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-full border-2 font-ui text-xs font-semibold transition-all ${step.done ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-muted-foreground"
+                    }`}>
+                    {step.done ? "✓" : i + 1}
+                  </div>
+                  <span className="mt-1 font-ui text-[10px] text-muted-foreground text-center leading-tight max-w-[60px]">{step.label}</span>
+                </div>
+                {i < arr.length - 1 && (
+                  <div className={`mx-1 h-0.5 flex-1 mb-5 transition-all ${step.done ? "bg-primary" : "bg-border"}`} />
+                )}
+              </div>
+            ))}
+          </div>
+
+          {latestApplication ? (
+            <div className="rounded-xl border border-border/70 bg-background/70 p-4 font-ui text-sm">
+              <div className="flex items-center gap-2">
+                {statusConfig[latestApplication.status as keyof typeof statusConfig] && (
+                  <span className={statusConfig[latestApplication.status as keyof typeof statusConfig].color}>
+                    {statusConfig[latestApplication.status as keyof typeof statusConfig].icon}
+                  </span>
+                )}
+                <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${statusConfig[latestApplication.status as keyof typeof statusConfig]?.bg || "border-border bg-muted text-foreground"
+                  }`}>
+                  {latestApplication.status}
+                </span>
+                <span className="text-xs text-muted-foreground ml-auto">
+                  Submitted {timeAgo(latestApplication.created_at)}
+                </span>
+              </div>
+              {latestApplication.review_comment && (
+                <p className="mt-3 rounded-lg border border-border/70 bg-card/80 p-3 text-foreground">
+                  💬 {t("dashboard.reviewerComment", "Reviewer comment")}: {latestApplication.review_comment}
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-dashed border-border/80 bg-background/65 p-6 text-center">
+              <Feather className="mx-auto h-8 w-8 text-muted-foreground/40 mb-3" />
+              <p className="font-ui text-sm text-muted-foreground">
+                {t("dashboard.noWriterApp", "No writer application yet.")}
+              </p>
+              <Link to="/writer-application" className="mt-3 inline-block">
+                <Button size="sm" className="gap-2 mt-2">
+                  <Feather className="h-4 w-4" />
+                  Submit Application
+                </Button>
+              </Link>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Writer mode CTA */}
+      {me?.is_writer_approved && (
+        <section className="rounded-2xl border border-border/70 bg-gradient-to-r from-primary/10 via-card/80 to-accent/10 p-6 shadow-card sm:p-7">
           <div className="flex items-center gap-2">
             <Feather className="h-5 w-5 text-primary" />
             <p className="font-display text-xl font-semibold text-foreground">{t("dashboard.writerMode", "Writer mode active")}</p>
@@ -199,19 +248,63 @@ const DashboardPage = () => {
           <p className="mt-1 font-ui text-sm text-muted-foreground">
             {t("dashboard.writerModeDesc", "You are approved as writer. Start publishing books from your writer workspace.")}
           </p>
-          <div className="mt-4">
+          <div className="mt-4 flex flex-wrap gap-3">
             <Link to="/writer/new">
               <Button className="gap-2">{t("dashboard.newWork", t("work.newWork"))}</Button>
             </Link>
+            <Link to="/my-works">
+              <Button variant="outline">{t("nav.myWorks", "My Works")}</Button>
+            </Link>
           </div>
         </section>
-      ) : null}
+      )}
+
+      {/* Notifications */}
+      <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card sm:p-7">
+        <div className="flex items-center gap-2 mb-4">
+          <Bell className="h-5 w-5 text-primary" />
+          <h2 className="font-display text-xl font-semibold text-foreground">{t("dashboard.notifications", "Recent Notifications")}</h2>
+          {notificationsQuery.data?.results?.length ? (
+            <span className="ml-auto rounded-full bg-primary/10 px-2.5 py-0.5 font-ui text-xs font-medium text-primary">
+              {Math.min(notificationsQuery.data.results.length, 5)} new
+            </span>
+          ) : null}
+        </div>
+
+        {notificationsQuery.data?.results?.length ? (
+          <div className="space-y-3">
+            {notificationsQuery.data.results.slice(0, 5).map((item) => (
+              <div key={item.id} className="flex items-start gap-3 rounded-xl border border-border/70 bg-background/70 p-4">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <Bell className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-sm font-medium text-foreground truncate">{item.title}</p>
+                  <p className="mt-0.5 font-ui text-xs text-muted-foreground line-clamp-2">{item.message}</p>
+                </div>
+                <span className="shrink-0 font-ui text-[10px] text-muted-foreground">{timeAgo(item.created_at || "")}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-dashed border-border/80 bg-background/65 p-6 text-center">
+            <BookOpenText className="mx-auto h-8 w-8 text-muted-foreground/40 mb-2" />
+            <p className="font-ui text-sm text-muted-foreground">{t("dashboard.noNotifications", "No notifications yet.")}</p>
+          </div>
+        )}
+
+        {(writerApplicationQuery.isLoading || worksSummaryQuery.isLoading || notificationsQuery.isLoading) && (
+          <p className="mt-3 font-ui text-xs text-muted-foreground">{t("dashboard.updating", "Updating…")}</p>
+        )}
+        {(writerApplicationQuery.isError || worksSummaryQuery.isError || notificationsQuery.isError) && (
+          <p className="mt-3 flex items-center gap-2 rounded-lg border border-red-500/35 bg-red-500/10 p-3 font-ui text-sm text-red-700">
+            <ShieldAlert className="h-4 w-4" />
+            {t("dashboard.partialError", "Some dashboard sections failed to load.")}
+          </p>
+        )}
+      </section>
     </div>
   );
 };
 
 export default DashboardPage;
-
-
-
-
