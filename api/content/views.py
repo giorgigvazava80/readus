@@ -3,6 +3,7 @@ from hashlib import sha256
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
+from django.core.files.storage import default_storage
 from django.db.models import Count, F, Q, Value
 from django.db.models.functions import Concat
 from django.http import Http404
@@ -78,11 +79,21 @@ def _resolve_profile_photo_url(photo_name: str | None) -> str | None:
     if not photo_name:
         return None
 
-    media_url = settings.MEDIA_URL or "/media/"
-    if not media_url.endswith("/"):
-        media_url = f"{media_url}/"
+    raw = str(photo_name).strip()
+    if not raw:
+        return None
 
-    return f"{media_url}{str(photo_name).lstrip('/')}"
+    if raw.startswith(("http://", "https://", "//")):
+        return raw
+
+    try:
+        return default_storage.url(raw)
+    except Exception:
+        media_url = settings.MEDIA_URL or "/media/"
+        if not media_url.endswith("/"):
+            media_url = f"{media_url}/"
+
+        return f"{media_url}{raw.lstrip('/')}"
 
 
 def _build_anonymous_summary() -> dict[str, object] | None:
