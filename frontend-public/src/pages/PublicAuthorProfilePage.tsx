@@ -379,7 +379,7 @@ const PublicAuthorProfilePage = () => {
             </Button>
           </div>
 
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
             {categoryStats.map((stat) => (
               <button
                 key={stat.key}
@@ -392,7 +392,7 @@ const PublicAuthorProfilePage = () => {
                 }`}
               >
                 <p className="font-ui text-xs uppercase tracking-wide text-muted-foreground">{stat.label}</p>
-                <p className="mt-1 flex items-center gap-2 font-display text-2xl font-semibold text-foreground">
+                <p className="mt-1 flex items-center gap-1.5 font-display text-lg font-semibold text-foreground sm:gap-2 sm:text-2xl">
                   <stat.icon className="h-5 w-5 text-primary/70" />
                   {stat.count}
                 </p>

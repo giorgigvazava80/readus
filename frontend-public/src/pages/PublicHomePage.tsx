@@ -9,6 +9,7 @@ import { useI18n } from "@/i18n";
 import { resolveAuthorKey } from "@/lib/authors";
 import { fetchContent, resolveMediaUrl } from "@/lib/api";
 import type { ContentItem } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import heroImage from "@/assets/hero-literary.jpg";
 
 const CATEGORY_COLOR_PALETTE: Record<"books" | "stories" | "poems", string[]> = {
@@ -69,6 +70,7 @@ function toCardItem(
 
 const PublicHomePage = () => {
   const { t, language } = useI18n();
+  const isGeorgian = language === "ka";
   const locale = language === "ka" ? "ka-GE" : "en-US";
   const excerptFallback = t("home.excerptUnavailable", "Excerpt is not available yet.");
   const readTimeTemplate = t("home.readTime", "{minutes} min read");
@@ -218,9 +220,16 @@ const PublicHomePage = () => {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="max-w-4xl"
           >
-            <h1 className="font-display text-5xl font-bold leading-[1.15] tracking-tight text-foreground sm:text-6xl md:text-7xl lg:text-[5rem]">
-              {t("home.hero.titleStart", "Words find")}{" "}
-              <span className="text-gradient-primary">{t("home.hero.titleHighlight", "their home")}</span>
+            <h1
+              className={cn(
+                "text-5xl font-bold text-foreground sm:text-6xl md:text-7xl lg:text-[5rem]",
+                isGeorgian
+                  ? "font-ui leading-[1.25] tracking-normal md:leading-[1.2]"
+                  : "font-display leading-[1.15] tracking-tight",
+              )}
+            >
+              {t("home.hero.titleStart", "Words find")}
+              <span className="ml-2 text-gradient-primary">{t("home.hero.titleHighlight", "their home")}</span>
             </h1>
             <p className="mt-6 font-body text-lg leading-relaxed text-muted-foreground md:text-xl max-w-2xl">
               {t(
