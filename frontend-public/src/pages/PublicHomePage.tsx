@@ -72,8 +72,13 @@ const PublicHomePage = () => {
   const { t, language } = useI18n();
   const isGeorgian = language === "ka";
   const locale = language === "ka" ? "ka-GE" : "en-US";
+  const georgianAccentWord = t("home.hero.titleAccentWord", "წერე");
   const excerptFallback = t("home.excerptUnavailable", "Excerpt is not available yet.");
   const readTimeTemplate = t("home.readTime", "{minutes} min read");
+  const georgianHighlightText = t("home.hero.titleHighlight", "და წერე ჩვენთან ერთად");
+  const georgianHighlightParts = isGeorgian
+    ? georgianHighlightText.split(georgianAccentWord)
+    : [];
   const steps = [
     {
       step: "01",
@@ -228,14 +233,21 @@ const PublicHomePage = () => {
                   : "font-display text-5xl leading-[1.15] tracking-tight sm:text-6xl md:text-7xl lg:text-[5rem]",
               )}
             >
-              <span className={cn(isGeorgian ? "block" : "")}>{t("home.hero.titleStart", "Words find")}</span>
-              <span
-                className={cn(
-                  isGeorgian ? "mt-1 block text-primary" : "ml-2 text-gradient-primary",
-                )}
-              >
-                {t("home.hero.titleHighlight", "their home")}
-              </span>
+              {isGeorgian ? (
+                <>
+                  <span className="block text-primary">{t("home.hero.titleStart", "წაიკითხე")}</span>
+                  <span className="mt-1 block text-foreground">
+                    {georgianHighlightParts[0] || ""}
+                    <span className="text-primary">{georgianAccentWord}</span>
+                    {georgianHighlightParts[1] || ""}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span>{t("home.hero.titleStart", "Words find")}</span>
+                  <span className="ml-2 text-gradient-primary">{t("home.hero.titleHighlight", "their home")}</span>
+                </>
+              )}
             </h1>
             <p className="mt-6 font-body text-lg leading-relaxed text-muted-foreground md:text-xl max-w-2xl">
               {t(
