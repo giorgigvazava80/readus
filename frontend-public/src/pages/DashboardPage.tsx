@@ -99,7 +99,8 @@ const DashboardPage = () => {
               {t("dashboard.greeting", "Hello")}, <span className="text-primary">{me?.username}</span> 👋
             </h1>
             <p className="mt-1.5 font-ui text-sm text-muted-foreground">
-              {t("dashboard.role", "Signed in as")} <span className="font-medium text-foreground">{roleLabel}</span>
+              {t("dashboard.signedInAs", "Signed in as")}{" "}
+              <span className="font-medium text-foreground">{roleLabel}</span>
             </p>
           </div>
 

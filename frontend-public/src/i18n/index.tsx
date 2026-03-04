@@ -115,6 +115,7 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
 
     "dashboard.workspace": "Personal Workspace",
     "dashboard.title": "Dashboard",
+    "dashboard.greeting": "Hello",
     "dashboard.signedInAs": "Signed in as",
     "dashboard.writerApplication": "Writer Application",
     "dashboard.verifyEmail": "Verify your email before using protected features.",
@@ -748,6 +749,7 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
 
     "dashboard.workspace": "პირადი სივრცე",
     "dashboard.title": "პანელი",
+    "dashboard.greeting": "გამარჯობა",
     "dashboard.signedInAs": "შესული ხარ როგორც",
     "dashboard.writerApplication": "ავტორის განაცხადი",
     "dashboard.verifyEmail": "დაცული ფუნქციების გამოყენებამდე დაადასტურე ელ.ფოსტა.",
