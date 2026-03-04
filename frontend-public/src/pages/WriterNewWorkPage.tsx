@@ -95,7 +95,7 @@ const WriterNewWorkPage = () => {
         const created = await createPoem({
           title: t("editor.untitledPoem"),
           description: "",
-          body: sourceType === "manual" ? `<p>${t("editor.startPoem")}</p>` : "",
+          body: "",
           source_type: sourceType,
           upload_file: sourceType === "upload" ? uploadFile : null,
           is_anonymous: isAnonymous,
@@ -107,7 +107,7 @@ const WriterNewWorkPage = () => {
         const created = await createStory({
           title: t("editor.untitledStory"),
           description: "",
-          body: sourceType === "manual" ? `<p>${t("editor.startStory")}</p>` : "",
+          body: "",
           source_type: sourceType,
           upload_file: sourceType === "upload" ? uploadFile : null,
           is_anonymous: isAnonymous,
@@ -122,7 +122,7 @@ const WriterNewWorkPage = () => {
         book: selectedBookId,
         title: t("editor.chapterTitle").replace("{number}", String(nextOrder)),
         order: nextOrder,
-        body: `<p>${t("editor.startChapter")}</p>`,
+        body: "",
       })) as { id: number };
       return { route: `/writer/books/${selectedBookId}/edit?chapter=${chapter.id}` };
     },

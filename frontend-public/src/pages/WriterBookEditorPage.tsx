@@ -180,12 +180,12 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
 
       {/* Body */}
       <section className="flex flex-col space-y-1.5">
-        <Label className="font-ui text-sm font-medium">{t("work.chapter")}ს ტექსტი</Label>
+        <Label className="font-ui text-sm font-medium">{t("editor.chapterText")}</Label>
         <RichTextEditor
           value={draft.body}
           onChange={(body) => setDraft(p => ({ ...p, body }))}
           minHeightClass="min-h-[300px] sm:min-h-[420px]"
-          placeholder="Write chapter text..."
+          placeholder={t("editor.startChapter")}
         />
       </section>
 

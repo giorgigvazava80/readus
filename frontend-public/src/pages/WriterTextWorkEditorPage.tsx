@@ -638,7 +638,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                           value={draft.body}
                           onChange={(body: string) => setDraft((prev: any) => ({ ...prev, body }))}
                           minHeightClass="min-h-[500px]"
-                          placeholder={t("editor.writeFullText")}
+                          placeholder={type === "poems" ? t("editor.startPoem") : t("editor.startStory")}
                           isPoem={type === "poems"}
                         />
                       </div>
