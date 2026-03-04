@@ -192,7 +192,7 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
       {/* Desktop action buttons (mobile uses sticky bar) */}
       <div className="hidden sm:flex items-center justify-end gap-3 pt-2">
         <Button variant="destructive" size="sm" onClick={async () => {
-          if (await confirm({ title: "Delete chapter?", description: "Are you sure you want to delete this chapter?", destructive: true, confirmText: "Delete" })) {
+          if (await confirm({ title: t("confirm.deleteChapter"), description: t("confirm.deleteChapterDesc"), destructive: true, confirmText: t("confirm.delete") })) {
             deleteMutation.mutate();
           }
         }} className="gap-2 h-10" disabled={deleteMutation.isPending}>
@@ -211,14 +211,14 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
           }}
           disabled={autosave.isSaving}
         >
-          <Save className="h-4 w-4" /> {t("editor.chapterSaved") ? "Save" : "Save"}
+          <Save className="h-4 w-4" /> {t("editor.save")}
         </Button>
       </div>
 
       {/* Mobile delete button (save is in sticky bar) */}
       <div className="flex sm:hidden">
         <Button variant="destructive" size="sm" onClick={async () => {
-          if (await confirm({ title: "Delete chapter?", destructive: true, confirmText: "Delete" })) {
+          if (await confirm({ title: t("confirm.deleteChapter"), destructive: true, confirmText: t("confirm.delete") })) {
             deleteMutation.mutate();
           }
         }} className="gap-2 h-11 w-full text-sm" disabled={deleteMutation.isPending}>
@@ -1022,7 +1022,7 @@ const WriterBookEditorPage = () => {
           disabled={autosave.isSaving}
         >
           <Save className="h-4 w-4" />
-          {autosave.isSaving ? "Saving…" : "Save"}
+          {autosave.isSaving ? t("editor.saving") : t("editor.save")}
         </Button>
       </div>
 

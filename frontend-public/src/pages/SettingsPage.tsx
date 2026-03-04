@@ -3,6 +3,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, Camera, Lock, UserRoundCog, X } from "lucide-react";
 import { toast } from "sonner";
 
+import { useI18n } from "@/i18n";
+
 import { useSession } from "@/hooks/useSession";
 import { changePassword, resolveMediaUrl, updateProfile } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -72,6 +74,7 @@ function formatBirthDateForApi(value: Date): string {
 const SettingsPage = () => {
   const queryClient = useQueryClient();
   const { me } = useSession();
+  const { t } = useI18n();
   const [birthDatePickerOpen, setBirthDatePickerOpen] = useState(false);
   const today = normalizeDate(new Date());
 
@@ -124,7 +127,7 @@ const SettingsPage = () => {
     if (birthDate) {
       const parsedAge = ageFromBirthDate(birthDate);
       if (!Number.isInteger(parsedAge) || parsedAge < 1 || parsedAge > 120) {
-        toast.error("Birth date must produce an age between 1 and 120.");
+        toast.error(t("settings.birthDateError"));
         return;
       }
       birthDatePayload = formatBirthDateForApi(birthDate);
@@ -146,9 +149,9 @@ const SettingsPage = () => {
         profilePhotoInputRef.current.value = "";
       }
       await queryClient.invalidateQueries({ queryKey: ["me"] });
-      toast.success("Profile updated.");
+      toast.success(t("settings.profileUpdated"));
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Could not update profile.";
+      const message = error instanceof Error ? error.message : t("settings.profileError");
       toast.error(message);
     } finally {
       setSavingProfile(false);
@@ -159,7 +162,7 @@ const SettingsPage = () => {
     event.preventDefault();
 
     if (!oldPassword || !newPassword1 || !newPassword2) {
-      toast.error("Fill all password fields.");
+      toast.error(t("settings.passwordFieldsRequired"));
       return;
     }
 
@@ -174,9 +177,9 @@ const SettingsPage = () => {
       setNewPassword1("");
       setNewPassword2("");
       await queryClient.invalidateQueries({ queryKey: ["me"] });
-      toast.success("Password updated.");
+      toast.success(t("settings.passwordUpdated"));
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Could not change password.";
+      const message = error instanceof Error ? error.message : t("settings.passwordError");
       toast.error(message);
     } finally {
       setSavingPassword(false);
@@ -196,12 +199,12 @@ const SettingsPage = () => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <div className="flex items-center gap-2">
           <UserRoundCog className="h-5 w-5 text-primary" />
-          <h1 className="font-display text-3xl font-semibold text-foreground">Profile Settings</h1>
+          <h1 className="font-display text-3xl font-semibold text-foreground">{t("settings.profileTitle")}</h1>
         </div>
 
         <form onSubmit={handleProfileSave} className="mt-6 space-y-4">
           <div className="space-y-2">
-            <Label className="font-ui">Profile Photo</Label>
+            <Label className="font-ui">{t("settings.profilePhoto")}</Label>
             <div className="flex flex-wrap items-center gap-4 rounded-xl border border-border/70 bg-background/60 p-4">
               <div className="h-20 w-20 overflow-hidden rounded-full border border-border/70 bg-muted/50">
                 {hasPhotoPreview ? (
@@ -234,7 +237,7 @@ const SettingsPage = () => {
                 <div className="flex flex-wrap gap-2">
                   <Button type="button" variant="outline" onClick={() => profilePhotoInputRef.current?.click()}>
                     <Camera className="mr-2 h-4 w-4" />
-                    Upload Photo
+                    {t("settings.uploadPhoto")}
                   </Button>
                   {hasPhotoPreview ? (
                     <Button
@@ -255,7 +258,7 @@ const SettingsPage = () => {
                       }}
                     >
                       <X className="mr-2 h-4 w-4" />
-                      Remove
+                      {t("settings.removePhoto")}
                     </Button>
                   ) : null}
                 </div>
@@ -265,19 +268,19 @@ const SettingsPage = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="username" className="font-ui">Username</Label>
+            <Label htmlFor="username" className="font-ui">{t("settings.username")}</Label>
             <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} className="font-ui" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="firstName" className="font-ui">First Name</Label>
+            <Label htmlFor="firstName" className="font-ui">{t("settings.firstName")}</Label>
             <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="font-ui" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="lastName" className="font-ui">Last Name</Label>
+            <Label htmlFor="lastName" className="font-ui">{t("settings.lastName")}</Label>
             <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} className="font-ui" />
           </div>
           <div className="space-y-2">
-            <Label className="font-ui">Birth Date</Label>
+            <Label className="font-ui">{t("settings.birthDate")}</Label>
             <div className="rounded-xl border border-border/70 bg-background/60 p-3">
               <div className="md:hidden">
                 <Input
@@ -300,10 +303,10 @@ const SettingsPage = () => {
                     >
                       <span className="flex items-center gap-2 text-left">
                         <CalendarDays className="h-4 w-4 text-primary" />
-                        {birthDate ? formatDateLabel(birthDate) : "Pick your birth date"}
+                        {birthDate ? formatDateLabel(birthDate) : t("settings.pickBirthDate")}
                       </span>
                       <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
-                        {selectedAge != null ? `${selectedAge} years` : "Optional"}
+                        {selectedAge != null ? t("settings.years").replace("{age}", String(selectedAge)) : t("settings.optional")}
                       </span>
                     </Button>
                   </PopoverTrigger>
@@ -326,7 +329,7 @@ const SettingsPage = () => {
               </div>
               <div className="mt-2 flex items-center justify-between">
                 <p className="font-ui text-xs text-muted-foreground">
-                  Stored as your birth date and used to calculate age.
+                  {t("settings.birthDateHint")}
                 </p>
                 {birthDate ? (
                   <button
@@ -334,14 +337,14 @@ const SettingsPage = () => {
                     className="font-ui text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
                     onClick={() => setBirthDate(undefined)}
                   >
-                    Clear
+                    {t("settings.clear")}
                   </button>
                 ) : null}
               </div>
             </div>
           </div>
           <Button type="submit" disabled={savingProfile}>
-            {savingProfile ? "Saving..." : "Save Profile"}
+            {savingProfile ? t("settings.savingProfile") : t("settings.saveProfile")}
           </Button>
         </form>
       </section>
@@ -349,17 +352,17 @@ const SettingsPage = () => {
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <div className="flex items-center gap-2">
           <Lock className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-3xl font-semibold text-foreground">Change Password</h2>
+          <h2 className="font-display text-3xl font-semibold text-foreground">{t("settings.changePassword")}</h2>
         </div>
         {me?.forced_password_change ? (
           <p className="mt-4 rounded-lg border border-red-500/40 bg-red-500/10 p-3 font-ui text-sm text-red-700">
-            Password change is required for this account.
+            {t("settings.forcePasswordChange")}
           </p>
         ) : null}
 
         <form onSubmit={handlePasswordChange} className="mt-6 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="oldPassword" className="font-ui">Current Password</Label>
+            <Label htmlFor="oldPassword" className="font-ui">{t("settings.currentPassword")}</Label>
             <Input
               id="oldPassword"
               type="password"
@@ -369,7 +372,7 @@ const SettingsPage = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="newPassword1" className="font-ui">New Password</Label>
+            <Label htmlFor="newPassword1" className="font-ui">{t("settings.newPassword")}</Label>
             <Input
               id="newPassword1"
               type="password"
@@ -379,7 +382,7 @@ const SettingsPage = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="newPassword2" className="font-ui">Repeat New Password</Label>
+            <Label htmlFor="newPassword2" className="font-ui">{t("settings.repeatNewPassword")}</Label>
             <Input
               id="newPassword2"
               type="password"
@@ -389,7 +392,7 @@ const SettingsPage = () => {
             />
           </div>
           <Button type="submit" disabled={savingPassword}>
-            {savingPassword ? "Updating..." : "Update Password"}
+            {savingPassword ? t("settings.updatingPassword") : t("settings.updatePassword")}
           </Button>
         </form>
       </section>

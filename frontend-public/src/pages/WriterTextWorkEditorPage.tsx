@@ -391,7 +391,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                         className="gap-2 h-10"
                         onClick={async () => {
                           const label = type === "stories" ? "story" : "poem";
-                          if (await confirm({ title: `Delete this ${label}?`, description: "This action cannot be undone.", destructive: true, confirmText: "Delete" })) {
+                          if (await confirm({ title: t("confirm.deleteTitle"), description: t("confirm.deleteDesc"), destructive: true, confirmText: t("confirm.delete") })) {
                             try {
                               await deleteContentItem(type, contentId);
                               toast({ title: t("work.deleted") });
@@ -548,7 +548,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                       className="w-full h-11 gap-2 font-ui"
                       onClick={async () => {
                         const label = type === "stories" ? "story" : "poem";
-                        if (await confirm({ title: `Delete this ${label}?`, description: "This action cannot be undone.", destructive: true, confirmText: "Delete" })) {
+                        if (await confirm({ title: t("confirm.deleteTitle"), description: t("confirm.deleteDesc"), destructive: true, confirmText: t("confirm.delete") })) {
                           try {
                             await deleteContentItem(type, contentId);
                             toast({ title: t("work.deleted") });
@@ -582,7 +582,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                         className="gap-2 h-10"
                         onClick={async () => {
                           const label = type === "stories" ? "story" : "poem";
-                          if (await confirm({ title: `Delete this ${label}?`, description: "This action cannot be undone.", destructive: true, confirmText: "Delete" })) {
+                          if (await confirm({ title: t("confirm.deleteTitle"), description: t("confirm.deleteDesc"), destructive: true, confirmText: t("confirm.delete") })) {
                             try {
                               await deleteContentItem(type, contentId);
                               toast({ title: t("work.deleted") });
@@ -652,7 +652,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                       className="w-full h-11 gap-2 font-ui"
                       onClick={async () => {
                         const label = type === "stories" ? "story" : "poem";
-                        if (await confirm({ title: `Delete this ${label}?`, destructive: true, confirmText: "Delete" })) {
+                        if (await confirm({ title: t("confirm.deleteTitle"), destructive: true, confirmText: t("confirm.delete") })) {
                           deleteContentItem(type, contentId).then(() => { navigate("/writer/new") });
                         }
                       }}
@@ -678,8 +678,8 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
           disabled={autosave.isSaving}
         >
           <Save className="h-5 w-5" />
-          <span className="hidden sm:inline">{autosave.isSaving ? t("editor.saving", "Saving...") : (type === "stories" ? "Save Story" : "Save Poem")}</span>
-          <span className="sm:hidden">{autosave.isSaving ? "Saving..." : "Save"}</span>
+          <span className="hidden sm:inline">{autosave.isSaving ? t("editor.saving") : t("editor.save")}</span>
+          <span className="sm:hidden">{autosave.isSaving ? t("editor.saving") : t("editor.save")}</span>
         </Button>
       </div>
     </div>

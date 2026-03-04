@@ -1,5 +1,5 @@
 import { useI18n } from "@/i18n";
-﻿import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Clock3, FileText, Upload } from "lucide-react";
@@ -70,7 +70,7 @@ const WriterApplicationPage = () => {
   return (
     <div className="container mx-auto space-y-8 px-6 py-10">
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
-        <h1 className="font-display text-4xl font-semibold text-foreground">ავტორის განაცხადი</h1>
+        <h1 className="font-display text-4xl font-semibold text-foreground">{t("writer.appTitle", "Writer Application")}</h1>
         <p className="mt-2 font-body text-base text-muted-foreground">{t("writer.appDesc")}</p>
 
         <form onSubmit={handleSubmit} className="mt-7 space-y-5">
@@ -87,11 +87,11 @@ const WriterApplicationPage = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="sampleFile" className="font-ui">ნიმუშის ფაილი</Label>
+            <Label htmlFor="sampleFile" className="font-ui">{t("writer.sampleFileLabel", "Sample file")}</Label>
             <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border bg-background/65 px-6 py-8 text-center transition-colors hover:border-primary/60 hover:bg-card/60">
               <Upload className="h-6 w-6 text-primary" />
               <span className="font-ui text-sm text-muted-foreground">
-                {sampleFile ? sampleFile.name : "Upload .pdf, .doc, .docx or .txt"}
+                {sampleFile ? sampleFile.name : t("writer.uploadHint", "Upload .pdf, .doc, .docx or .txt")}
               </span>
               <Input
                 id="sampleFile"
@@ -104,7 +104,7 @@ const WriterApplicationPage = () => {
           </div>
 
           <Button type="submit" disabled={loading} className="gap-2">
-            {loading ? "Submitting..." : "Submit Application"}
+            {loading ? t("writer.submitting", "Submitting...") : t("writer.submitApp", "Submit Application")}
           </Button>
         </form>
       </section>
@@ -120,7 +120,7 @@ const WriterApplicationPage = () => {
             {applicationsQuery.data.results.map((app) => (
               <div key={app.id} className="rounded-xl border border-border/70 bg-background/70 p-4 font-ui text-sm">
                 <p className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium text-foreground">Application #{app.id}</span>
+                  <span className="font-medium text-foreground">{t("writer.applicationNum", "Application #{id}").replace("{id}", String(app.id))}</span>
                   <span
                     className={`rounded-full border px-2 py-0.5 text-xs font-medium ${statusStyles[app.status] || "border-border bg-muted text-foreground"}`}
                   >
@@ -128,10 +128,10 @@ const WriterApplicationPage = () => {
                   </span>
                 </p>
                 <p className="mt-2 text-muted-foreground">{t("admin.createdTime")}: {new Date(app.created_at).toLocaleString()}</p>
-                {app.reviewed_at ? <p className="text-muted-foreground">Reviewed: {new Date(app.reviewed_at).toLocaleString()}</p> : null}
+                {app.reviewed_at ? <p className="text-muted-foreground">{t("writer.reviewedAt", "Reviewed")}: {new Date(app.reviewed_at).toLocaleString()}</p> : null}
                 {app.review_comment ? (
                   <p className="mt-3 rounded-lg border border-border/70 bg-card/75 p-3 text-foreground">
-                    Comment: {app.review_comment}
+                    {t("writer.reviewComment", "Comment")}: {app.review_comment}
                   </p>
                 ) : null}
                 {app.sample_file ? (

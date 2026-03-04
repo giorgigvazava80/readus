@@ -50,11 +50,12 @@ const categoryEmojis: Record<string, string> = {
   stories: "📝",
 };
 
-const statusOptions: Array<{ label: string; value: "all" | ContentStatus }> = [
-  { label: "All statuses", value: "all" },
-  { label: "Draft", value: "draft" },
-  { label: "Approved", value: "approved" },
-  { label: "Rejected", value: "rejected" },
+// Status options labels resolved at render time via t()
+const statusOptionValues: Array<{ labelKey: string; value: "all" | ContentStatus }> = [
+  { labelKey: "myWorks.allStatuses", value: "all" },
+  { labelKey: "myWorks.statusDraft", value: "draft" },
+  { labelKey: "myWorks.statusApproved", value: "approved" },
+  { labelKey: "myWorks.statusRejected", value: "rejected" },
 ];
 
 function getEditPath(category: ContentCategory, id: number): string {
@@ -115,7 +116,7 @@ const MyWorksPage = () => {
     const isConfirmed = await confirm({
       title: t("work.deleteConfirm"),
       destructive: true,
-      confirmText: "Delete",
+      confirmText: t("confirm.delete"),
     });
     if (!isConfirmed) return;
     setDeletingId(id);
@@ -164,7 +165,7 @@ const MyWorksPage = () => {
               }`}
           >
             <span>{categoryEmojis[cat]}</span>
-            <span className="capitalize">{cat}</span>
+            <span className="capitalize">{t(`work.${cat}`)}</span>
             {category === cat && worksQuery.data && (
               <span className="rounded-full bg-primary/20 px-1.5 py-0.5 text-xs">{worksQuery.data.count}</span>
             )}
@@ -192,7 +193,7 @@ const MyWorksPage = () => {
             onClick={() => setFiltersOpen((v) => !v)}
           >
             <Filter className="h-4 w-4" />
-            <span className="hidden sm:inline">Filters</span>
+            <span className="hidden sm:inline">{t("myWorks.filters")}</span>
             {hasActiveFilters && <span className="h-2 w-2 rounded-full bg-primary" />}
             {filtersOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
           </Button>
@@ -206,8 +207,8 @@ const MyWorksPage = () => {
               <Select value={status} onValueChange={(v) => { setStatus(v as typeof status); setPage(1); }}>
                 <SelectTrigger className="h-10 font-ui"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {statusOptions.map((item) => (
-                    <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>
+                  {statusOptionValues.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>{t(item.labelKey)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -232,7 +233,7 @@ const MyWorksPage = () => {
                 className="font-ui text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
                 onClick={() => { setStatus("all"); setSearch(""); setDateFrom(""); setDateTo(""); setPage(1); }}
               >
-                Clear all filters
+                {t("myWorks.clearAll")}
               </button>
             )}
           </div>
@@ -252,13 +253,13 @@ const MyWorksPage = () => {
             <span className="text-5xl">{categoryEmojis[category]}</span>
             <p className="mt-4 font-display text-lg font-medium text-foreground">{t("work.noneFound")}</p>
             <p className="mt-1 font-ui text-sm text-muted-foreground">
-              {hasActiveFilters ? "Try changing your filters" : `You haven't created any ${category} yet`}
+              {hasActiveFilters ? t("myWorks.noWorksHint") : t("myWorks.noWorksYet").replace("{category}", t(`work.${category}`))}
             </p>
             {!hasActiveFilters && me?.is_writer_approved && (
               <Link to="/writer/new">
                 <Button className="mt-4 gap-2">
                   <PlusSquare className="h-4 w-4" />
-                  Create your first {category.replace(/s$/, "")}
+                  {t("myWorks.createFirst").replace("{type}", t(`work.${category}`))}
                 </Button>
               </Link>
             )}
@@ -282,15 +283,15 @@ const MyWorksPage = () => {
                     <p className="font-display text-lg font-semibold text-foreground truncate">{item.title}</p>
                     <div className="mt-1 flex flex-wrap items-center gap-2">
                       <span className={`rounded-full border px-2.5 py-0.5 font-ui text-xs font-medium capitalize ${CONTENT_STATUS_STYLES[item.status]}`}>
-                        {item.status}
+                        {t(`myWorks.status${item.status.charAt(0).toUpperCase() + item.status.slice(1)}`, item.status)}
                       </span>
                       {item.is_hidden && (
                         <Badge variant="outline" className="border-amber-500/50 bg-amber-500/10 text-amber-700 text-[10px] uppercase tracking-wider">
-                          Hidden
+                          {t("myWorks.hidden")}
                         </Badge>
                       )}
                       <span className="font-ui text-xs text-muted-foreground">
-                        Created {new Date(item.created_at).toLocaleDateString()}
+                        {t("myWorks.created")} {new Date(item.created_at).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
@@ -303,7 +304,7 @@ const MyWorksPage = () => {
                       <a href={readPath} target="_blank" rel="noreferrer">
                         <Button variant="ghost" size="sm" className="h-9 gap-1.5 font-ui text-muted-foreground hover:text-foreground">
                           <Eye className="h-4 w-4" />
-                          <span className="hidden sm:inline">View</span>
+                          <span className="hidden sm:inline">{t("myWorks.view")}</span>
                         </Button>
                       </a>
                     )}
@@ -337,7 +338,7 @@ const MyWorksPage = () => {
                 <div className="mt-3 flex items-start gap-2 rounded-lg border border-red-500/35 bg-red-500/10 p-3">
                   <span className="text-sm">⚠️</span>
                   <p className="font-ui text-sm text-red-700">
-                    <strong>Rejected:</strong> {item.rejection_reason}
+                    <strong>{t("myWorks.rejected")}</strong> {item.rejection_reason}
                   </p>
                 </div>
               )}
@@ -352,11 +353,11 @@ const MyWorksPage = () => {
           <p className="font-ui text-xs text-muted-foreground">{t("admin.total")}: {worksQuery.data?.count || 0}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" className="h-9" onClick={() => setPage((p) => p - 1)} disabled={!canPrev}>
-              ← Previous
+              {t("myWorks.previous")}
             </Button>
-            <span className="flex h-9 items-center px-3 font-ui text-sm text-muted-foreground">Page {page}</span>
+            <span className="flex h-9 items-center px-3 font-ui text-sm text-muted-foreground">{t("myWorks.page").replace("{page}", String(page))}</span>
             <Button variant="outline" size="sm" className="h-9" onClick={() => setPage((p) => p + 1)} disabled={!canNext}>
-              Next →
+              {t("myWorks.next")}
             </Button>
           </div>
         </div>

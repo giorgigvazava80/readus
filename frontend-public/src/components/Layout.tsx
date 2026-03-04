@@ -9,7 +9,19 @@ import Navbar from "./Navbar";
 const Layout = () => {
   const adminHost = isAdminAppHost();
   const { t } = useI18n();
-  const { isAuthenticated } = useSession();
+  const { isAuthenticated, me } = useSession();
+
+  // Show CTA for: guests (not logged in) OR logged-in users who are NOT approved writers
+  const isWriter = Boolean(me?.is_writer_approved);
+  const showCta = !isWriter;
+
+  // Where the CTA button links to:
+  // - Not logged in → /login
+  // - Logged in but not a writer → /writer-application
+  const ctaLink = isAuthenticated ? "/writer-application" : "/login";
+  const ctaButtonLabel = isAuthenticated
+    ? t("layout.cta.buttonApply", "Apply to Write")
+    : t("layout.cta.button", "Join Free");
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -26,8 +38,8 @@ const Layout = () => {
 
       {!adminHost ? (
         <footer className="border-t border-border/30 bg-card/30 mt-auto">
-          {/* CTA - only show for visitors who are NOT logged in */}
-          {!isAuthenticated && (
+          {/* CTA — visible for non-writers (guests & readers) */}
+          {showCta && (
             <div className="py-12 px-6" style={{ background: "var(--hero-gradient-subtle)" }}>
               <div className="container mx-auto">
                 <div className="max-w-2xl mx-auto text-center space-y-4">
@@ -39,11 +51,11 @@ const Layout = () => {
                   </p>
                   <div className="pt-2">
                     <Link
-                      to="/register"
+                      to={ctaLink}
                       className="inline-flex items-center gap-2 px-8 py-3 rounded-full font-ui text-sm font-semibold text-white shadow-warm transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95"
                       style={{ background: "var(--hero-gradient)" }}
                     >
-                      {t("layout.cta.button", "Join Free")}
+                      {ctaButtonLabel}
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </div>
@@ -70,3 +82,4 @@ const Layout = () => {
 };
 
 export default Layout;
+
