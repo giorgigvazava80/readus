@@ -1,0 +1,3272 @@
+﻿[
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\editor\\RichTextEditor.tsx",
+        "LineNumber":  112,
+        "Line":  "      { label: \"ციტატა\", icon: Quote, command: \"formatBlock\", value: \"blockquote\" },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\editor\\RichTextEditor.tsx",
+        "LineNumber":  134,
+        "Line":  "          aria-label=\"პარაგრაფი style\""
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\editor\\RichTextEditor.tsx",
+        "LineNumber":  136,
+        "Line":  "          \u003coption value=\"p\"\u003eპარაგრაფი\u003c/option\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\editor\\RichTextEditor.tsx",
+        "LineNumber":  137,
+        "Line":  "          \u003coption value=\"h1\"\u003eსათაური 1\u003c/option\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\editor\\RichTextEditor.tsx",
+        "LineNumber":  138,
+        "Line":  "          \u003coption value=\"h2\"\u003eსათაური 2\u003c/option\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\editor\\RichTextEditor.tsx",
+        "LineNumber":  139,
+        "Line":  "          \u003coption value=\"h3\"\u003eსათაური 3\u003c/option\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\editor\\RichTextEditor.tsx",
+        "LineNumber":  140,
+        "Line":  "          \u003coption value=\"blockquote\"\u003eციტატა\u003c/option\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\editor\\RichTextEditor.tsx",
+        "LineNumber":  192,
+        "Line":  "          \u003cspan className=\"text-muted-foreground\"\u003eტექსტი\u003c/span\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\editor\\RichTextEditor.tsx",
+        "LineNumber":  203,
+        "Line":  "          \u003cspan className=\"text-muted-foreground\"\u003eმონიშვნა\u003c/span\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\editor\\RichTextEditor.tsx",
+        "LineNumber":  254,
+        "Line":  "              \"\u003ctable\u003e\u003ctbody\u003e\u003ctr\u003e\u003ctd\u003eუჯრა\u003c/td\u003e\u003ctd\u003eუჯრა\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eუჯრა\u003c/td\u003e\u003ctd\u003eუჯრა\u003c/td\u003e\u003c/tr\u003e\u003c/tbody\u003e\u003c/table\u003e\u003cp\u003e\u003c/p\u003e\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\CategoryFilter.tsx",
+        "LineNumber":  7,
+        "Line":  "  { key: \"all\", label: \"ყველა ნაშრომი\", icon: Layers },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\CategoryFilter.tsx",
+        "LineNumber":  8,
+        "Line":  "  { key: \"books\", label: \"წიგნები\", icon: BookOpen },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\CategoryFilter.tsx",
+        "LineNumber":  9,
+        "Line":  "  { key: \"stories\", label: \"მოთხრობები\", icon: FileText },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\CategoryFilter.tsx",
+        "LineNumber":  10,
+        "Line":  "  { key: \"poems\", label: \"პოეზია\", icon: PenLine },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\guards.tsx",
+        "LineNumber":  7,
+        "Line":  "  return \u003cdiv className=\"p-8 text-sm text-muted-foreground\"\u003eიტვირთება...\u003c/div\u003e;"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\Layout.tsx",
+        "LineNumber":  88,
+        "Line":  "                      { label: t(\"layout.footer.books\", \"წიგნები\"), to: \"/books\" },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\Layout.tsx",
+        "LineNumber":  89,
+        "Line":  "                      { label: t(\"layout.footer.stories\", \"მოთხრობები\"), to: \"/stories\" },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\Layout.tsx",
+        "LineNumber":  90,
+        "Line":  "                      { label: t(\"layout.footer.poetry\", \"პოეზია\"), to: \"/poems\" },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\Layout.tsx",
+        "LineNumber":  112,
+        "Line":  "                      { label: t(\"layout.footer.writerApplication\", \"ავტორის განაცხადი\"), to: \"/writer-application\" },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\Layout.tsx",
+        "LineNumber":  113,
+        "Line":  "                      { label: t(\"layout.footer.myWorks\", \"ჩემი ნაშრომები\"), to: \"/my-works\" },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\Navbar.tsx",
+        "LineNumber":  20,
+        "Line":  "  { labelKey: \"nav.browse\", defaultLabel: \"ბიბლიოთეკა\", path: \"/browse\" },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\Navbar.tsx",
+        "LineNumber":  26,
+        "Line":  "  { labelKey: \"nav.writerApps\", defaultLabel: \"ავტორის განაცხადები\", path: \"/admin/writer-applications\" },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\Navbar.tsx",
+        "LineNumber":  27,
+        "Line":  "  { labelKey: \"nav.contentReview\", defaultLabel: \"კონტენტის განხილვა\", path: \"/admin/content-review\" },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\Navbar.tsx",
+        "LineNumber":  28,
+        "Line":  "  { labelKey: \"nav.auditLogs\", defaultLabel: \"აუდიტის ჟურნალი\", path: \"/admin/audit-logs\" },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\Navbar.tsx",
+        "LineNumber":  88,
+        "Line":  "      dashboardNav.push({ labelKey: \"nav.newWork\", defaultLabel: \"ახალი ნაშრომი\", path: \"/writer/new\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\Navbar.tsx",
+        "LineNumber":  93,
+        "Line":  "    dashboardNav.push({ labelKey: \"nav.myWorks\", defaultLabel: \"ჩემი ნაშრომები\", path: \"/my-works\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\WorkCard.tsx",
+        "LineNumber":  31,
+        "Line":  "  books: \"წიგნი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\WorkCard.tsx",
+        "LineNumber":  32,
+        "Line":  "  stories: \"მოთხრობა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\WorkCard.tsx",
+        "LineNumber":  33,
+        "Line":  "  poems: \"პოეზია\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\WorkCard.tsx",
+        "LineNumber":  34,
+        "Line":  "  chapters: \"თავი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\components\\WorkCard.tsx",
+        "LineNumber":  107,
+        "Line":  "              {/* სათაური */}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  24,
+        "Line":  "    \"nav.browse\": \"ბიბლიოთეკა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  26,
+        "Line":  "    \"nav.newWork\": \"ახალი ნაშრომი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  28,
+        "Line":  "    \"nav.myWorks\": \"ჩემი ნაშრომები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  31,
+        "Line":  "    \"nav.writerApps\": \"ავტორის განაცხადები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  32,
+        "Line":  "    \"nav.contentReview\": \"კონტენტის განხილვა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  33,
+        "Line":  "    \"nav.auditLogs\": \"აუდიტის ჩანაწერები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  44,
+        "Line":  "    \"layout.footer.browseAll\": \"ბიბლიოთეკა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  49,
+        "Line":  "    \"layout.footer.writerApplication\": \"ავტორის განაცხადი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  50,
+        "Line":  "    \"layout.footer.myWorks\": \"ჩემი ნაშრომები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  61,
+        "Line":  "    \"login.adminTitle\": \"კონტენტის ზუსტი მოდერაცია\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  62,
+        "Line":  "    \"login.userTitle\": \"გააგრძელე შენი ლიტერატურული გზა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  63,
+        "Line":  "    \"login.adminSubtitle\": \"შედი რედაქტორის ან ადმინის ანგარიშით ავტორის განაცხადებისა და ნაშრომების განსახილველად.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  64,
+        "Line":  "    \"login.userSubtitle\": \"შედი, რომ დაათვალიერო ნაშრომები, იურთიერთო ავტორებთან და მართო შენი სამუშაო პროცესი.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  69,
+        "Line":  "    \"login.username\": \"მომხმარებლის სახელი ან ელფოსტა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  75,
+        "Line":  "    \"login.error.missing\": \"შეიყვანე მომხმარებლის სახელი ან ელფოსტა და პაროლი.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  76,
+        "Line":  "    \"login.error.loadUser\": \"მიმდინარე მომხმარებლის ჩატვირთვა ვერ მოხერხდა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  77,
+        "Line":  "    \"login.error.noAdminAccess\": \"ადმინ პორტალზე წვდომა არ გაქვს.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  78,
+        "Line":  "    \"login.success\": \"შესვლა წარმატებულია.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  89,
+        "Line":  "    \"register.note\": \"წვდომამდე ყველა ანგარიში საჭიროებს ელფოსტის ვერიფიკაციას.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  90,
+        "Line":  "    \"register.firstName\": \"სახელი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  91,
+        "Line":  "    \"register.lastName\": \"გვარი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  92,
+        "Line":  "    \"register.username\": \"მომხმარებლის სახელი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  104,
+        "Line":  "    \"register.error.passwordMatch\": \"პაროლები არ ემთხვევა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  105,
+        "Line":  "    \"register.success\": \"რეგისტრაცია წარმატებულია. ანგარიშის გასააქტიურებლად დაადასტურე ელფოსტა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  107,
+        "Line":  "    \"register.error.resendBefore\": \"ვერიფიკაციის ხელახლა გასაგზავნად ჯერ დარეგისტრირდი.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  108,
+        "Line":  "    \"register.success.resent\": \"ვერიფიკაციის ელფოსტა ხელახლა გაიგზავნა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  114,
+        "Line":  "    \"dashboard.writerApplication\": \"ავტორის განაცხადი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  118,
+        "Line":  "    \"dashboard.chapters\": \"თავები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  121,
+        "Line":  "    \"dashboard.writerStatus\": \"ავტორის განაცხადი სტატუსი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  122,
+        "Line":  "    \"dashboard.status\": \"სტატუსი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  132,
+        "Line":  "    \"dashboard.newWork\": \"ახალი ნაშრომი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  144,
+        "Line":  "    \"title.admin\": \"Readus ადმინი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  146,
+        "Line":  "    \"lang.label\": \"ენა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  147,
+        "Line":  "    \"lang.switchToKa\": \"ქა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  151,
+        "Line":  "    \"brand.admin\": \"Readus ადმინი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  153,
+        "Line":  "    \"nav.home\": \"მთავარი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  154,
+        "Line":  "    \"nav.browse\": \"ბიბლიოთეკა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  155,
+        "Line":  "    \"nav.dashboard\": \"პანელი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  156,
+        "Line":  "    \"nav.newWork\": \"ახალი ნაშრომი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  157,
+        "Line":  "    \"nav.writerApp\": \"ავტორის განაცხადი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  158,
+        "Line":  "    \"nav.myWorks\": \"ჩემი ნაშრომები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  159,
+        "Line":  "    \"nav.settings\": \"პარამეტრები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  160,
+        "Line":  "    \"nav.redactors\": \"რედაქტორები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  161,
+        "Line":  "    \"nav.writerApps\": \"ავტორის განაცხადები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  162,
+        "Line":  "    \"nav.contentReview\": \"კონტენტის განხილვა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  163,
+        "Line":  "    \"nav.auditLogs\": \"აუდიტის ჟურნალი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  164,
+        "Line":  "    \"nav.login\": \"შესვლა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  165,
+        "Line":  "    \"nav.register\": \"რეგისტრაცია\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  166,
+        "Line":  "    \"nav.logout\": \"გასვლა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  167,
+        "Line":  "    \"nav.toggleMenu\": \"მენიუს გადართვა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  169,
+        "Line":  "    \"layout.cta.title\": \"მზად ხარ გააზიარო შენი ამბავი?\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  170,
+        "Line":  "    \"layout.cta.subtitle\": \"შეუერთდი ავტორებს, რომლებმაც Readus-ზე იპოვეს თავიანთი მკითხველი.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  171,
+        "Line":  "    \"layout.cta.button\": \"უფასოდ შეუერთდი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  172,
+        "Line":  "    \"layout.footer.brandDesc\": \"რომანების, მოთხრობებისა და პოეზიის გამორჩეული სივრცე.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  173,
+        "Line":  "    \"layout.footer.explore\": \"დათვალიერება\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  174,
+        "Line":  "    \"layout.footer.browseAll\": \"ბიბლიოთეკა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  175,
+        "Line":  "    \"layout.footer.books\": \"წიგნები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  176,
+        "Line":  "    \"layout.footer.stories\": \"მოთხრობები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  177,
+        "Line":  "    \"layout.footer.poetry\": \"პოეზია\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  178,
+        "Line":  "    \"layout.footer.account\": \"ანგარიში\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  179,
+        "Line":  "    \"layout.footer.writerApplication\": \"ავტორის განაცხადი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  180,
+        "Line":  "    \"layout.footer.myWorks\": \"ჩემი ნაშრომები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  181,
+        "Line":  "    \"layout.footer.about\": \"ჩვენს შესახებ\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  182,
+        "Line":  "    \"layout.footer.ourStory\": \"ჩვენი ისტორია\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  183,
+        "Line":  "    \"layout.footer.editorialProcess\": \"სარედაქციო პროცესი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  184,
+        "Line":  "    \"layout.footer.privacyPolicy\": \"კონფიდენციალურობის პოლიტიკა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  185,
+        "Line":  "    \"layout.footer.contact\": \"კონტაქტი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  186,
+        "Line":  "    \"layout.footer.rights\": \"(c) 2026 Readus. ყველა უფლება დაცულია.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  187,
+        "Line":  "    \"layout.footer.tagline\": \"სივრცე ისტორიებისთვის, რომელთა მოყოლაც ღირს.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  189,
+        "Line":  "    \"login.portal\": \"სარედაქციო მართვის პორტალი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  190,
+        "Line":  "    \"login.welcome\": \"კეთილი იყოს შენი მობრძანება Readus-ზე\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  191,
+        "Line":  "    \"login.adminTitle\": \"მოდერაცია ზუსტად\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  192,
+        "Line":  "    \"login.userTitle\": \"გააგრძელე შენი ლიტერატურული გზა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  193,
+        "Line":  "    \"login.adminSubtitle\": \"შედი რედაქტორის ან ადმინის ანგარიშით, განაცხადებისა და ნაშრომების განსახილველად.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  194,
+        "Line":  "    \"login.userSubtitle\": \"შედი ანგარიშში, რათა წაიკითხო, დაემეგობრო ავტორებს და მართო შენი სამუშაო სივრცე.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  195,
+        "Line":  "    \"login.adminHeading\": \"ადმინის შესვლა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  196,
+        "Line":  "    \"login.heading\": \"შესვლა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  197,
+        "Line":  "    \"login.adminNote\": \"ხელმისაწვდომია მხოლოდ რედაქტორის/ადმინის როლებისთვის.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  198,
+        "Line":  "    \"login.note\": \"შედი შენს ანგარიშში.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  199,
+        "Line":  "    \"login.username\": \"მომხმარებლის სახელი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  200,
+        "Line":  "    \"login.password\": \"პაროლი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  201,
+        "Line":  "    \"login.signIn\": \"შესვლა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  202,
+        "Line":  "    \"login.signingIn\": \"შესვლა...\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  203,
+        "Line":  "    \"login.createAccount\": \"ანგარიშის შექმნა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  204,
+        "Line":  "    \"login.forgotPassword\": \"დაგავიწყდა პაროლი?\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  205,
+        "Line":  "    \"login.error.missing\": \"შეიყვანე მომხმარებლის სახელი და პაროლი.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  206,
+        "Line":  "    \"login.error.loadUser\": \"მომხმარებლის მონაცემების ჩატვირთვა ვერ მოხერხდა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  207,
+        "Line":  "    \"login.error.noAdminAccess\": \"ადმინ პორტალზე წვდომა არ გაქვს.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  208,
+        "Line":  "    \"login.success\": \"წარმატებით შეხვედით.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  209,
+        "Line":  "    \"login.error.failed\": \"შესვლა ვერ მოხერხდა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  211,
+        "Line":  "    \"register.badge\": \"შექმენი შენი Readus ანგარიში\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  212,
+        "Line":  "    \"register.title\": \"ჯერ მკითხველი. ავტორი დამტკიცების შემდეგ.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  213,
+        "Line":  "    \"register.subtitle\": \"მკითხველის რეგისტრაცია ხსნის კითხვას, შეფასებებს, მოწონებებს და კომენტარებს. თუ აირჩევ ავტორს, ელ.ფოსტის ვერიფიკაციის შემდეგ შეავსე ავტორის განაცხადი.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  214,
+        "Line":  "    \"register.readerCardTitle\": \"მკითხველი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  215,
+        "Line":  "    \"register.readerCardDesc\": \"შეაფასე, მოიწონე, დააკომენტარე და გამოიწერე ნაშრომები.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  216,
+        "Line":  "    \"register.writerCardTitle\": \"ავტორის გზა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  217,
+        "Line":  "    \"register.writerCardDesc\": \"ვერიფიკაციის შემდეგ გაგზავნე ნიმუში და დაელოდე რედაქციის პასუხს.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  218,
+        "Line":  "    \"register.heading\": \"რეგისტრაცია\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  219,
+        "Line":  "    \"register.note\": \"ყველა ანგარიშს სჭირდება ელ.ფოსტის ვერიფიკაცია.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  220,
+        "Line":  "    \"register.firstName\": \"სახელი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  221,
+        "Line":  "    \"register.lastName\": \"გვარი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  222,
+        "Line":  "    \"register.username\": \"მომხმარებლის სახელი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  223,
+        "Line":  "    \"register.email\": \"ელ.ფოსტა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  224,
+        "Line":  "    \"register.role\": \"როლი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  225,
+        "Line":  "    \"register.roleReader\": \"მკითხველი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  226,
+        "Line":  "    \"register.roleWriter\": \"ავტორი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  227,
+        "Line":  "    \"register.password\": \"პაროლი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  228,
+        "Line":  "    \"register.passwordRepeat\": \"გაიმეორე პაროლი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  229,
+        "Line":  "    \"register.create\": \"ანგარიშის შექმნა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  230,
+        "Line":  "    \"register.creating\": \"იქმნება ანგარიში...\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  231,
+        "Line":  "    \"register.haveAccount\": \"უკვე გაქვს ანგარიში?\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  232,
+        "Line":  "    \"register.resend\": \"ვერიფიკაციის ხელახლა გაგზავნა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  233,
+        "Line":  "    \"register.error.required\": \"შეავსე ყველა აუცილებელი ველი.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  234,
+        "Line":  "    \"register.error.passwordMatch\": \"პაროლები არ ემთხვევა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  235,
+        "Line":  "    \"register.success\": \"რეგისტრაცია წარმატებულია. გაიაქტიურე ანგარიში ელ.ფოსტით.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  236,
+        "Line":  "    \"register.error.failed\": \"რეგისტრაცია ვერ მოხერხდა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  237,
+        "Line":  "    \"register.error.resendBefore\": \"ჯერ დარეგისტრირდი, შემდეგ გაგზავნე ვერიფიკაცია.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  238,
+        "Line":  "    \"register.success.resent\": \"ვერიფიკაციის ელ.ფოსტა ხელახლა გაიგზავნა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  239,
+        "Line":  "    \"register.error.resendFailed\": \"ვერიფიკაციის ხელახლა გაგზავნა ვერ მოხერხდა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  241,
+        "Line":  "    \"dashboard.workspace\": \"პირადი სივრცე\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  242,
+        "Line":  "    \"dashboard.title\": \"პანელი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  243,
+        "Line":  "    \"dashboard.signedInAs\": \"შესული ხარ როგორც\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  244,
+        "Line":  "    \"dashboard.writerApplication\": \"ავტორის განაცხადი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  245,
+        "Line":  "    \"dashboard.verifyEmail\": \"დაცული ფუნქციების გამოყენებამდე დაადასტურე ელ.ფოსტა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  246,
+        "Line":  "    \"dashboard.forcePassword\": \"გაგრძელებამდე საჭიროა პაროლის შეცვლა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  247,
+        "Line":  "    \"dashboard.books\": \"წიგნები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  248,
+        "Line":  "    \"dashboard.chapters\": \"თავები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  249,
+        "Line":  "    \"dashboard.poems\": \"ლექსები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  250,
+        "Line":  "    \"dashboard.stories\": \"მოთხრობები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  251,
+        "Line":  "    \"dashboard.writerStatus\": \"ავტორის განაცხადის სტატუსი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  252,
+        "Line":  "    \"dashboard.status\": \"სტატუსი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  253,
+        "Line":  "    \"dashboard.submitted\": \"გაგზავნის დრო\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  254,
+        "Line":  "    \"dashboard.reviewerComment\": \"რედაქტორის კომენტარი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  255,
+        "Line":  "    \"dashboard.noWriterApp\": \"ავტორის განაცხადი ჯერ არ გაქვს. გაგზავნე განაცხადი ავტორის უფლებებისთვის.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  256,
+        "Line":  "    \"dashboard.notifications\": \"ბოლო შეტყობინებები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  257,
+        "Line":  "    \"dashboard.noNotifications\": \"შეტყობინებები ჯერ არ არის.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  258,
+        "Line":  "    \"dashboard.updating\": \"პანელის განახლება...\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  259,
+        "Line":  "    \"dashboard.partialError\": \"პანელის ზოგიერთი ნაწილი ვერ ჩაიტვირთა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  260,
+        "Line":  "    \"dashboard.writerMode\": \"ავტორის რეჟიმი აქტიურია\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  261,
+        "Line":  "    \"dashboard.writerModeDesc\": \"შენი ავტორის სტატუსი დამტკიცებულია. დაიწყე ახალი ნაშრომის გამოქვეყნება.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  262,
+        "Line":  "    \"dashboard.newWork\": \"ახალი ნაშრომი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  264,
+        "Line":  "    \"role.anonymous\": \"ანონიმური\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  265,
+        "Line":  "    \"role.reader\": \"მკითხველი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  266,
+        "Line":  "    \"role.pending_writer\": \"ავტორი - მოლოდინში\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  267,
+        "Line":  "    \"role.writer\": \"ავტორი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  268,
+        "Line":  "    \"role.redactor\": \"რედაქტორი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\i18n\\index.tsx",
+        "LineNumber":  269,
+        "Line":  "    \"role.admin\": \"ადმინი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\lib\\content.ts",
+        "LineNumber":  4,
+        "Line":  "  books: \"წიგნები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\lib\\content.ts",
+        "LineNumber":  5,
+        "Line":  "  chapters: \"თავები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\lib\\content.ts",
+        "LineNumber":  7,
+        "Line":  "  stories: \"მოთხრობები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\lib\\content.ts",
+        "LineNumber":  33,
+        "Line":  "export function toExcerpt(html: string | undefined, fallback = \"მიმოხილვა არ არის ხელმისაწვდომი.\"): string {"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\lib\\content.ts",
+        "LineNumber":  48,
+        "Line":  "  return `${minutes} წთ კითხვის დრო`;"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminAuditLogsPage.tsx",
+        "LineNumber":  37,
+        "Line":  "          \u003ch1 className=\"font-display text-3xl font-semibold text-foreground\"\u003eაუდიტის ჩანაწერები\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminAuditLogsPage.tsx",
+        "LineNumber":  49,
+        "Line":  "              placeholder=\"ქმედება ან აღწერა\""
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminAuditLogsPage.tsx",
+        "LineNumber":  59,
+        "Line":  "            placeholder=\"შემსრულებლის ელფოსტა\""
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminAuditLogsPage.tsx",
+        "LineNumber":  110,
+        "Line":  "          \u003cp className=\"font-ui text-xs text-muted-foreground\"\u003eსულ: {query.data?.count || 0}\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  22,
+        "Line":  "  books: \"წიგნი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  23,
+        "Line":  "  chapters: \"თავი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  25,
+        "Line":  "  stories: \"მოთხრობა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  103,
+        "Line":  "        label: \"წინასიტყვაობა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  104,
+        "Line":  "        heading: \"წინასიტყვაობა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  116,
+        "Line":  "        html: chapter.body || \"\u003cp\u003eთავის ტექსტი ჯერ არ არის.\u003c/p\u003e\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  125,
+        "Line":  "        label: \"ბოლოსიტყვაობა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  126,
+        "Line":  "        heading: \"ბოლოსიტყვაობა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  135,
+        "Line":  "        label: \"ატვირთული ტექსტი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  136,
+        "Line":  "        heading: \"ატვირთული ტექსტი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  194,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eკონტენტის მისამართი არასწორია.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  202,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eკონტენტი იტვირთება...\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  210,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-red-700\"\u003eამ კონტენტის ჩატვირთვა ვერ მოხერხდა.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  212,
+        "Line":  "          \u003cButton variant=\"outline\"\u003eდაბრუნება განხილვის რიგში\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  218,
+        "Line":  "  const canდამტკიცებაBook = chapterStats.total === 0 || (chapterStats.pending === 0 \u0026\u0026 chapterStats.rejected === 0);"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  226,
+        "Line":  "            დაბრუნება განხილვის რიგში"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  241,
+        "Line":  "          by {content.author_name || content.author_username || \"უცნობი ავტორი\"}  Created {new Date(content.created_at).toLocaleString()}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  246,
+        "Line":  "            უარყოფის reason: {content.rejection_reason}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  260,
+        "Line":  "            \u003ch2 className=\"font-display text-2xl text-foreground\"\u003eწიგნის დამტკიცების ნაბიჯები\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  262,
+        "Line":  "              1) Review წინასიტყვაობა and every chapter, 2) fix rejected chapters, 3) approve the book when everything is approved."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  267,
+        "Line":  "                დამტკიცებული chapters: {chapterStats.approved}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  273,
+        "Line":  "                უარყოფილი chapters: {chapterStats.rejected}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  277,
+        "Line":  "            {!canდამტკიცებაBook ? ("
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  300,
+        "Line":  "                disabled={reviewMutation.isPending || !canდამტკიცებაBook}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  302,
+        "Line":  "                დამტკიცება Book"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  316,
+        "Line":  "                უარყოფა Book"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  325,
+        "Line":  "                \u003ch2 className=\"font-display text-2xl text-foreground\"\u003eთავები\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  352,
+        "Line":  "                  \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eწაკითხვადი სექციები ჯერ არ არის.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  360,
+        "Line":  "                  ატვირთული ფაილი: \u003ca className=\"underline\" href={content.upload_file} target=\"_blank\" rel=\"noreferrer\"\u003eფაილის გახსნა\u003c/a\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  377,
+        "Line":  "                \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eწაკითხვადი სექციები ჯერ არ არის.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  383,
+        "Line":  "                    \u003cspan className=\"font-ui text-sm text-muted-foreground\"\u003eთავის სტატუსი:\u003c/span\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  391,
+        "Line":  "                      მიმდინარე უარყოფის მიზეზი: {activeBookSection.chapter.rejection_reason}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  419,
+        "Line":  "                      დამტკიცება Chapter"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  433,
+        "Line":  "                      უარყოფა Chapter"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  446,
+        "Line":  "                ატვირთული ფაილი: \u003ca className=\"underline\" href={content.upload_file} target=\"_blank\" rel=\"noreferrer\"\u003eფაილის გახსნა\u003c/a\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  455,
+        "Line":  "              \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eტექსტი ხელმისაწვდომი არ არის.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  460,
+        "Line":  "            \u003ch2 className=\"font-display text-2xl text-foreground\"\u003eგანხილვის გადაწყვეტილება\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  463,
+        "Line":  "              placeholder=\"უარყოფის reason (required only for reject)\""
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  480,
+        "Line":  "                დამტკიცება"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReadPage.tsx",
+        "LineNumber":  494,
+        "Line":  "                უარყოფა"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReviewPage.tsx",
+        "LineNumber":  69,
+        "Line":  "          \u003ch1 className=\"font-display text-3xl font-semibold text-foreground\"\u003eკონტენტის განხილვა\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReviewPage.tsx",
+        "LineNumber":  101,
+        "Line":  "              \u003cSelectItem value=\"all\"\u003eყველა\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReviewPage.tsx",
+        "LineNumber":  102,
+        "Line":  "              \u003cSelectItem value=\"draft\"\u003eშავი ვერსია\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReviewPage.tsx",
+        "LineNumber":  103,
+        "Line":  "              \u003cSelectItem value=\"approved\"\u003eდამტკიცებული\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReviewPage.tsx",
+        "LineNumber":  104,
+        "Line":  "              \u003cSelectItem value=\"rejected\"\u003eუარყოფილი\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReviewPage.tsx",
+        "LineNumber":  110,
+        "Line":  "            \u003cInput value={search} onChange={(e) =\u003e setSearch(e.target.value)} placeholder=\"ძებნა\" className=\"pl-9 font-ui\" /\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReviewPage.tsx",
+        "LineNumber":  125,
+        "Line":  "                        ახალი თავი"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReviewPage.tsx",
+        "LineNumber":  133,
+        "Line":  "                \u003cp className=\"mt-1 text-muted-foreground\"\u003eშექმნის დრო: {new Date(item.created_at).toLocaleString()}\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReviewPage.tsx",
+        "LineNumber":  135,
+        "Line":  "                {item.rejection_reason ? \u003cp className=\"mt-2 text-red-700\"\u003eმიმდინარე უარყოფის მიზეზი: {item.rejection_reason}\u003c/p\u003e : null}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReviewPage.tsx",
+        "LineNumber":  139,
+        "Line":  "                  placeholder=\"უარყოფის reason\""
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReviewPage.tsx",
+        "LineNumber":  146,
+        "Line":  "                    \u003cButton variant=\"outline\"\u003eგახსნა და წაკითხვა\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReviewPage.tsx",
+        "LineNumber":  148,
+        "Line":  "                  \u003cButton onClick={() =\u003e handleReview(item.id, \"approved\")}\u003eდამტკიცება\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReviewPage.tsx",
+        "LineNumber":  149,
+        "Line":  "                  \u003cButton variant=\"destructive\" onClick={() =\u003e handleReview(item.id, \"rejected\")}\u003eუარყოფა\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReviewPage.tsx",
+        "LineNumber":  160,
+        "Line":  "            {query.isLoading ? \"კონტენტის რიგი იტვირთება...\" : \"ჩანაწერები ვერ მოიძებნა.\"}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminContentReviewPage.tsx",
+        "LineNumber":  165,
+        "Line":  "          \u003cp className=\"font-ui text-xs text-muted-foreground\"\u003eსულ: {query.data?.count || 0}\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminHomePage.tsx",
+        "LineNumber":  58,
+        "Line":  "              \u003cspan className=\"font-ui text-xs text-muted-foreground\"\u003eადმინის პორტალი\u003c/span\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminHomePage.tsx",
+        "LineNumber":  60,
+        "Line":  "            \u003ch1 className=\"mt-4 font-display text-4xl font-semibold text-foreground\"\u003eმოდერაციის პანელი\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminHomePage.tsx",
+        "LineNumber":  62,
+        "Line":  "              განხილვის რიგები და მოდერაციის დატვირთვის მიმოხილვა."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminHomePage.tsx",
+        "LineNumber":  69,
+        "Line":  "                ავტორის განაცხადები"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminHomePage.tsx",
+        "LineNumber":  75,
+        "Line":  "                კონტენტის განხილვა"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  20,
+        "Line":  "      : \"რედაქტორების ჩატვირთვა ვერ მოხერხდა. გადაამოწმე წვდომები.\";"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  39,
+        "Line":  "      toast.error(\"ელფოსტა სავალდებულოა.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  63,
+        "Line":  "      toast.success(\"რედაქტორი წარმატებით შეიქმნა/განახლდა.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  86,
+        "Line":  "      toast.success(\"რედაქტორი წაიშალა.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  98,
+        "Line":  "          \u003ch1 className=\"font-display text-3xl font-semibold text-foreground\"\u003eრედაქტორების მართვა\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  103,
+        "Line":  "            \u003cLabel className=\"font-ui\"\u003eელფოსტა (სავალდებულო)\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  107,
+        "Line":  "            \u003cLabel className=\"font-ui\"\u003eმომხმარებლის სახელი (მხოლოდ ახალი მომხმარებელი)\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  111,
+        "Line":  "            \u003cLabel className=\"font-ui\"\u003eპაროლი (მხოლოდ ახალი მომხმარებელი)\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  115,
+        "Line":  "            \u003cLabel className=\"font-ui\"\u003eსახელი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  119,
+        "Line":  "            \u003cLabel className=\"font-ui\"\u003eგვარი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  124,
+        "Line":  "              {isCreating ? \"ინახება...\" : \"შექმნა/დაწინაურება\"}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  131,
+        "Line":  "        \u003ch2 className=\"font-display text-2xl font-semibold text-foreground\"\u003eმიმდინარე რედაქტორები\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  132,
+        "Line":  "        {redactorsQuery.isLoading ? \u003cp className=\"mt-3 font-ui text-sm text-muted-foreground\"\u003eრედაქტორები იტვირთება...\u003c/p\u003e : null}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  140,
+        "Line":  "            რედაქტორები ჯერ არ არის."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  163,
+        "Line":  "                  [\"can_review_writer_applications\", \"განაცხადების განხილვა\"],"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  164,
+        "Line":  "                  [\"can_review_content\", \"კონტენტის განხილვა\"],"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  165,
+        "Line":  "                  [\"can_manage_content\", \"კონტენტის მართვა\"],"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminRedactorsPage.tsx",
+        "LineNumber":  166,
+        "Line":  "                  [\"can_manage_redactors\", \"რედაქტორების მართვა\"],"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminWriterApplicationsPage.tsx",
+        "LineNumber":  42,
+        "Line":  "          \u003ch1 className=\"font-display text-3xl font-semibold text-foreground\"\u003eავტორის განაცხადები\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminWriterApplicationsPage.tsx",
+        "LineNumber":  48,
+        "Line":  "              placeholder=\"ძიება მომხმარებლის სახელით/ელფოსტით/ტექსტით\""
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminWriterApplicationsPage.tsx",
+        "LineNumber":  66,
+        "Line":  "                \u003cp className=\"mt-1 text-muted-foreground\"\u003eშექმნის დრო: {new Date(item.created_at).toLocaleString()}\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminWriterApplicationsPage.tsx",
+        "LineNumber":  70,
+        "Line":  "                    ნიმუშის ფაილი:{\" \"}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminWriterApplicationsPage.tsx",
+        "LineNumber":  83,
+        "Line":  "                  \u003cButton onClick={() =\u003e handleReview(item.id, \"approved\")}\u003eდამტკიცება\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\AdminWriterApplicationsPage.tsx",
+        "LineNumber":  84,
+        "Line":  "                  \u003cButton variant=\"destructive\" onClick={() =\u003e handleReview(item.id, \"rejected\")}\u003eუარყოფა\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\DashboardPage.tsx",
+        "LineNumber":  63,
+        "Line":  "    { key: \"books\", label: t(\"dashboard.books\", \"წიგნები\"), value: worksSummaryQuery.data?.books ?? 0 },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\DashboardPage.tsx",
+        "LineNumber":  64,
+        "Line":  "    { key: \"chapters\", label: t(\"dashboard.chapters\", \"თავები\"), value: worksSummaryQuery.data?.chapters ?? 0 },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\DashboardPage.tsx",
+        "LineNumber":  66,
+        "Line":  "    { key: \"stories\", label: t(\"dashboard.stories\", \"მოთხრობები\"), value: worksSummaryQuery.data?.stories ?? 0 },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\DashboardPage.tsx",
+        "LineNumber":  88,
+        "Line":  "                \u003cButton\u003e{t(\"dashboard.newWork\", \"ახალი ნაშრომი\")}\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\DashboardPage.tsx",
+        "LineNumber":  92,
+        "Line":  "                \u003cButton\u003e{t(\"dashboard.writerApplication\", \"ავტორის განაცხადი\")}\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\DashboardPage.tsx",
+        "LineNumber":  96,
+        "Line":  "              \u003cButton variant=\"outline\"\u003e{t(\"nav.myWorks\", \"ჩემი ნაშრომები\")}\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\DashboardPage.tsx",
+        "LineNumber":  130,
+        "Line":  "            \u003ch2 className=\"font-display text-2xl font-semibold text-foreground\"\u003e{t(\"dashboard.writerStatus\", \"ავტორის განაცხადი სტატუსი\")}\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\DashboardPage.tsx",
+        "LineNumber":  135,
+        "Line":  "                {t(\"dashboard.status\", \"სტატუსი\")}: {\" \"}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\DashboardPage.tsx",
+        "LineNumber":  204,
+        "Line":  "              \u003cButton className=\"gap-2\"\u003e{t(\"dashboard.newWork\", \"ახალი ნაშრომი\")}\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  47,
+        "Line":  "          throw new Error(t(\"login.error.loadUser\", \"მიმდინარე მომხმარებლის ჩატვირთვა ვერ მოხერხდა.\"));"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  52,
+        "Line":  "          throw new Error(t(\"login.error.noAdminAccess\", \"ადმინ პორტალზე წვდომა არ გაქვს.\"));"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  56,
+        "Line":  "        toast.success(\"Google-ით წარმატებით შეხვედი.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  58,
+        "Line":  "        const message = error instanceof Error ? error.message : t(\"login.error.failed\", \"შესვლა ვერ მოხერხდა.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  71,
+        "Line":  "      toast.error(\"Google ავტორიზაცია კონფიგურირებული არ არის.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  91,
+        "Line":  "      toast.error(t(\"login.error.missing\", \"შეიყვანე მომხმარებლის სახელი ან ელფოსტა და პაროლი.\"));"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  100,
+        "Line":  "        throw new Error(t(\"login.error.loadUser\", \"მიმდინარე მომხმარებლის ჩატვირთვა ვერ მოხერხდა.\"));"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  105,
+        "Line":  "        throw new Error(t(\"login.error.noAdminAccess\", \"ადმინ პორტალზე წვდომა არ გაქვს.\"));"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  109,
+        "Line":  "      toast.success(t(\"login.success\", \"შესვლა წარმატებულია.\"));"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  111,
+        "Line":  "      const message = error instanceof Error ? error.message : t(\"login.error.failed\", \"შესვლა ვერ მოხერხდა.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  133,
+        "Line":  "              {adminHost ? t(\"login.adminTitle\", \"კონტენტის ზუსტი მოდერაცია\") : t(\"login.userTitle\", \"გააგრძელე შენი ლიტერატურული გზა\")}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  137,
+        "Line":  "                ? t(\"login.adminSubtitle\", \"შედი რედაქტორის ან ადმინის ანგარიშით ავტორის განაცხადებისა და ნაშრომების განსახილველად.\")"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  138,
+        "Line":  "                : t(\"login.userSubtitle\", \"შედი, რომ დაათვალიერო ნაშრომები, იურთიერთო ავტორებთან და მართო შენი სამუშაო პროცესი.\")}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  153,
+        "Line":  "              \u003cLabel htmlFor=\"username\" className=\"font-ui\"\u003e{t(\"login.username\", \"მომხმარებლის სახელი ან ელფოსტა\")}\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  178,
+        "Line":  "                {t(\"login.forgotPassword\", \"პაროლი დაგავიწყდა\")}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  192,
+        "Line":  "                გაგრძელება Google-ით"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\LoginPage.tsx",
+        "LineNumber":  196,
+        "Line":  "                  Google ავტორიზაცია ჯერ არ არის გამართული (`VITE_GOOGLE_CLIENT_ID` არ არის მითითებული)."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  28,
+        "Line":  "  { label: \"დამტკიცებული\", value: \"approved\" },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  29,
+        "Line":  "  { label: \"უარყოფილი\", value: \"rejected\" },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  77,
+        "Line":  "            \u003ch1 className=\"font-display text-4xl font-semibold text-foreground\"\u003eჩემი ნაშრომები\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  79,
+        "Line":  "              გაფილტრე გაგზავნილი ნაშრომები სტატუსის, თარიღის დიაპაზონისა და საკვანძო სიტყვების მიხედვით."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  86,
+        "Line":  "                ახალი ნაშრომი"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  94,
+        "Line":  "            \u003cLabel className=\"font-ui\"\u003eტიპი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  116,
+        "Line":  "            \u003cLabel className=\"font-ui\"\u003eსტატუსი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  138,
+        "Line":  "            \u003cLabel className=\"font-ui\"\u003eძებნა\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  147,
+        "Line":  "                placeholder=\"სათაური ან ტექსტი\""
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  154,
+        "Line":  "            \u003cLabel className=\"font-ui\"\u003eთარიღიდან\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  162,
+        "Line":  "            \u003cLabel className=\"font-ui\"\u003eთარიღამდე\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  172,
+        "Line":  "        {worksQuery.isLoading ? \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eნაშრომები იტვირთება...\u003c/p\u003e : null}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  192,
+        "Line":  "                  შექმნის დრო: {new Date(item.created_at).toLocaleString()}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  197,
+        "Line":  "                    უარყოფის reason: {item.rejection_reason}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  204,
+        "Line":  "                      \u003cButton variant=\"outline\" size=\"sm\"\u003eრედაქტორის გახსნა\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  211,
+        "Line":  "                        if (window.confirm(\"ნამდვილად გსურს ამ ნაშრომის წაშლა? მოქმედება შეუქცევადია.\")) {"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  215,
+        "Line":  "                            toast({ title: \"ნაშრომი წაიშალა\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  217,
+        "Line":  "                            toast({ variant: \"destructive\", title: \"წაშლა ვერ მოხერხდა\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  234,
+        "Line":  "                ნამუშევრები ვერ მოიძებნა არჩეული ფილტრებისთვის."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\MyWorksPage.tsx",
+        "LineNumber":  241,
+        "Line":  "          \u003cp className=\"font-ui text-xs text-muted-foreground\"\u003eსულ: {worksQuery.data?.count || 0}\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicBrowsePage.tsx",
+        "LineNumber":  23,
+        "Line":  "  if (!raw) return \"მიმოხილვა ჯერ ხელმისაწვდომი არ არის.\";"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicBrowsePage.tsx",
+        "LineNumber":  32,
+        "Line":  "  return `${minutes} წთ კითხვის დრო`;"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicBrowsePage.tsx",
+        "LineNumber":  46,
+        "Line":  "    author: item.author_name || item.author_username || \"უცნობი ავტორი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicBrowsePage.tsx",
+        "LineNumber":  97,
+        "Line":  "          \u003ch1 className=\"font-display text-3xl font-bold text-foreground md:text-4xl\"\u003eბიბლიოთეკა\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicBrowsePage.tsx",
+        "LineNumber":  115,
+        "Line":  "                placeholder=\"ძიება სათაურით ან ავტორით...\""
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicBrowsePage.tsx",
+        "LineNumber":  157,
+        "Line":  "            \u003ch3 className=\"font-display text-lg font-semibold text-foreground\"\u003eნამუშევრები ვერ მოიძებნა\u003c/h3\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicBrowsePage.tsx",
+        "LineNumber":  159,
+        "Line":  "              სცადე ძიების ან კატეგორიის ფილტრის შეცვლა."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicBrowsePage.tsx",
+        "LineNumber":  165,
+        "Line":  "              ფილტრების გასუფთავება"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  23,
+        "Line":  "  if (!raw) return \"მიმოხილვა ჯერ ხელმისაწვდომი არ არის.\";"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  32,
+        "Line":  "  return `${minutes} წთ კითხვის დრო`;"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  46,
+        "Line":  "    author: item.author_name || item.author_username || \"უცნობი ავტორი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  64,
+        "Line":  "    title: \"იკითხე საჯაროდ\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  65,
+        "Line":  "    desc: \"ნებისმიერ მომხმარებელს შეუძლია დამტკიცებული წიგნების, მოთხრობებისა და პოეზიის კითხვა ანგარიშის შექმნის გარეშე.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  69,
+        "Line":  "    title: \"შემოუერთდი როგორც მკითხველი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  70,
+        "Line":  "    desc: \"შექმენი მკითხველის ანგარიში, რათა დატოვო შეფასებები, მოწონებები, კომენტარები, სანიშნები და აწარმოო პროფილის აქტივობა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  74,
+        "Line":  "    title: \"გახდი ავტორი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  75,
+        "Line":  "    desc: \"შეავსე ავტორის განაცხადი ნიმუშით. დამტკიცების შემდეგ შეძლებ ნაშრომების გაგზავნას და გამოქვეყნების რიგის მართვას.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  123,
+        "Line":  "    { icon: BookOpen, value: `${publishedCount}+`, label: \"გამოქვეყნებული ნაშრომები\", color: \"hsl(24 60% 55%)\", bg: \"hsl(24 60% 55% / 0.15)\", border: \"hsl(24 60% 55% / 0.2)\" },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  124,
+        "Line":  "    { icon: Users, value: `${authorsCount}+`, label: \"ავტორები\", color: \"hsl(215 40% 45%)\", bg: \"hsl(215 40% 45% / 0.15)\", border: \"hsl(215 40% 45% / 0.2)\" },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  125,
+        "Line":  "    { icon: Feather, value: `${newThisMonth}+`, label: \"ახალი ამ თვეში\", color: \"hsl(150 25% 45%)\", bg: \"hsl(150 25% 45% / 0.15)\", border: \"hsl(150 25% 45% / 0.2)\" },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  158,
+        "Line":  "              ღია პლატფორმა — იკითხე თავისუფლად, ანგარიში არ გჭირდება"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  170,
+        "Line":  "              სიტყვები პოულობენ \u003cspan className=\"text-gradient-primary\"\u003eთავიანთ სახლს\u003c/span\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  173,
+        "Line":  "              საჯარო გვერდები ყველასთვის ღიაა. მკითხველის ანგარიში გაძლევს შეფასებების, მოწონებებისა და კომენტარების დატოვების შესაძლებლობას. ავტორები ნაშრომებს აქვეყნებენ სარედაქციო დამტკიცების შემდეგ."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  182,
+        "Line":  "                  ბიბლიოთეკაში გადასვლა"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  192,
+        "Line":  "                  შემოუერთდი როგორც მკითხველი ან ავტორი"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  227,
+        "Line":  "      {/* ── როგორ მუშაობს ─────────────────────────────── */}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  237,
+        "Line":  "            \u003ch2 className=\"font-display text-3xl font-bold text-foreground md:text-4xl\"\u003eროგორ მუშაობს\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  238,
+        "Line":  "            \u003cp className=\"mt-3 font-ui text-base text-muted-foreground\"\u003eReadus-ის ნაწილი გახდომის სამი გზა\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  265,
+        "Line":  "      {/* ── რჩეული ნაშრომები ────────────────────────────── */}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  275,
+        "Line":  "              \u003ch2 className=\"font-display text-2xl font-bold text-foreground md:text-3xl\"\u003eრჩეული ნაშრომები\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  276,
+        "Line":  "              \u003cp className=\"mt-1 font-ui text-sm text-muted-foreground\"\u003eბოლო დროს დამტკიცებული და გამოქვეყნებული ნაშრომები\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  280,
+        "Line":  "                ყველას ნახვა"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicHomePage.tsx",
+        "LineNumber":  309,
+        "Line":  "            \u003cp className=\"mt-8 text-center font-body text-sm text-muted-foreground\"\u003eგამოქვეყნებული ნაშრომები ჯერ არ არის.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  15,
+        "Line":  "  books: \"წიგნი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  16,
+        "Line":  "  chapters: \"თავი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  17,
+        "Line":  "  poems: \"პოეზია\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  18,
+        "Line":  "  stories: \"მოკლე მოთხრობა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  44,
+        "Line":  "  return `${minutes} წთ კითხვის დრო`;"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  99,
+        "Line":  "      s.push({ id: \u0027foreword\u0027, title: \u0027წინასიტყვაობა\u0027, html: content.foreword! });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  105,
+        "Line":  "        html: ch.body || \"\u003cp\u003eთავის ტექსტი არ არის.\u003c/p\u003e\""
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  109,
+        "Line":  "      s.push({ id: \u0027afterword\u0027, title: \u0027ბოლოსიტყვაობა\u0027, html: content.afterword! });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  170,
+        "Line":  "        \u003ch1 className=\"font-display text-2xl font-bold text-foreground\"\u003eკონტენტის ბმული არასწორია\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  172,
+        "Line":  "          \u003cButton variant=\"outline\" className=\"mt-4\"\u003eბიბლიოთეკაში დაბრუნება\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  179,
+        "Line":  "    return \u003cdiv className=\"container mx-auto px-6 py-24 text-center text-sm text-muted-foreground\"\u003eიტვირთება...\u003c/div\u003e;"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  185,
+        "Line":  "        \u003ch1 className=\"font-display text-2xl font-bold text-foreground\"\u003eნაშრომი ვერ მოიძებნა\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  187,
+        "Line":  "          \u003cButton variant=\"outline\" className=\"mt-4\"\u003eბიბლიოთეკაში დაბრუნება\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  217,
+        "Line":  "              \u003cArrowLeft className=\"h-3.5 w-3.5\" /\u003e ბიბლიოთეკაში დაბრუნება"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  243,
+        "Line":  "                by {content.author_name || content.author_username || \"უცნობი ავტორი\"}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  281,
+        "Line":  "              ატვირთული ფაილი: \u003ca className=\"underline\" href={content.upload_file} target=\"_blank\" rel=\"noreferrer\"\u003eფაილის გახსნა\u003c/a\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  290,
+        "Line":  "                    \u003ch2 className=\"font-display text-3xl font-semibold text-foreground mb-6\"\u003eსარჩევი\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  325,
+        "Line":  "                  \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eგვერდი ვერ მოიძებნა.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  329,
+        "Line":  "                  \u003ch2 className=\"font-display text-2xl font-semibold text-foreground\"\u003eატვირთული ტექსტი\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  333,
+        "Line":  "                \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eწაკითხვადი ტექსტი ხელმისაწვდომი არ არის.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  344,
+        "Line":  "            \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eწაკითხვადი ტექსტი ხელმისაწვდომი არ არის.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  354,
+        "Line":  "                სარჩევი"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  372,
+        "Line":  "            \u003cp className=\"font-display text-lg italic text-muted-foreground\"\u003eპრევიუს დასასრული\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublicReadPage.tsx",
+        "LineNumber":  374,
+        "Line":  "              შემოუერთდი როგორც მკითხველი, რომ მოიწონო, დააკომენტარო და გამოიწერო ავტორები."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  24,
+        "Line":  "  const [foreword, setწინასიტყვაობა] = useState(\"\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  25,
+        "Line":  "  const [afterword, setბოლოსიტყვაობა] = useState(\"\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  71,
+        "Line":  "          \u003ch1 className=\"font-display text-4xl font-semibold text-foreground\"\u003eწიგნის გამოქვეყნება\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  74,
+        "Line":  "          Create a new book submission. სტატუსი and moderation updates are managed by the existing content review API."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  79,
+        "Line":  "            \u003cLabel htmlFor=\"title\" className=\"font-ui\"\u003eსათაური\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  84,
+        "Line":  "            \u003cLabel htmlFor=\"description\" className=\"font-ui\"\u003eაღწერა\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  96,
+        "Line":  "              \u003cLabel className=\"font-ui\"\u003eთავების ნუმერაციის სტილი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  102,
+        "Line":  "                  \u003cSelectItem value=\"separator\"\u003eგამყოფი (***)\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  103,
+        "Line":  "                  \u003cSelectItem value=\"arabic\"\u003eარაბული (1,2,3)\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  104,
+        "Line":  "                  \u003cSelectItem value=\"roman\"\u003eრომაული (I,II,III)\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  110,
+        "Line":  "              \u003cLabel className=\"font-ui\"\u003eწყაროს ტიპი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  116,
+        "Line":  "                  \u003cSelectItem value=\"manual\"\u003eხელით\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  117,
+        "Line":  "                  \u003cSelectItem value=\"upload\"\u003eფაილის ატვირთვა\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  125,
+        "Line":  "              \u003cLabel htmlFor=\"uploadFile\" className=\"font-ui\"\u003eფაილის ატვირთვა\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  136,
+        "Line":  "            \u003cLabel htmlFor=\"foreword\" className=\"font-ui\"\u003eწინასიტყვაობა\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  140,
+        "Line":  "              onChange={(e) =\u003e setწინასიტყვაობა(e.target.value)}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  147,
+        "Line":  "            \u003cLabel htmlFor=\"afterword\" className=\"font-ui\"\u003eბოლოსიტყვაობა\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  151,
+        "Line":  "              onChange={(e) =\u003e setბოლოსიტყვაობა(e.target.value)}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\PublishBookPage.tsx",
+        "LineNumber":  158,
+        "Line":  "            {saving ? \"Publishing...\" : \"წიგნის გამოქვეყნება\"}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderBookDetailPage.tsx",
+        "LineNumber":  44,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eწიგნის ბმული არასწორია.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderBookDetailPage.tsx",
+        "LineNumber":  52,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eწიგნი იტვირთება...\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderBookDetailPage.tsx",
+        "LineNumber":  60,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-red-700\"\u003eწიგნი ვერ მოიძებნა.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderBookDetailPage.tsx",
+        "LineNumber":  62,
+        "Line":  "          \u003cButton variant=\"outline\"\u003eწიგნებზე დაბრუნება\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderBookDetailPage.tsx",
+        "LineNumber":  78,
+        "Line":  "            წიგნებზე დაბრუნება"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderBookDetailPage.tsx",
+        "LineNumber":  92,
+        "Line":  "          by {book.author_name || book.author_username || \"უცნობი ავტორი\"}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderBookDetailPage.tsx",
+        "LineNumber":  104,
+        "Line":  "            \u003ch2 className=\"font-display text-2xl text-foreground\"\u003eსარჩევი\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderBookDetailPage.tsx",
+        "LineNumber":  120,
+        "Line":  "              \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eთავები ჯერ არ არის.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderBookDetailPage.tsx",
+        "LineNumber":  130,
+        "Line":  "                \u003ch3 className=\"font-display text-2xl text-foreground\"\u003eწინასიტყვაობა\u003c/h3\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderBookDetailPage.tsx",
+        "LineNumber":  138,
+        "Line":  "                \u003ch3 className=\"font-display text-2xl text-foreground\"\u003eატვირთული ტექსტი\u003c/h3\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderBookDetailPage.tsx",
+        "LineNumber":  151,
+        "Line":  "              \u003ch3 className=\"font-display text-2xl text-foreground\"\u003eბოლოსიტყვაობა\u003c/h3\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderChapterReadPage.tsx",
+        "LineNumber":  48,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eთავის ბმული არასწორია.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderChapterReadPage.tsx",
+        "LineNumber":  56,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eთავი იტვირთება...\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderChapterReadPage.tsx",
+        "LineNumber":  64,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-red-700\"\u003eთავის ჩატვირთვა ვერ მოხერხდა.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderChapterReadPage.tsx",
+        "LineNumber":  66,
+        "Line":  "          \u003cButton variant=\"outline\"\u003eწიგნებზე დაბრუნება\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderChapterReadPage.tsx",
+        "LineNumber":  75,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-red-700\"\u003eამ წიგნში ეს თავი ვერ მოიძებნა.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderChapterReadPage.tsx",
+        "LineNumber":  77,
+        "Line":  "          \u003cButton variant=\"outline\"\u003eსარჩევზე დაბრუნება\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderChapterReadPage.tsx",
+        "LineNumber":  93,
+        "Line":  "            სარჩევზე დაბრუნება"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderChapterReadPage.tsx",
+        "LineNumber":  104,
+        "Line":  "        \u003cdiv dangerouslySetInnerHTML={{ __html: chapter.body || \"\u003cp\u003eთავის ტექსტი ჯერ არ არის.\u003c/p\u003e\" }} /\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderTextWorkPage.tsx",
+        "LineNumber":  17,
+        "Line":  "  stories: \"მოთხრობა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderTextWorkPage.tsx",
+        "LineNumber":  50,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eბმული არასწორია.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderTextWorkPage.tsx",
+        "LineNumber":  58,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eიტვირთება...\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderTextWorkPage.tsx",
+        "LineNumber":  66,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-red-700\"\u003eნაშრომი ვერ მოიძებნა.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderTextWorkPage.tsx",
+        "LineNumber":  68,
+        "Line":  "          \u003cButton variant=\"outline\"\u003eსიაზე დაბრუნება\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderTextWorkPage.tsx",
+        "LineNumber":  97,
+        "Line":  "          by {work.author_name || work.author_username || \"უცნობი ავტორი\"} - {estimateReadTimeFromHtml(work.body || work.extracted_text || work.description)}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderTextWorkPage.tsx",
+        "LineNumber":  111,
+        "Line":  "          \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eტექსტი ხელმისაწვდომი არ არის.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderWorksListPage.tsx",
+        "LineNumber":  18,
+        "Line":  "  books: \"წიგნები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderWorksListPage.tsx",
+        "LineNumber":  20,
+        "Line":  "  stories: \"მოთხრობები\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderWorksListPage.tsx",
+        "LineNumber":  50,
+        "Line":  "          დამტკიცებული ნაშრომები კითხვისთვის."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderWorksListPage.tsx",
+        "LineNumber":  61,
+        "Line":  "            placeholder={`ძებნა ${titles[category].toLowerCase()}...`}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderWorksListPage.tsx",
+        "LineNumber":  68,
+        "Line":  "        {worksQuery.isLoading ? \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eიტვირთება...\u003c/p\u003e : null}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderWorksListPage.tsx",
+        "LineNumber":  72,
+        "Line":  "            გამოქვეყნებული ნაშრომები ვერ მოიძებნა."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderWorksListPage.tsx",
+        "LineNumber":  90,
+        "Line":  "                by {item.author_name || item.author_username || \"უცნობი ავტორი\"}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ReaderWorksListPage.tsx",
+        "LineNumber":  105,
+        "Line":  "        \u003cp className=\"font-ui text-xs text-muted-foreground\"\u003eსულ: {worksQuery.data?.count || 0}\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\RegisterPage.tsx",
+        "LineNumber":  41,
+        "Line":  "      toast.error(t(\"register.error.required\", \"შეავსე ყველა სავალდებულო ველი.\"));"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\RegisterPage.tsx",
+        "LineNumber":  46,
+        "Line":  "      toast.error(t(\"register.error.passwordMatch\", \"პაროლები არ ემთხვევა.\"));"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\RegisterPage.tsx",
+        "LineNumber":  56,
+        "Line":  "          ? t(\"register.success\", \"რეგისტრაცია წარმატებულია. ანგარიშის გასააქტიურებლად დაადასტურე ელფოსტა.\")"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\RegisterPage.tsx",
+        "LineNumber":  57,
+        "Line":  "          : t(\"register.successNoVerification\", \"რეგისტრაცია წარმატებულია. ახლა შეგიძლია შეხვიდე ანგარიშში.\"),"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\RegisterPage.tsx",
+        "LineNumber":  69,
+        "Line":  "      toast.error(t(\"register.error.resendBefore\", \"ვერიფიკაციის ხელახლა გასაგზავნად ჯერ დარეგისტრირდი.\"));"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\RegisterPage.tsx",
+        "LineNumber":  75,
+        "Line":  "      toast.success(t(\"register.success.resent\", \"ვერიფიკაციის ელფოსტა ხელახლა გაიგზავნა.\"));"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\RegisterPage.tsx",
+        "LineNumber":  84,
+        "Line":  "      toast.error(\"Google ავტორიზაცია კონფიგურირებული არ არის.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\RegisterPage.tsx",
+        "LineNumber":  137,
+        "Line":  "              ? t(\"register.note\", \"წვდომამდე ყველა ანგარიში საჭიროებს ელფოსტის ვერიფიკაციას.\")"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\RegisterPage.tsx",
+        "LineNumber":  138,
+        "Line":  "              : t(\"register.noteNoVerification\", \"ტესტირების პერიოდში ანგარიშები დაუყოვნებლივ აქტიურდება.\")}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\RegisterPage.tsx",
+        "LineNumber":  144,
+        "Line":  "                \u003cLabel htmlFor=\"firstName\" className=\"font-ui\"\u003e{t(\"register.firstName\", \"სახელი\")}\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\RegisterPage.tsx",
+        "LineNumber":  148,
+        "Line":  "                \u003cLabel htmlFor=\"lastName\" className=\"font-ui\"\u003e{t(\"register.lastName\", \"გვარი\")}\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\RegisterPage.tsx",
+        "LineNumber":  155,
+        "Line":  "                \u003cLabel htmlFor=\"username\" className=\"font-ui\"\u003e{t(\"register.username\", \"მომხმარებლის სახელი\")}\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\RegisterPage.tsx",
+        "LineNumber":  201,
+        "Line":  "              {loading ? t(\"register.creating\", \"ანგარიში იქმნება...\") : t(\"register.create\", \"ანგარიშის შექმნა\")}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\RegisterPage.tsx",
+        "LineNumber":  213,
+        "Line":  "              გაგრძელება Google-ით"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\RegisterPage.tsx",
+        "LineNumber":  217,
+        "Line":  "                Google ავტორიზაცია ჯერ არ არის გამართული (`VITE_GOOGLE_CLIENT_ID` არ არის მითითებული)."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ResetPasswordPage.tsx",
+        "LineNumber":  17,
+        "Line":  "  const [token, setტოკენი] = useState(tokenFromQuery);"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ResetPasswordPage.tsx",
+        "LineNumber":  31,
+        "Line":  "      toast.error(\"პაროლები არ ემთხვევა.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ResetPasswordPage.tsx",
+        "LineNumber":  54,
+        "Line":  "            \u003ch1 className=\"font-display text-3xl font-semibold text-foreground\"\u003eპაროლის განახლება\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ResetPasswordPage.tsx",
+        "LineNumber":  56,
+        "Line":  "          \u003cp className=\"mt-1 font-ui text-sm text-muted-foreground\"\u003eგამოიყენე აღდგენის ბმულიდან მიღებული მნიშვნელობები.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ResetPasswordPage.tsx",
+        "LineNumber":  60,
+        "Line":  "              \u003cLabel htmlFor=\"uid\" className=\"font-ui\"\u003eმომხმარებლის ID\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ResetPasswordPage.tsx",
+        "LineNumber":  65,
+        "Line":  "              \u003cLabel htmlFor=\"token\" className=\"font-ui\"\u003eტოკენი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ResetPasswordPage.tsx",
+        "LineNumber":  66,
+        "Line":  "              \u003cInput id=\"token\" value={token} onChange={(e) =\u003e setტოკენი(e.target.value)} className=\"font-ui\" /\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ResetPasswordPage.tsx",
+        "LineNumber":  70,
+        "Line":  "              \u003cLabel htmlFor=\"password1\" className=\"font-ui\"\u003eახალი პაროლი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ResetPasswordPage.tsx",
+        "LineNumber":  81,
+        "Line":  "              \u003cLabel htmlFor=\"password2\" className=\"font-ui\"\u003eახალი პაროლის გამეორება\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\ResetPasswordPage.tsx",
+        "LineNumber":  92,
+        "Line":  "              {loading ? \"Resetting...\" : \"პაროლის განახლება\"}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\SettingsPage.tsx",
+        "LineNumber":  51,
+        "Line":  "      toast.success(\"პროფილი განახლდა.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\SettingsPage.tsx",
+        "LineNumber":  53,
+        "Line":  "      const message = error instanceof Error ? error.message : \"პროფილის განახლება ვერ მოხერხდა.\";"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\SettingsPage.tsx",
+        "LineNumber":  64,
+        "Line":  "      toast.error(\"შეავსე პაროლის ყველა ველი.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\SettingsPage.tsx",
+        "LineNumber":  79,
+        "Line":  "      toast.success(\"პაროლი შეიცვალა.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\SettingsPage.tsx",
+        "LineNumber":  81,
+        "Line":  "      const message = error instanceof Error ? error.message : \"პაროლის შეცვლა ვერ მოხერხდა.\";"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\SettingsPage.tsx",
+        "LineNumber":  93,
+        "Line":  "          \u003ch1 className=\"font-display text-3xl font-semibold text-foreground\"\u003eპროფილის პარამეტრები\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\SettingsPage.tsx",
+        "LineNumber":  98,
+        "Line":  "            \u003cLabel htmlFor=\"username\" className=\"font-ui\"\u003eმომხმარებლის სახელი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\SettingsPage.tsx",
+        "LineNumber":  102,
+        "Line":  "            \u003cLabel htmlFor=\"firstName\" className=\"font-ui\"\u003eსახელი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\SettingsPage.tsx",
+        "LineNumber":  106,
+        "Line":  "            \u003cLabel htmlFor=\"lastName\" className=\"font-ui\"\u003eგვარი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\SettingsPage.tsx",
+        "LineNumber":  110,
+        "Line":  "            {savingProfile ? \"ინახება...\" : \"პროფილის შენახვა\"}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\SettingsPage.tsx",
+        "LineNumber":  118,
+        "Line":  "          \u003ch2 className=\"font-display text-3xl font-semibold text-foreground\"\u003eპაროლის შეცვლა\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\SettingsPage.tsx",
+        "LineNumber":  122,
+        "Line":  "            ამ ანგარიშისთვის პაროლის შეცვლა სავალდებულოა."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\SettingsPage.tsx",
+        "LineNumber":  128,
+        "Line":  "            \u003cLabel htmlFor=\"oldPassword\" className=\"font-ui\"\u003eმიმდინარე პაროლი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\SettingsPage.tsx",
+        "LineNumber":  138,
+        "Line":  "            \u003cLabel htmlFor=\"newPassword1\" className=\"font-ui\"\u003eახალი პაროლი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\SettingsPage.tsx",
+        "LineNumber":  148,
+        "Line":  "            \u003cLabel htmlFor=\"newPassword2\" className=\"font-ui\"\u003eახალი პაროლის გამეორება\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\VerifyEmailPage.tsx",
+        "LineNumber":  25,
+        "Line":  "      const hasAuthტოკენი = Boolean(response.access || response.key);"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\VerifyEmailPage.tsx",
+        "LineNumber":  27,
+        "Line":  "      if (hasAuthტოკენი) {"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\VerifyEmailPage.tsx",
+        "LineNumber":  73,
+        "Line":  "      toast.error(\"დადასტურების გასაღები is required.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\VerifyEmailPage.tsx",
+        "LineNumber":  90,
+        "Line":  "      toast.error(\"ელფოსტა სავალდებულოა.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\VerifyEmailPage.tsx",
+        "LineNumber":  113,
+        "Line":  "            \u003ch1 className=\"font-display text-3xl font-semibold text-foreground\"\u003eელფოსტის დადასტურება\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\VerifyEmailPage.tsx",
+        "LineNumber":  121,
+        "Line":  "              \u003cLabel htmlFor=\"key\" className=\"font-ui\"\u003eდადასტურების გასაღები\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\VerifyEmailPage.tsx",
+        "LineNumber":  130,
+        "Line":  "            \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eელფოსტა ვერ მიიღე?\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterApplicationPage.tsx",
+        "LineNumber":  49,
+        "Line":  "      toast.error(\"მიუთითე ნიმუშის ტექსტი ან ატვირთე ფაილი.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterApplicationPage.tsx",
+        "LineNumber":  59,
+        "Line":  "      toast.success(\"ავტორის განაცხადი გაგზავნილია.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterApplicationPage.tsx",
+        "LineNumber":  71,
+        "Line":  "        \u003ch1 className=\"font-display text-4xl font-semibold text-foreground\"\u003eავტორის განაცხადი\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterApplicationPage.tsx",
+        "LineNumber":  73,
+        "Line":  "          გაგზავნე წერითი ნიმუში ტექსტით, ფაილით ან ორივეთი. სარედაქციო განხილვის შემდეგ სტატუსი განახლდება."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterApplicationPage.tsx",
+        "LineNumber":  78,
+        "Line":  "            \u003cLabel htmlFor=\"sampleText\" className=\"font-ui\"\u003eნიმუშის ტექსტი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterApplicationPage.tsx",
+        "LineNumber":  84,
+        "Line":  "              placeholder=\"ჩასვი შენი ნიმუშის ტექსტი\""
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterApplicationPage.tsx",
+        "LineNumber":  90,
+        "Line":  "            \u003cLabel htmlFor=\"sampleFile\" className=\"font-ui\"\u003eნიმუშის ფაილი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterApplicationPage.tsx",
+        "LineNumber":  115,
+        "Line":  "          \u003ch2 className=\"font-display text-2xl font-semibold text-foreground\"\u003eჩემი განაცხადების ისტორია\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterApplicationPage.tsx",
+        "LineNumber":  130,
+        "Line":  "                \u003cp className=\"mt-2 text-muted-foreground\"\u003eშექმნის დრო: {new Date(app.created_at).toLocaleString()}\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterApplicationPage.tsx",
+        "LineNumber":  145,
+        "Line":  "                    გაგზავნილი ფაილის გახსნა"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterApplicationPage.tsx",
+        "LineNumber":  153,
+        "Line":  "            განაცხადები ჯერ არ არის."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookChaptersPage.tsx",
+        "LineNumber":  37,
+        "Line":  "        body: \"\u003cp\u003eდაიწყე თავის წერა...\u003c/p\u003e\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookChaptersPage.tsx",
+        "LineNumber":  41,
+        "Line":  "      toast({ title: \"თავი დაემატა\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookChaptersPage.tsx",
+        "LineNumber":  50,
+        "Line":  "        description: error instanceof Error ? error.message : \"სცადე ხელახლა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookChaptersPage.tsx",
+        "LineNumber":  59,
+        "Line":  "      toast({ title: \"თავი წაიშალა\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookChaptersPage.tsx",
+        "LineNumber":  69,
+        "Line":  "      toast({ variant: \"destructive\", title: \"თავების გადალაგება ვერ მოხერხდა\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookChaptersPage.tsx",
+        "LineNumber":  99,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eწიგნის ID არასწორია.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookChaptersPage.tsx",
+        "LineNumber":  107,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eთავები იტვირთება...\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookChaptersPage.tsx",
+        "LineNumber":  115,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-red-700\"\u003eწიგნის თავების ჩატვირთვა ვერ მოხერხდა.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookChaptersPage.tsx",
+        "LineNumber":  116,
+        "Line":  "        \u003cButton variant=\"outline\" onClick={() =\u003e navigate(\"/writer/new\")}\u003eახალი ნაშრომის შექმნა\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookChaptersPage.tsx",
+        "LineNumber":  126,
+        "Line":  "            \u003ch1 className=\"font-display text-3xl font-semibold text-foreground\"\u003eთავები: {detailQuery.data.title}\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookChaptersPage.tsx",
+        "LineNumber":  133,
+        "Line":  "              \u003cButton variant=\"outline\"\u003eწიგნზე დაბრუნება\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookChaptersPage.tsx",
+        "LineNumber":  149,
+        "Line":  "                  \u003cp className=\"font-ui text-xs uppercase tracking-wide text-muted-foreground\"\u003eრიგი {chapter.order}\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookChaptersPage.tsx",
+        "LineNumber":  173,
+        "Line":  "                    \u003cButton\u003eრედაქტირება\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookChaptersPage.tsx",
+        "LineNumber":  190,
+        "Line":  "            თავები ჯერ არ არის. შექმენი პირველი თავი."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  58,
+        "Line":  "    title: data.title || \"უსათაურო წიგნი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  70,
+        "Line":  "// Inline თავის რედაქტორი Component"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  95,
+        "Line":  "      toast({ title: \"თავი წაიშალა\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  108,
+        "Line":  "  const { markSaved: chapterმონიშვნაSaved } = autosave;"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  117,
+        "Line":  "      chapterმონიშვნაSaved(nextDraft);"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  119,
+        "Line":  "  }, [detailQuery.data, chapterმონიშვნაSaved]);"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  122,
+        "Line":  "    return \u003cp className=\"font-ui text-sm text-muted-foreground p-6\"\u003eთავი იტვირთება...\u003c/p\u003e;"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  125,
+        "Line":  "    return \u003cp className=\"font-ui text-sm text-red-700 p-6\"\u003eთავის ჩატვირთვა ვერ მოხერხდა.\u003c/p\u003e;"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  132,
+        "Line":  "          \u003ch2 className=\"font-display text-2xl font-semibold text-foreground\"\u003eთავის რედაქტირება\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  147,
+        "Line":  "                toast({ title: \"თავი შენახულია\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  149,
+        "Line":  "                toast({ variant: \"destructive\", title: \"შენახვა ვერ მოხერხდა\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  161,
+        "Line":  "            \u003cTrash className=\"h-3.5 w-3.5\" /\u003e {deleteMutation.isPending ? \"იშლება...\" : \"წაშლა\"}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  168,
+        "Line":  "          უარყოფის reason: {detailQuery.data.rejection_reason}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  174,
+        "Line":  "          \u003cLabel className=\"font-ui\"\u003eსათაური (არასავალდებულო)\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  178,
+        "Line":  "          \u003cLabel className=\"font-ui\"\u003eრიგი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  183,
+        "Line":  "        \u003cLabel className=\"font-ui\"\u003eთავის ტექსტი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  206,
+        "Line":  "    title: \"უსათაურო წიგნი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  228,
+        "Line":  "        throw new Error(\"ჯერ ატვირთვის ფაილი აირჩიე.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  262,
+        "Line":  "  const { markSaved: bookმონიშვნაSaved } = autosave;"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  274,
+        "Line":  "    bookმონიშვნაSaved({ draft: nextDraft, coverRevision: 0 });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  275,
+        "Line":  "  }, [detailQuery.data, bookმონიშვნაSaved]);"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  305,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eწიგნის ID არასწორია.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  313,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eწიგნის რედაქტორი იტვირთება...\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  321,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-red-700\"\u003eამ წიგნის ჩატვირთვა ვერ მოხერხდა.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  322,
+        "Line":  "        \u003cButton variant=\"outline\" onClick={() =\u003e navigate(\"/writer/new\")}\u003eახალი ნაშრომის შექმნა\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  336,
+        "Line":  "              \u003cspan className=\"font-ui text-xs text-muted-foreground\"\u003eწიგნის რედაქტორი\u003c/span\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  338,
+        "Line":  "            \u003ch1 className=\"mt-3 font-display text-3xl font-semibold text-foreground\"\u003eწიგნის რედაქტირება\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  347,
+        "Line":  "                  toast({ title: \"შენახულია\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  351,
+        "Line":  "                    title: \"შენახვა ვერ მოხერხდა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  366,
+        "Line":  "                if (window.confirm(\"ნამდვილად გსურს მთელი წიგნისა და ყველა თავის წაშლა? მოქმედება შეუქცევადია.\")) {"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  369,
+        "Line":  "                    toast({ title: \"წიგნი წაიშალა\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  372,
+        "Line":  "                    toast({ variant: \"destructive\", title: \"წაშლა ვერ მოხერხდა\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  394,
+        "Line":  "            უარყოფის reason: {detailQuery.data.rejection_reason}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  400,
+        "Line":  "        {/* SIDEBAR: Table of სარჩევი */}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  405,
+        "Line":  "              \u003ch2 className=\"font-display text-xl font-semibold text-foreground\"\u003eსარჩევი\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  427,
+        "Line":  "                \u003cspan\u003eწინასიტყვაობა {!hasTextContent(draft.foreword) \u0026\u0026 \u003cspan className=\"text-muted-foreground/60 text-xs ml-1\"\u003e(ცარიელია)\u003c/span\u003e}\u003c/span\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  464,
+        "Line":  "                \u003cspan\u003eბოლოსიტყვაობა {!hasTextContent(draft.afterword) \u0026\u0026 \u003cspan className=\"text-muted-foreground/60 text-xs ml-1\"\u003e(ცარიელია)\u003c/span\u003e}\u003c/span\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  476,
+        "Line":  "                  \u003cLabel className=\"font-ui\"\u003eსათაური\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  484,
+        "Line":  "                  \u003cLabel className=\"font-ui\"\u003eთავების ნუმერაცია\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  493,
+        "Line":  "                      \u003cSelectItem value=\"separator\"\u003eგამყოფი (***)\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  494,
+        "Line":  "                      \u003cSelectItem value=\"arabic\"\u003eარაბული (1,2,3)\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  495,
+        "Line":  "                      \u003cSelectItem value=\"roman\"\u003eრომაული (I,II,III)\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  502,
+        "Line":  "                \u003cLabel className=\"font-ui font-semibold text-base\"\u003eწიგნის აღწერა\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  507,
+        "Line":  "                  placeholder=\"ჩაწერე მოკლე ტექსტური აღწერა...\""
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  520,
+        "Line":  "                        \u003cspan className=\"font-ui text-sm font-medium\"\u003eაირჩიე დასამატებელი სექცია\u003c/span\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  532,
+        "Line":  "                          წინასიტყვაობა"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  548,
+        "Line":  "                          ბოლოსიტყვაობა"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  552,
+        "Line":  "                        \u003cp className=\"text-[11px] text-muted-foreground font-ui\"\u003eბოლოსიტყვაობის დამატებამდე აუცილებელია მინიმუმ ერთი თავის შექმნა.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  561,
+        "Line":  "                  \u003cLabel className=\"font-ui\"\u003eწყაროს ტიპი და ატვირთვის პარამეტრები\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  573,
+        "Line":  "                      \u003cSelectItem value=\"manual\"\u003eხელით ტექსტის რედაქტორი\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  574,
+        "Line":  "                      \u003cSelectItem value=\"upload\"\u003eფაილის ატვირთვა\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  582,
+        "Line":  "                      \u003cLabel htmlFor=\"bookUpload\" className=\"font-ui\"\u003eდოკუმენტის ატვირთვა\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  590,
+        "Line":  "                      \u003cp className=\"mt-2 font-ui text-[11px] text-muted-foreground\"\u003eდაშვებულია: PDF, DOC, DOCX, TXT (მაქს. 20MB).\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  597,
+        "Line":  "                          ფაილის გახსნა"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  608,
+        "Line":  "                        \u003cLabel htmlFor=\"bookAnonymousToggle\" className=\"font-ui text-sm\"\u003eგამოქვეყნება ანონიმურად\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  624,
+        "Line":  "                        \u003cLabel htmlFor=\"bookHiddenToggle\" className=\"font-ui text-sm\"\u003eსაჯაროდ დამალვა\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  626,
+        "Line":  "                          შენს ბიბლიოთეკაში ამას მხოლოდ შენ და პერსონალი ხედავს."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  640,
+        "Line":  "                    \u003ch3 className=\"font-display text-base font-semibold text-foreground\"\u003eყდის სურათი\u003c/h3\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  641,
+        "Line":  "                    \u003cp className=\"font-ui text-xs text-muted-foreground\"\u003eჩანს ნაშრომის ბარათზე. JPG, PNG, WEBP — მაქს. 5MB.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  669,
+        "Line":  "                        \u003cspan className=\"px-2 text-center font-ui text-xs\"\u003eყდის დამატება\u003c/span\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  701,
+        "Line":  "                        \u003cp className=\"font-ui text-xs text-muted-foreground\"\u003eარჩეულია: {coverImage.name} (შეინახება შემდეგ შენახვაზე)\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  713,
+        "Line":  "                \u003ch2 className=\"font-display text-2xl font-semibold text-foreground\"\u003eწინასიტყვაობის რედაქტირება\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  719,
+        "Line":  "                      toast({ title: \"წინასიტყვაობა შენახულია\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  721,
+        "Line":  "                      toast({ variant: \"destructive\", title: \"შენახვა ვერ მოხერხდა\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  730,
+        "Line":  "                \u003cLabel className=\"font-ui\"\u003eწინასიტყვაობის ტექსტი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  731,
+        "Line":  "                \u003cRichTextEditor value={draft.foreword} onChange={(foreword) =\u003e setDraft(p =\u003e ({ ...p, foreword }))} minHeightClass=\"min-h-[420px]\" placeholder=\"დაწერე წინასიტყვაობა აქ...\" /\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  739,
+        "Line":  "                \u003ch2 className=\"font-display text-2xl font-semibold text-foreground\"\u003eბოლოსიტყვაობის რედაქტირება\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  745,
+        "Line":  "                      toast({ title: \"ბოლოსიტყვაობა შენახულია\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  747,
+        "Line":  "                      toast({ variant: \"destructive\", title: \"შენახვა ვერ მოხერხდა\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  756,
+        "Line":  "                \u003cLabel className=\"font-ui\"\u003eბოლოსიტყვაობის ტექსტი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterBookEditorPage.tsx",
+        "LineNumber":  757,
+        "Line":  "                \u003cRichTextEditor value={draft.afterword} onChange={(afterword) =\u003e setDraft(p =\u003e ({ ...p, afterword }))} minHeightClass=\"min-h-[420px]\" placeholder=\"დაწერე ბოლოსიტყვაობა აქ...\" /\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterChapterEditorPage.tsx",
+        "LineNumber":  93,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eთავის ID არასწორია.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterChapterEditorPage.tsx",
+        "LineNumber":  101,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eთავის რედაქტორი იტვირთება...\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterChapterEditorPage.tsx",
+        "LineNumber":  109,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-red-700\"\u003eთავის ჩატვირთვა ვერ მოხერხდა.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterChapterEditorPage.tsx",
+        "LineNumber":  110,
+        "Line":  "        \u003cButton variant=\"outline\" onClick={() =\u003e navigate(\"/writer/new\")}\u003eახალი ნაშრომის შექმნა\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterChapterEditorPage.tsx",
+        "LineNumber":  122,
+        "Line":  "              \u003cspan className=\"font-ui text-xs text-muted-foreground\"\u003eთავის რედაქტორი\u003c/span\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterChapterEditorPage.tsx",
+        "LineNumber":  124,
+        "Line":  "            \u003ch1 className=\"mt-3 font-display text-3xl font-semibold text-foreground\"\u003eთავის რედაქტირება\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterChapterEditorPage.tsx",
+        "LineNumber":  132,
+        "Line":  "                  Back to თავები"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterChapterEditorPage.tsx",
+        "LineNumber":  141,
+        "Line":  "                  toast({ title: \"თავი შენახულია\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterChapterEditorPage.tsx",
+        "LineNumber":  143,
+        "Line":  "                  toast({ variant: \"destructive\", title: \"შენახვა ვერ მოხერხდა\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterChapterEditorPage.tsx",
+        "LineNumber":  149,
+        "Line":  "              შენახვა ახლავე"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterChapterEditorPage.tsx",
+        "LineNumber":  166,
+        "Line":  "            უარყოფის reason: {detailQuery.data.rejection_reason}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterChapterEditorPage.tsx",
+        "LineNumber":  173,
+        "Line":  "          \u003cLabel className=\"font-ui\"\u003eსათაური (არასავალდებულო)\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterChapterEditorPage.tsx",
+        "LineNumber":  182,
+        "Line":  "          \u003cLabel className=\"font-ui\"\u003eრიგი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterChapterEditorPage.tsx",
+        "LineNumber":  194,
+        "Line":  "        \u003cLabel className=\"font-ui\"\u003eთავის ტექსტი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterCreateWorkRedirectPage.tsx",
+        "LineNumber":  19,
+        "Line":  "          title: \"უსათაურო წიგნი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterCreateWorkRedirectPage.tsx",
+        "LineNumber":  31,
+        "Line":  "          title: \"უსათაურო ლექსი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterCreateWorkRedirectPage.tsx",
+        "LineNumber":  33,
+        "Line":  "          body: \"\u003cp\u003eდაიწყე ლექსის წერა...\u003c/p\u003e\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterCreateWorkRedirectPage.tsx",
+        "LineNumber":  40,
+        "Line":  "        title: \"უსათაურო მოთხრობა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterCreateWorkRedirectPage.tsx",
+        "LineNumber":  42,
+        "Line":  "        body: \"\u003cp\u003eდაიწყე მოთხრობის წერა...\u003c/p\u003e\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterCreateWorkRedirectPage.tsx",
+        "LineNumber":  53,
+        "Line":  "        title: \"შავი ვერსიის შექმნა ვერ მოხერხდა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterCreateWorkRedirectPage.tsx",
+        "LineNumber":  54,
+        "Line":  "        description: error instanceof Error ? error.message : \"სცადე ხელახლა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterCreateWorkRedirectPage.tsx",
+        "LineNumber":  68,
+        "Line":  "      \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eშავი ვერსიის რედაქტორი იქმნება...\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  21,
+        "Line":  "  { value: \"book\", label: \"წიგნი\", description: \"Long-form work with chapter outline\", icon: BookOpen },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  23,
+        "Line":  "  { value: \"story\", label: \"მოთხრობა\", description: \"Short story writing workspace\", icon: FileText },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  24,
+        "Line":  "  { value: \"chapter\", label: \"თავი\", description: \"Create chapter under an existing book\", icon: PlusSquare },"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  47,
+        "Line":  "          throw new Error(\"ატვირთვის რეჟიმისთვის აირჩიე ფაილი\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  51,
+        "Line":  "          title: \"უსათაურო წიგნი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  65,
+        "Line":  "          throw new Error(\"ატვირთვის რეჟიმისთვის აირჩიე ფაილი\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  69,
+        "Line":  "          title: \"უსათაურო ლექსი\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  71,
+        "Line":  "          body: sourceType === \"manual\" ? \"\u003cp\u003eდაიწყე ლექსის წერა...\u003c/p\u003e\" : \"\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  81,
+        "Line":  "          throw new Error(\"ატვირთვის რეჟიმისთვის აირჩიე ფაილი\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  85,
+        "Line":  "          title: \"უსათაურო მოთხრობა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  87,
+        "Line":  "          body: sourceType === \"manual\" ? \"\u003cp\u003eდაიწყე მოთხრობის წერა...\u003c/p\u003e\" : \"\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  96,
+        "Line":  "        throw new Error(\"ჯერ აირჩიე წიგნი\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  107,
+        "Line":  "        body: \"\u003cp\u003eდაიწყე თავის წერა...\u003c/p\u003e\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  114,
+        "Line":  "        title: \"დრაფტი შეიქმნა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  115,
+        "Line":  "        description: \"რედაქტორი იხსნება...\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  122,
+        "Line":  "        title: \"შავი ვერსიის შექმნა ვერ მოხერხდა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  123,
+        "Line":  "        description: error instanceof Error ? error.message : \"სცადე ხელახლა.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  136,
+        "Line":  "          \u003cspan className=\"font-ui text-xs text-muted-foreground\"\u003eავტორის სამუშაო სივრცე\u003c/span\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  139,
+        "Line":  "        \u003ch1 className=\"mt-4 font-display text-4xl font-semibold text-foreground\"\u003eახალი ნაშრომის შექმნა\u003c/h1\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  146,
+        "Line":  "            \u003cLabel className=\"font-ui\"\u003eკონტენტის ტიპი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  173,
+        "Line":  "              \u003cLabel className=\"font-ui\"\u003eწყაროს ტიპი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  185,
+        "Line":  "                  \u003cSelectItem value=\"manual\"\u003eხელით წერა\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  186,
+        "Line":  "                  \u003cSelectItem value=\"upload\"\u003eფაილის ატვირთვა\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  195,
+        "Line":  "                \u003cp className=\"font-ui text-sm font-medium text-foreground\"\u003eგამოქვეყნება ანონიმურად\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  197,
+        "Line":  "                  საჯარო მკითხველები და რედაქტორები ნახავენ მხოლოდ \"ანონიმურს\". შენი ვინაობა მხოლოდ ადმინებს ექნებათ ხილული."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  206,
+        "Line":  "              \u003cLabel htmlFor=\"newWorkUpload\" className=\"font-ui\"\u003eფაილის ატვირთვა\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  213,
+        "Line":  "              \u003cp className=\"font-ui text-xs text-muted-foreground\"\u003eდაშვებულია: PDF, DOC, DOCX, TXT (მაქს. 20MB).\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterNewWorkPage.tsx",
+        "LineNumber":  229,
+        "Line":  "              \u003cLabel className=\"font-ui\"\u003eმშობელი წიგნის არჩევა\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  62,
+        "Line":  "    title: data.title || \"უსათაურო\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  85,
+        "Line":  "    title: \"უსათაურო\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  101,
+        "Line":  "        throw new Error(\"ჯერ ატვირთვის ფაილი აირჩიე.\");"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  156,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eID არასწორია.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  164,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-muted-foreground\"\u003eრედაქტორი იტვირთება...\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  172,
+        "Line":  "        \u003cp className=\"font-ui text-sm text-red-700\"\u003eამ ნაშრომის ჩატვირთვა ვერ მოხერხდა.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  173,
+        "Line":  "        \u003cButton variant=\"outline\" onClick={() =\u003e navigate(\"/writer/new\")}\u003eახალი ნაშრომის შექმნა\u003c/Button\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  197,
+        "Line":  "                toast({ title: \"შენახულია\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  201,
+        "Line":  "                  title: \"შენახვა ვერ მოხერხდა\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  202,
+        "Line":  "                  description: error instanceof Error ? error.message : \"გთხოვ, გადაამოწმე სავალდებულო ველები.\","
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  209,
+        "Line":  "            შენახვა ახლავე"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  220,
+        "Line":  "                  toast({ title: \"ნაშრომი წაიშალა\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  223,
+        "Line":  "                  toast({ variant: \"destructive\", title: \"წაშლა ვერ მოხერხდა\" });"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  244,
+        "Line":  "            უარყოფის reason: {detailQuery.data.rejection_reason}"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  251,
+        "Line":  "          \u003cLabel className=\"font-ui\"\u003eსათაური\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  260,
+        "Line":  "          \u003cLabel className=\"font-ui\"\u003eწყაროს ტიპი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  272,
+        "Line":  "              \u003cSelectItem value=\"manual\"\u003eხელით წერა\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  273,
+        "Line":  "              \u003cSelectItem value=\"upload\"\u003eფაილის ატვირთვა\u003c/SelectItem\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  282,
+        "Line":  "                \u003cLabel htmlFor=\"textAnonymousToggle\" className=\"font-ui text-sm\"\u003eგამოქვეყნება ანონიმურად\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  298,
+        "Line":  "                \u003cLabel htmlFor=\"textHiddenToggle\" className=\"font-ui text-sm\"\u003eსაჯაროდ დამალვა\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  300,
+        "Line":  "                  შენს ბიბლიოთეკაში ამას მხოლოდ შენ და პერსონალი ხედავს."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  314,
+        "Line":  "        \u003ch2 className=\"mb-1 font-display text-base font-semibold text-foreground\"\u003eყდის სურათი\u003c/h2\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  316,
+        "Line":  "          არასავალდებულო. ჩანს ნაშრომის ბარათზე. JPG, PNG, WEBP ან GIF — მაქს. 5MB."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  344,
+        "Line":  "              \u003cspan className=\"px-2 text-center font-ui text-xs\"\u003eყდის დამატება\u003c/span\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  376,
+        "Line":  "              \u003cp className=\"font-ui text-xs text-muted-foreground\"\u003eარჩეულია: {coverImage.name} — შეინახება შემდეგ შენახვაზე.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  379,
+        "Line":  "              \u003cp className=\"font-ui text-xs text-muted-foreground\"\u003eმიმდინარე ყდა შენახულია სერვერზე.\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  388,
+        "Line":  "            \u003cLabel htmlFor=\"textWorkUpload\" className=\"font-ui\"\u003eფაილის ატვირთვა\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  395,
+        "Line":  "            \u003cp className=\"mt-2 font-ui text-xs text-muted-foreground\"\u003eდაშვებულია: PDF, DOC, DOCX, TXT (მაქს. 20MB).\u003c/p\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  402,
+        "Line":  "                ფაილის გახსნა"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  409,
+        "Line":  "              ატვირთვის რეჟიმში შენახვამდე აირჩიე ფაილი."
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  416,
+        "Line":  "            \u003cLabel className=\"font-ui\"\u003eაღწერა\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  421,
+        "Line":  "              placeholder=\"მოკლე აღწერა მკითხველებისთვის...\""
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  426,
+        "Line":  "            \u003cLabel className=\"font-ui\"\u003eტექსტი\u003c/Label\u003e"
+    },
+    {
+        "Path":  "C:\\Users\\Giorgi\\Documents\\lit_proj\\full_project\\Readus\\Readus\\frontend-public\\src\\pages\\WriterTextWorkEditorPage.tsx",
+        "LineNumber":  431,
+        "Line":  "              placeholder=\"დაწერე სრული ტექსტი აქ...\""
+    }
+]
