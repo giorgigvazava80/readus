@@ -222,14 +222,20 @@ const PublicHomePage = () => {
           >
             <h1
               className={cn(
-                "text-5xl font-bold text-foreground sm:text-6xl md:text-7xl lg:text-[5rem]",
+                "font-bold text-foreground",
                 isGeorgian
-                  ? "font-ui leading-[1.25] tracking-normal md:leading-[1.2]"
-                  : "font-display leading-[1.15] tracking-tight",
+                  ? "font-body text-4xl leading-[1.22] tracking-normal sm:text-5xl md:text-6xl lg:text-[4.4rem]"
+                  : "font-display text-5xl leading-[1.15] tracking-tight sm:text-6xl md:text-7xl lg:text-[5rem]",
               )}
             >
-              {t("home.hero.titleStart", "Words find")}
-              <span className="ml-2 text-gradient-primary">{t("home.hero.titleHighlight", "their home")}</span>
+              <span className={cn(isGeorgian ? "block" : "")}>{t("home.hero.titleStart", "Words find")}</span>
+              <span
+                className={cn(
+                  isGeorgian ? "mt-1 block text-primary" : "ml-2 text-gradient-primary",
+                )}
+              >
+                {t("home.hero.titleHighlight", "their home")}
+              </span>
             </h1>
             <p className="mt-6 font-body text-lg leading-relaxed text-muted-foreground md:text-xl max-w-2xl">
               {t(
