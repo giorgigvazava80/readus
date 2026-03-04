@@ -904,7 +904,7 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
     "home.readTime": "{minutes} წთ კითხვის დრო",
     "home.noWorks": "გამოქვეყნებული ნაშრომები ჯერ არ არის.",
     "home.readAcc": "ღია პლატფორმა — იკითხე და წერე თავისუფლად",
-    "home.authorsApprove": "ატვირთე შენი ნაშრომი, წაიკითხე სხვები და მიიღება რეალური შეფასება ერთ სივრცეში.",
+    "home.authorsApprove": "ატვირთე შენი ნაშრომი, წაიკითხე სხვების და მიიღება რეალური შეფასება ერთ სივრცეში.",
     "home.stats.published": "გამოქვეყნებული ნაშრომები",
     "home.stats.authors": "ავტორები",
     "home.stats.newThisMonth": "ახალი ამ თვეში",
