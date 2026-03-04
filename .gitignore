@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual env
+venv/
+.venv/
+
+# Env files
+.env
+
+# Django runtime files
+*.sqlite3
+/static/
+/staticfiles/
+/media/
+/api/staticfiles/
+/api/media/
+
+# Postgres local data
+postgres/pgdata/
+
+# Frontend
+frontend-public/node_modules/
+frontend-public/dist/
+frontend-admin/node_modules/
+frontend-admin/dist/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

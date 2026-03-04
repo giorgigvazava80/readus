@@ -1,0 +1,10 @@
+GROUP_READERS = "Readers"
+GROUP_WRITERS = "Writers"
+GROUP_REDACTORS = "Redactors"
+GROUP_ADMINS = "Admins"
+
+REGISTERED_ROLE_READER = "reader"
+REGISTERED_ROLE_WRITER = "writer"
+
+ROOT_DEFAULT_EMAIL = "root@test.ge"
+ROOT_DEFAULT_PASSWORD = "ChangeMe@123"

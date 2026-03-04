@@ -1,0 +1,8 @@
+Hello from Readus!
+
+You're receiving this email because user {{ user.username }} used your email to register on Readus.
+
+To confirm this is correct, go to:
+{{ activate_url }}
+
+Thank you for using Readus!
