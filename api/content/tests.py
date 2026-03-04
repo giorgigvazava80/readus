@@ -178,3 +178,106 @@ class PublicAuthorApiTests(APITestCase):
         self.assertEqual(third.headers.get("X-Cache"), "MISS")
         keys = {row["key"] for row in third.data["results"]}
         self.assertNotIn("bob", keys)
+
+
+class RecycleBinApiTests(APITestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.writer = User.objects.create_user(
+            username="writer1",
+            email="writer1@example.com",
+            password="Test1234!",
+            first_name="Writer",
+            last_name="One",
+        )
+        EmailAddress.objects.create(user=self.writer, email=self.writer.email, verified=True, primary=True)
+        profile = get_profile(self.writer)
+        profile.is_writer_approved = True
+        profile.save(update_fields=["is_writer_approved", "updated_at"])
+
+        self.story = Story.objects.create(
+            author=self.writer,
+            title="Soft delete story",
+            body="Body",
+            status=StatusChoices.APPROVED,
+            is_hidden=False,
+            is_anonymous=False,
+        )
+
+        self.client.force_authenticate(self.writer)
+
+    def test_delete_moves_item_to_recycle_bin_and_excludes_from_default_list(self):
+        delete_response = self.client.delete(f"/api/content/stories/{self.story.id}/")
+        self.assertEqual(delete_response.status_code, 204)
+
+        self.story.refresh_from_db()
+        self.assertTrue(self.story.is_deleted)
+        self.assertIsNotNone(self.story.deleted_at)
+
+        normal_list = self.client.get("/api/content/stories/?mine=1")
+        self.assertEqual(normal_list.status_code, 200)
+        self.assertEqual(normal_list.data["count"], 0)
+
+        deleted_list = self.client.get("/api/content/stories/?mine=1&deleted=1")
+        self.assertEqual(deleted_list.status_code, 200)
+        self.assertEqual(deleted_list.data["count"], 1)
+        self.assertTrue(deleted_list.data["results"][0]["is_deleted"])
+
+    def test_restore_returns_item_from_recycle_bin_to_normal_list(self):
+        self.client.delete(f"/api/content/stories/{self.story.id}/")
+
+        restore_response = self.client.post(f"/api/content/stories/{self.story.id}/restore/")
+        self.assertEqual(restore_response.status_code, 200)
+        self.assertFalse(restore_response.data["is_deleted"])
+
+        self.story.refresh_from_db()
+        self.assertFalse(self.story.is_deleted)
+        self.assertIsNone(self.story.deleted_at)
+
+        normal_list = self.client.get("/api/content/stories/?mine=1")
+        self.assertEqual(normal_list.status_code, 200)
+        self.assertEqual(normal_list.data["count"], 1)
+
+    def test_hard_delete_removes_item_permanently(self):
+        self.client.delete(f"/api/content/stories/{self.story.id}/")
+
+        hard_delete_response = self.client.delete(f"/api/content/stories/{self.story.id}/hard-delete/")
+        self.assertEqual(hard_delete_response.status_code, 204)
+        self.assertFalse(Story.objects.filter(id=self.story.id).exists())
+
+    def test_deleted_content_is_not_publicly_visible(self):
+        self.client.delete(f"/api/content/stories/{self.story.id}/")
+        self.client.force_authenticate(None)
+
+        public_list = self.client.get("/api/content/stories/")
+        self.assertEqual(public_list.status_code, 200)
+        self.assertEqual(public_list.data["count"], 0)
+
+    def test_cleanup_recycle_bin_removes_all_deleted_items_in_category(self):
+        second_story = Story.objects.create(
+            author=self.writer,
+            title="Second soft delete story",
+            body="Body",
+            status=StatusChoices.APPROVED,
+            is_hidden=False,
+            is_anonymous=False,
+        )
+        active_story = Story.objects.create(
+            author=self.writer,
+            title="Active story",
+            body="Still active",
+            status=StatusChoices.APPROVED,
+            is_hidden=False,
+            is_anonymous=False,
+        )
+
+        self.client.delete(f"/api/content/stories/{self.story.id}/")
+        self.client.delete(f"/api/content/stories/{second_story.id}/")
+
+        cleanup_response = self.client.post("/api/content/stories/cleanup/")
+        self.assertEqual(cleanup_response.status_code, 200)
+        self.assertEqual(cleanup_response.data["deleted_count"], 2)
+
+        self.assertFalse(Story.objects.filter(id=self.story.id).exists())
+        self.assertFalse(Story.objects.filter(id=second_story.id).exists())
+        self.assertTrue(Story.objects.filter(id=active_story.id).exists())

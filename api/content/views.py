@@ -6,6 +6,7 @@ from django.core.cache import cache
 from django.db.models import Count, F, Q, Value
 from django.db.models.functions import Concat
 from django.http import Http404
+from django.utils import timezone
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -70,7 +71,7 @@ def _public_cache_key(prefix: str, path: str) -> str:
 
 
 def _public_content_base_q() -> Q:
-    return Q(status=StatusChoices.APPROVED, is_hidden=False)
+    return Q(status=StatusChoices.APPROVED, is_hidden=False, is_deleted=False)
 
 
 def _resolve_profile_photo_url(photo_name: str | None) -> str | None:
@@ -121,16 +122,19 @@ def _build_named_author_queryset(search: str = ""):
         book_items__status=StatusChoices.APPROVED,
         book_items__is_hidden=False,
         book_items__is_anonymous=False,
+        book_items__is_deleted=False,
     )
     stories_public_q = Q(
         story_items__status=StatusChoices.APPROVED,
         story_items__is_hidden=False,
         story_items__is_anonymous=False,
+        story_items__is_deleted=False,
     )
     poems_public_q = Q(
         poem_items__status=StatusChoices.APPROVED,
         poem_items__is_hidden=False,
         poem_items__is_anonymous=False,
+        poem_items__is_deleted=False,
     )
 
     queryset = (
@@ -431,21 +435,33 @@ class AuthorContentViewSet(ReviewActionMixin, viewsets.ModelViewSet):
         user = request.user
 
         mine = request.query_params.get("mine", "0") in {"1", "true", "True"}
+        deleted_only = request.query_params.get("deleted", "0") in {"1", "true", "True"}
         status_filter = request.query_params.get("status", "").strip()
         q = request.query_params.get("q", "").strip()
         author_filter = request.query_params.get("author", "").strip()
         date_from = request.query_params.get("date_from", "").strip()
         date_to = request.query_params.get("date_to", "").strip()
+        include_deleted_for_action = getattr(self, "action", "") in {"restore", "hard_delete", "cleanup"}
 
-        if mine:
+        if not deleted_only and not include_deleted_for_action:
+            queryset = queryset.filter(is_deleted=False)
+
+        if deleted_only:
             if not user.is_authenticated:
                 return queryset.none()
-            queryset = queryset.filter(author=user)
+            queryset = queryset.filter(is_deleted=True)
+            if mine or not (can_manage_content(user) or can_review_content(user)):
+                queryset = queryset.filter(author=user)
         else:
-            if not user.is_authenticated:
-                queryset = queryset.filter(status=StatusChoices.APPROVED, is_hidden=False)
-            elif not (can_manage_content(user) or can_review_content(user)):
-                queryset = queryset.filter(Q(status=StatusChoices.APPROVED, is_hidden=False) | Q(author=user))
+            if mine:
+                if not user.is_authenticated:
+                    return queryset.none()
+                queryset = queryset.filter(author=user)
+            else:
+                if not user.is_authenticated:
+                    queryset = queryset.filter(status=StatusChoices.APPROVED, is_hidden=False)
+                elif not (can_manage_content(user) or can_review_content(user)):
+                    queryset = queryset.filter(Q(status=StatusChoices.APPROVED, is_hidden=False) | Q(author=user))
 
         if status_filter:
             queryset = queryset.filter(status=status_filter)
@@ -496,17 +512,85 @@ class AuthorContentViewSet(ReviewActionMixin, viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         obj = self.get_object()
+        if obj.is_deleted:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        obj.is_deleted = True
+        obj.deleted_at = timezone.now()
+        obj.save(update_fields=["is_deleted", "deleted_at", "updated_at"])
         create_audit_log(
             actor=request.user,
-            action="content_deleted",
+            action="content_moved_to_bin",
             target_type=obj.__class__.__name__.lower(),
             target_id=obj.id,
-            description="Content deleted",
+            description="Content moved to recycle bin",
             request=request,
         )
-        response = super().destroy(request, *args, **kwargs)
         _bump_public_cache_version()
-        return response
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=["post"])
+    def restore(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if not obj.is_deleted:
+            return Response({"detail": "Item is not in recycle bin."}, status=status.HTTP_400_BAD_REQUEST)
+
+        obj.is_deleted = False
+        obj.deleted_at = None
+        obj.save(update_fields=["is_deleted", "deleted_at", "updated_at"])
+        create_audit_log(
+            actor=request.user,
+            action="content_restored",
+            target_type=obj.__class__.__name__.lower(),
+            target_id=obj.id,
+            description="Content restored from recycle bin",
+            request=request,
+        )
+        _bump_public_cache_version()
+        serializer = self.get_serializer(obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["delete"], url_path="hard-delete")
+    def hard_delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if not obj.is_deleted:
+            return Response(
+                {"detail": "Move item to recycle bin first."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        create_audit_log(
+            actor=request.user,
+            action="content_permanently_deleted",
+            target_type=obj.__class__.__name__.lower(),
+            target_id=obj.id,
+            description="Content permanently deleted from recycle bin",
+            request=request,
+        )
+        obj.delete()
+        _bump_public_cache_version()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=["post"])
+    def cleanup(self, request, *args, **kwargs):
+        deleted_queryset = self.queryset.filter(author=request.user, is_deleted=True)
+        deleted_count = deleted_queryset.count()
+
+        if deleted_count <= 0:
+            return Response({"deleted_count": 0}, status=status.HTTP_200_OK)
+
+        deleted_queryset.delete()
+        create_audit_log(
+            actor=request.user,
+            action="content_recycle_bin_cleaned",
+            target_type=self.basename or self.__class__.__name__.lower(),
+            target_id=request.user.id,
+            description="Recycle bin cleaned",
+            metadata={"deleted_count": deleted_count},
+            request=request,
+        )
+        _bump_public_cache_version()
+        return Response({"deleted_count": deleted_count}, status=status.HTTP_200_OK)
 
 
 class StoryViewSet(AuthorContentViewSet):
@@ -537,7 +621,8 @@ class BookViewSet(AuthorContentViewSet):
             if status_filter == StatusChoices.DRAFT:
                 # Include books in draft state OR books with at least one draft chapter
                 queryset = Book.objects.filter(
-                    Q(status=StatusChoices.DRAFT) | Q(chapters__status=StatusChoices.DRAFT)
+                    Q(status=StatusChoices.DRAFT) | Q(chapters__status=StatusChoices.DRAFT),
+                    is_deleted=False,
                 ).select_related("author").prefetch_related("chapters").distinct()
 
         return queryset.order_by("-created_at")

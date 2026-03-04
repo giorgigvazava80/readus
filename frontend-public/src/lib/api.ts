@@ -104,6 +104,7 @@ export interface ContentListFilters {
   status?: ContentStatus;
   q?: string;
   author?: string;
+  deleted?: boolean;
   page?: number;
   date_from?: string;
   date_to?: string;
@@ -714,6 +715,7 @@ export async function fetchContent(
       status: filters.status,
       q: filters.q,
       author: filters.author,
+      deleted: filters.deleted ? 1 : undefined,
       page: filters.page,
       date_from: filters.date_from,
       date_to: filters.date_to,
@@ -853,6 +855,18 @@ export async function updateStory(id: number, payload: Partial<TextContentPayloa
 
 export async function deleteContentItem(category: "books" | "poems" | "stories", id: number): Promise<void> {
   await apiRequest(`/api/content/${category}/${id}/`, { method: "DELETE" }, true);
+}
+
+export async function restoreContentItem(category: "books" | "poems" | "stories", id: number): Promise<ContentDetail> {
+  return apiRequest<ContentDetail>(`/api/content/${category}/${id}/restore/`, { method: "POST" }, true);
+}
+
+export async function hardDeleteContentItem(category: "books" | "poems" | "stories", id: number): Promise<void> {
+  await apiRequest(`/api/content/${category}/${id}/hard-delete/`, { method: "DELETE" }, true);
+}
+
+export async function cleanupRecycleBin(category: "books" | "poems" | "stories"): Promise<{ deleted_count: number }> {
+  return apiRequest<{ deleted_count: number }>(`/api/content/${category}/cleanup/`, { method: "POST" }, true);
 }
 
 export async function createChapter(payload: ChapterPayload) {

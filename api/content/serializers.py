@@ -216,6 +216,8 @@ class StorySerializer(ContentValidationMixin):
             "author_key",
             "status",
             "rejection_reason",
+            "is_deleted",
+            "deleted_at",
             "created_at",
             "updated_at",
         ]
@@ -227,6 +229,8 @@ class StorySerializer(ContentValidationMixin):
             "author_key",
             "status",
             "rejection_reason",
+            "is_deleted",
+            "deleted_at",
             "created_at",
             "updated_at",
         ]
@@ -291,6 +295,8 @@ class PoemSerializer(ContentValidationMixin):
             "author_key",
             "status",
             "rejection_reason",
+            "is_deleted",
+            "deleted_at",
             "created_at",
             "updated_at",
         ]
@@ -302,6 +308,8 @@ class PoemSerializer(ContentValidationMixin):
             "author_key",
             "status",
             "rejection_reason",
+            "is_deleted",
+            "deleted_at",
             "created_at",
             "updated_at",
         ]
@@ -414,6 +422,8 @@ class BookSerializer(ContentValidationMixin):
             "author_key",
             "status",
             "rejection_reason",
+            "is_deleted",
+            "deleted_at",
             "created_at",
             "updated_at",
             "chapters",
@@ -428,6 +438,8 @@ class BookSerializer(ContentValidationMixin):
             "author_key",
             "status",
             "rejection_reason",
+            "is_deleted",
+            "deleted_at",
             "created_at",
             "updated_at",
         ]

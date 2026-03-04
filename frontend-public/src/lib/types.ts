@@ -66,6 +66,8 @@ export interface ChapterDetail {
   auto_label?: string;
   status: ContentStatus;
   rejection_reason: string;
+  is_deleted?: boolean;
+  deleted_at?: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -123,6 +123,8 @@ class BaseContent(StatusTrackedModel):
         null=True,
     )
     is_hidden = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False, db_index=True)
+    deleted_at = models.DateTimeField(blank=True, null=True)
     extracted_text = models.TextField(blank=True)
     public_slug = models.SlugField(max_length=255, unique=True, blank=True, db_index=False)
 

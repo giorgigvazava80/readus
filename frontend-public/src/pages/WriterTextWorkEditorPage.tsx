@@ -208,6 +208,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
     try {
       await autosave.saveNow();
       toast({ title: t("editor.saved") });
+      navigate(`/my-works`);
     } catch (error) {
       toast({
         variant: "destructive",
