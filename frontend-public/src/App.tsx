@@ -24,6 +24,8 @@ import MyWorksPage from "@/pages/MyWorksPage";
 import NotFound from "@/pages/NotFound";
 import PublicBrowsePage from "@/pages/PublicBrowsePage";
 import PublicHomePage from "@/pages/PublicHomePage";
+import PublicAuthorProfilePage from "@/pages/PublicAuthorProfilePage";
+import PublicAuthorsPage from "@/pages/PublicAuthorsPage";
 import PublicReadPage from "@/pages/PublicReadPage";
 import PublishBookPage from "@/pages/PublishBookPage";
 import ReaderBookDetailPage from "@/pages/ReaderBookDetailPage";
@@ -135,6 +137,38 @@ const App = () => (
                   element={
                     <UserAppOnly>
                       <PublicBrowsePage />
+                    </UserAppOnly>
+                  }
+                />
+                <Route
+                  path="/authors"
+                  element={
+                    <UserAppOnly>
+                      <PublicAuthorsPage />
+                    </UserAppOnly>
+                  }
+                />
+                <Route
+                  path="/browse/authors"
+                  element={
+                    <UserAppOnly>
+                      <PublicAuthorsPage />
+                    </UserAppOnly>
+                  }
+                />
+                <Route
+                  path="/authors/:authorKey"
+                  element={
+                    <UserAppOnly>
+                      <PublicAuthorProfilePage />
+                    </UserAppOnly>
+                  }
+                />
+                <Route
+                  path="/browse/authors/:authorKey"
+                  element={
+                    <UserAppOnly>
+                      <PublicAuthorProfilePage />
                     </UserAppOnly>
                   }
                 />

@@ -7,6 +7,7 @@ import WorkCard, { type PublicWorkCardItem } from "@/components/WorkCard";
 import CategoryFilter, { type PublicBrowseCategory } from "@/components/CategoryFilter";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/i18n";
+import { resolveAuthorKey } from "@/lib/authors";
 import { fetchContent, resolveMediaUrl } from "@/lib/api";
 import type { ContentItem } from "@/lib/types";
 
@@ -53,6 +54,7 @@ function toCardItem(
     category,
     title: item.title,
     author: item.author_name || item.author_username || "",
+    authorKey: resolveAuthorKey(item),
     excerpt,
     coverColor: colorFor(category, item.id),
     coverImageUrl: resolveMediaUrl(item.cover_image),

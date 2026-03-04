@@ -18,6 +18,7 @@ interface NavItem {
 const publicUserNav: NavItem[] = [
   { labelKey: "nav.home", defaultLabel: "Home", path: "/" },
   { labelKey: "nav.browse", defaultLabel: "Library", path: "/browse" },
+  { labelKey: "nav.authors", defaultLabel: "Authors", path: "/authors" },
 ];
 
 const adminNav: NavItem[] = [
@@ -126,7 +127,13 @@ const Navbar = () => {
 
           <nav className="hidden flex-1 items-center gap-1 overflow-hidden xl:flex">
             {navItems.map((item) => {
-              const isActive = location.pathname === item.path;
+              const isAuthorsNav = item.path === "/authors";
+              const isActive = isAuthorsNav
+                ? location.pathname === "/authors"
+                  || location.pathname.startsWith("/authors/")
+                  || location.pathname === "/browse/authors"
+                  || location.pathname.startsWith("/browse/authors/")
+                : location.pathname === item.path;
               return (
                 <Link key={item.path} to={item.path}>
                   <Button
@@ -240,7 +247,13 @@ const Navbar = () => {
           >
             <div className="container mx-auto space-y-1 px-4 py-4">
               {navItems.map((item, i) => {
-                const isActive = location.pathname === item.path;
+                const isAuthorsNav = item.path === "/authors";
+                const isActive = isAuthorsNav
+                  ? location.pathname === "/authors"
+                    || location.pathname.startsWith("/authors/")
+                    || location.pathname === "/browse/authors"
+                    || location.pathname.startsWith("/browse/authors/")
+                  : location.pathname === item.path;
                 return (
                   <motion.div
                     key={item.path}

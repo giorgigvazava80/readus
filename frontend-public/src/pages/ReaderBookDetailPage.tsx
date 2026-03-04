@@ -8,6 +8,7 @@ import ReadingFontSizeControl from "@/components/reader/ReadingFontSizeControl";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useI18n } from "@/i18n";
+import { authorProfilePath, resolveAuthorKey } from "@/lib/authors";
 import { fetchContentDetail } from "@/lib/api";
 import { getStoredReadingFontSize, readingFontSizeClassByPreference, setStoredReadingFontSize, type ReadingFontSize } from "@/lib/fontSize";
 import { useReadChapters } from "@/hooks/useReadChapters";
@@ -75,6 +76,8 @@ const ReaderBookDetailPage = () => {
   const book = bookQuery.data;
   const canonicalIdentifier = (book.public_slug || contentIdentifier).trim();
   const chapters = (book.chapters || []).slice().sort((a, b) => a.order - b.order);
+  const authorDisplay = book.author_name || book.author_username || t("workcard.anonymous", "anonymous");
+  const authorPath = authorProfilePath(resolveAuthorKey(book));
   const handleReadingFontSizeChange = (next: ReadingFontSize) => {
     setStoredReadingFontSize(next);
     setFontSize(next);
@@ -100,7 +103,10 @@ const ReaderBookDetailPage = () => {
           )}
         </div>
         <p className="mt-1 font-ui text-sm text-muted-foreground">
-          {t("workcard.by", "by ")}{book.author_name || book.author_username || t("workcard.anonymous", "anonymous")}
+          {t("workcard.by", "by ")}
+          <Link to={authorPath} className="hover:text-primary hover:underline">
+            {authorDisplay}
+          </Link>
         </p>
 
         {book.description ? (

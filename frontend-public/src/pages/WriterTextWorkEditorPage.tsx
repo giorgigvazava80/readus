@@ -159,13 +159,9 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
 
   const currentCoverUrl = coverPreview || resolveMediaUrl(detailQuery.data?.cover_image) || null;
 
-  if (!Number.isFinite(contentId)) {
-    return (
-      <div className="container mx-auto px-6 py-10">
-        <p className="font-ui text-sm text-muted-foreground">ID არასწორია.</p>
-      </div>
-    );
-  }
+  <div className="container mx-auto px-6 py-10">
+    <p className="font-ui text-sm text-muted-foreground">{t("editor.invalidId")}</p>
+  </div>
 
   if (detailQuery.isLoading) {
     return (
@@ -188,22 +184,22 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
 
   let activeSectionLabel = "Editor";
   if (activeSection === "settings") {
-    activeSectionLabel = "Overview & Settings";
+    activeSectionLabel = t("editor.overviewSettings");
   } else if (activeSection === "body") {
-    activeSectionLabel = draft.source_type === "upload" ? t("work.fileUpload", "File Upload") : (type === "poems" ? t("editor.poemText", "Poem Text") : t("editor.storyText", "Story Text"));
+    activeSectionLabel = draft.source_type === "upload" ? t("work.fileUpload") : (type === "poems" ? t("editor.poemText") : t("editor.storyText"));
   }
 
   const navItems = [
     {
       value: "settings",
-      label: "Overview & Settings",
-      hint: "Title, Cover, Style",
+      label: t("editor.overviewSettings"),
+      hint: t("editor.editStoryDesc"), // fallback or just generic hint if needed
       icon: <Settings className="h-4 w-4 shrink-0" />,
     },
     {
       value: "body",
-      label: draft.source_type === "upload" ? t("work.fileUpload", "File Upload") : (type === "poems" ? t("editor.poemText", "Poem Text") : t("editor.storyText", "Story Text")),
-      hint: draft.source_type === "upload" ? "Upload document file" : "Rich text body content",
+      label: draft.source_type === "upload" ? t("work.fileUpload") : (type === "poems" ? t("editor.poemText") : t("editor.storyText")),
+      hint: draft.source_type === "upload" ? t("editor.uploadDoc") : t("editor.richTextBody"),
       icon: <Icon className="h-4 w-4 shrink-0" />,
     }
   ];
@@ -238,7 +234,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
           <Menu className="h-5 w-5" />
         </button>
         <div className="flex-1 min-w-0">
-          <p className="font-ui text-xs text-muted-foreground truncate">{meta.title}</p>
+          <p className="font-ui text-xs text-muted-foreground truncate">{type === "poems" ? t("editor.poemLabel") : t("editor.storyLabel")}</p>
           <p className="font-ui text-sm font-semibold text-foreground truncate">{activeSectionLabel}</p>
         </div>
         <SaveStateBadge
@@ -262,7 +258,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
             <div className="flex items-center justify-between px-4 py-4 border-b border-border/40">
               <div className="flex items-center gap-2">
                 <Icon className="h-4 w-4 text-primary" />
-                <span className="font-ui text-sm font-semibold">{meta.title} ი</span>
+                <span className="font-ui text-sm font-semibold">{type === "poems" ? t("editor.poemLabel") : t("editor.storyLabel")}</span>
               </div>
               <button onClick={() => setSidebarOpen(false)} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted">
                 <X className="h-4 w-4" />
@@ -301,11 +297,13 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1 mb-2">
               <Icon className="h-3.5 w-3.5 text-primary" />
-              <span className="font-ui text-xs text-muted-foreground">{meta.title}</span>
+              <span className="font-ui text-xs text-muted-foreground">{type === "poems" ? t("editor.poemLabel") : t("editor.storyLabel")}</span>
             </div>
             <h1 className="font-display text-2xl lg:text-3xl font-semibold text-foreground">{draft.title || t("editor.untitled")}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className={statusClass}>{detailQuery.data.status}</Badge>
+              <Badge variant="outline" className={statusClass}>
+                {detailQuery.data?.status ? t("status." + detailQuery.data.status, detailQuery.data.status) : ""}
+              </Badge>
               <SaveStateBadge
                 isSaving={autosave.isSaving}
                 hasUnsavedChanges={autosave.hasUnsavedChanges}
@@ -339,7 +337,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
           {/* Desktop Sidebar */}
           <aside className="hidden lg:flex flex-col w-56 lg:w-60 shrink-0">
             <div className="sticky top-6 flex flex-col gap-2 rounded-2xl border border-border/70 bg-card/80 p-3 shadow-card">
-              <p className="font-ui text-xs text-muted-foreground px-2 pt-1 pb-0.5 uppercase tracking-wide">სექციები</p>
+              <p className="font-ui text-xs text-muted-foreground px-2 pt-1 pb-0.5 uppercase tracking-wide">{t("editor.sections")}</p>
               <nav className="flex flex-col gap-0.5">
                 {navItems.map(item => (
                   <button
@@ -369,7 +367,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
             {/* Rejection notice */}
             {detailQuery.data.rejection_reason && (
               <div className="rounded-xl border border-red-500/35 bg-red-500/10 p-4 font-ui text-sm text-red-700">
-                <p className="font-semibold mb-1">უარყოფის მიზეზი</p>
+                <p className="font-semibold mb-1">{t("editor.rejectionReason")}</p>
                 <p>{detailQuery.data.rejection_reason}</p>
               </div>
             )}
@@ -381,8 +379,10 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                 <div className="space-y-7 animate-in fade-in duration-300">
                   <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-5">
                     <div>
-                      <h2 className="font-display text-xl sm:text-2xl font-semibold text-foreground">Overview & Settings</h2>
-                      <p className="mt-1 font-ui text-sm text-muted-foreground">Configure the details of this {meta.title}</p>
+                      <h2 className="font-display text-xl sm:text-2xl font-semibold text-foreground">{t("editor.overviewSettings")}</h2>
+                      <p className="mt-1 font-ui text-sm text-muted-foreground">
+                        {type === "poems" ? t("editor.editPoemDesc") : t("editor.editStoryDesc")}
+                      </p>
                     </div>
                     <div className="hidden sm:flex items-center gap-2">
                       <Button
@@ -402,10 +402,10 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                           }
                         }}
                       >
-                        <Trash className="h-3.5 w-3.5" /> Delete
+                        <Trash className="h-3.5 w-3.5" /> {t("editor.delete")}
                       </Button>
                       <Button size="sm" className="gap-2 h-10" onClick={handleSave} disabled={autosave.isSaving}>
-                        <Save className="h-4 w-4" /> Save
+                        <Save className="h-4 w-4" /> {t("editor.save")}
                       </Button>
                     </div>
                   </div>
@@ -420,7 +420,9 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                   </div>
 
                   <div className="space-y-4">
-                    <Label className="font-ui text-sm font-medium">{t("work.desc")}</Label>
+                    <Label className="font-ui text-sm font-medium">
+                      {type === "poems" ? t("editor.poemDescLabel") : t("editor.storyDescLabel")}
+                    </Label>
                     <Textarea
                       value={draft.description}
                       onChange={(e) => setDraft((prev) => ({ ...prev, description: e.target.value }))}
@@ -508,7 +510,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                           className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium font-ui transition-colors hover:border-primary/40 hover:text-primary"
                         >
                           <ImagePlus className="h-4 w-4" />
-                          {currentCoverUrl ? "Change cover" : "Upload cover"}
+                          {currentCoverUrl ? t("editor.changeCover") : t("editor.uploadCover")}
                         </button>
                         <p className="font-ui text-xs text-muted-foreground">JPG, PNG, WEBP, GIF — Max size 5MB.</p>
                       </div>
@@ -519,7 +521,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                     <div className="flex items-center justify-between gap-4 rounded-xl border border-border/50 p-4 bg-background/30">
                       <div className="space-y-0.5">
                         <Label htmlFor="textAnonymousToggle" className="font-ui text-sm font-medium">{t("editor.publishAnon")}</Label>
-                        <p className="font-ui text-xs text-muted-foreground">Hidden from readers</p>
+                        <p className="font-ui text-xs text-muted-foreground">{t("editor.hiddenFromReaders")}</p>
                       </div>
                       <Switch
                         id="textAnonymousToggle"
@@ -531,7 +533,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                     <div className="flex items-center justify-between gap-4 rounded-xl border border-border/50 p-4 bg-background/30">
                       <div className="space-y-0.5">
                         <Label htmlFor="textHiddenToggle" className="font-ui text-sm font-medium">{t("editor.hiddenPub")}</Label>
-                        <p className="font-ui text-xs text-muted-foreground">Link sharing only</p>
+                        <p className="font-ui text-xs text-muted-foreground">{t("editor.linkSharingOnly")}</p>
                       </div>
                       <Switch
                         id="textHiddenToggle"
@@ -539,6 +541,18 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                         onCheckedChange={(checked) => setDraft((prev) => ({ ...prev, is_hidden: checked }))}
                       />
                     </div>
+                  </div>
+
+                  {/* Navigation Button */}
+                  <div className="pt-6 border-t border-border/40 flex justify-center">
+                    <Button
+                      variant="outline"
+                      className="gap-2 px-8 h-12 rounded-xl border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all text-primary font-ui"
+                      onClick={() => setActiveSection("body")}
+                    >
+                      {t("editor.goToContent")}
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </div>
 
                   {/* Mobile delete button */}
@@ -559,7 +573,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                         }
                       }}
                     >
-                      <Trash className="h-4 w-4" /> Delete {type === "stories" ? "Story" : "Poem"}
+                      <Trash className="h-4 w-4" /> {type === "stories" ? t("editor.deleteStory") : t("editor.deletePoem")}
                     </Button>
                   </div>
                 </div>
@@ -593,10 +607,10 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                           }
                         }}
                       >
-                        <Trash className="h-3.5 w-3.5" /> Delete {type === "stories" ? "Story" : "Poem"}
+                        <Trash className="h-3.5 w-3.5" /> {type === "stories" ? t("editor.deleteStory") : t("editor.deletePoem")}
                       </Button>
                       <Button size="sm" className="gap-2 h-10" onClick={handleSave} disabled={autosave.isSaving}>
-                        <Save className="h-4 w-4" /> Save {type === "stories" ? "Story" : "Poem"}
+                        <Save className="h-4 w-4" /> {t("editor.save")}
                       </Button>
                     </div>
                   </div>
@@ -619,8 +633,8 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                       {detailQuery.data.upload_file && (
                         <div className="inline-flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-primary font-ui text-sm">
                           <FileText className="h-4 w-4" />
-                          <span>Current file:</span>
-                          <a className="font-semibold underline underline-offset-2 hover:text-primary/80" href={detailQuery.data.upload_file} target="_blank" rel="noreferrer">Open File</a>
+                          <span>{t("editor.currentFile")}</span>
+                          <a className="font-semibold underline underline-offset-2 hover:text-primary/80" href={detailQuery.data.upload_file} target="_blank" rel="noreferrer">{t("editor.openFile")}</a>
                         </div>
                       )}
 
@@ -657,7 +671,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                         }
                       }}
                     >
-                      <Trash className="h-4 w-4" /> Delete {type === "stories" ? "Story" : "Poem"}
+                      <Trash className="h-4 w-4" /> {type === "stories" ? t("editor.deleteStory") : t("editor.deletePoem")}
                     </Button>
                   </div>
                 </div>

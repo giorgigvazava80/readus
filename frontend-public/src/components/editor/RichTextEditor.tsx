@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n";
 
 interface RichTextEditorProps {
   value: string;
@@ -100,6 +101,7 @@ export default function RichTextEditor({
   minHeightClass = "min-h-[200px] sm:min-h-[300px]",
   isPoem = false,
 }: RichTextEditorProps) {
+  const { t } = useI18n();
   const editorRef = useRef<HTMLDivElement | null>(null);
   const [commandStates, setCommandStates] = useState<Record<CommandStateKey, boolean>>(createDefaultCommandStates);
   const [blockType, setBlockType] = useState<BlockType>("p");
@@ -203,29 +205,29 @@ export default function RichTextEditor({
   // Primary buttons — always visible on all screen sizes
   const primaryButtons = useMemo(
     () => [
-      { label: "Bold", icon: Bold, command: "bold", stateKey: "bold" as const },
-      { label: "Italic", icon: Italic, command: "italic", stateKey: "italic" as const },
-      { label: "Underline", icon: Underline, command: "underline", stateKey: "underline" as const },
-      { label: "Strike", icon: Strikethrough, command: "strikeThrough", stateKey: "strikeThrough" as const },
-      { label: "Bullets", icon: List, command: "insertUnorderedList", stateKey: "insertUnorderedList" as const },
-      { label: "Numbers", icon: ListOrdered, command: "insertOrderedList", stateKey: "insertOrderedList" as const },
-      { label: "Left", icon: AlignLeft, command: "justifyLeft", stateKey: "justifyLeft" as const },
-      { label: "Center", icon: AlignCenter, command: "justifyCenter", stateKey: "justifyCenter" as const },
-      { label: "Right", icon: AlignRight, command: "justifyRight", stateKey: "justifyRight" as const },
-      { label: "Quote", icon: Quote, command: "formatBlock", value: "blockquote", stateKey: "blockquote" as const },
+      { label: t("editor.bold"), icon: Bold, command: "bold", stateKey: "bold" as const },
+      { label: t("editor.italic"), icon: Italic, command: "italic", stateKey: "italic" as const },
+      { label: t("editor.underline"), icon: Underline, command: "underline", stateKey: "underline" as const },
+      { label: t("editor.strike"), icon: Strikethrough, command: "strikeThrough", stateKey: "strikeThrough" as const },
+      { label: t("editor.bullets"), icon: List, command: "insertUnorderedList", stateKey: "insertUnorderedList" as const },
+      { label: t("editor.numbers"), icon: ListOrdered, command: "insertOrderedList", stateKey: "insertOrderedList" as const },
+      { label: t("editor.left"), icon: AlignLeft, command: "justifyLeft", stateKey: "justifyLeft" as const },
+      { label: t("editor.center"), icon: AlignCenter, command: "justifyCenter", stateKey: "justifyCenter" as const },
+      { label: t("editor.right"), icon: AlignRight, command: "justifyRight", stateKey: "justifyRight" as const },
+      { label: t("editor.quote"), icon: Quote, command: "formatBlock", value: "blockquote", stateKey: "blockquote" as const },
     ],
-    [],
+    [t],
   );
 
   // Advanced buttons — always visible on md+, hidden behind toggle on mobile
   const advancedButtons = useMemo(
     () => [
-      { label: "Justify", icon: AlignJustify, command: "justifyFull", stateKey: "justifyFull" as const },
-      { label: "Indent", icon: Indent, command: "indent" },
-      { label: "Outdent", icon: Outdent, command: "outdent" },
-      { label: "Rule", icon: Minus, command: "insertHorizontalRule" },
+      { label: t("editor.justify"), icon: AlignJustify, command: "justifyFull", stateKey: "justifyFull" as const },
+      { label: t("editor.indent"), icon: Indent, command: "indent" },
+      { label: t("editor.outdent"), icon: Outdent, command: "outdent" },
+      { label: t("editor.rule"), icon: Minus, command: "insertHorizontalRule" },
     ],
-    [],
+    [t],
   );
 
   const renderToolbarButton = (item: typeof primaryButtons[number] | typeof advancedButtons[number]) => {
@@ -278,13 +280,13 @@ export default function RichTextEditor({
             className="h-9 rounded-md border border-border/70 bg-background px-2 text-xs font-ui max-w-[100px] sm:max-w-none"
             onChange={(event) => runCommand("formatBlock", event.target.value)}
             disabled={disabled}
-            aria-label="Paragraph style"
+            aria-label={t("editor.paragraph")}
           >
-            <option value="p">Paragraph</option>
-            <option value="h1">Heading 1</option>
-            <option value="h2">Heading 2</option>
-            <option value="h3">Heading 3</option>
-            <option value="blockquote">Quote</option>
+            <option value="p">{t("editor.paragraph")}</option>
+            <option value="h1">{t("editor.heading1")}</option>
+            <option value="h2">{t("editor.heading2")}</option>
+            <option value="h3">{t("editor.heading3")}</option>
+            <option value="blockquote">{t("editor.quote")}</option>
           </select>
 
           <select
@@ -325,9 +327,9 @@ export default function RichTextEditor({
             <div className="mx-0.5 h-6 w-px bg-border/70" />
 
             {/* Color pickers */}
-            <label className="flex shrink-0 items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui cursor-pointer hover:border-primary/40 transition-colors" title="Text color">
+            <label className="flex shrink-0 items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui cursor-pointer hover:border-primary/40 transition-colors" title={t("editor.textColor")}>
               <Pilcrow className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-muted-foreground hidden lg:inline">Text</span>
+              <span className="text-muted-foreground hidden lg:inline">{t("editor.left") === "Left" ? "Text" : "ტექსტი"}</span>
               <Input
                 type="color"
                 className="h-6 w-8 border-none p-0"
@@ -336,9 +338,9 @@ export default function RichTextEditor({
               />
             </label>
 
-            <label className="flex shrink-0 items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui cursor-pointer hover:border-primary/40 transition-colors" title="Highlight color">
+            <label className="flex shrink-0 items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui cursor-pointer hover:border-primary/40 transition-colors" title={t("editor.highlightColor")}>
               <Highlighter className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-muted-foreground hidden lg:inline">Highlight</span>
+              <span className="text-muted-foreground hidden lg:inline">{t("editor.left") === "Left" ? "Highlight" : "ფონი"}</span>
               <Input
                 type="color"
                 className="h-6 w-8 border-none p-0"
@@ -352,10 +354,10 @@ export default function RichTextEditor({
               className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground transition-colors hover:border-border/70 hover:bg-muted/70 hover:text-foreground"
               onMouseDown={(event) => event.preventDefault()}
               onClick={async () => {
-                const href = await promptText({ title: "Insert Link", description: "Enter link URL (include https://)", placeholder: "https://", confirmText: "Insert", cancelText: "Cancel", defaultValue: "https://" });
+                const href = await promptText({ title: t("editor.insertLink"), description: t("editor.insertLinkDesc"), placeholder: "https://", confirmText: t("editor.insert"), cancelText: t("confirm.cancel"), defaultValue: "https://" });
                 if (href) runCommand("createLink", href);
               }}
-              disabled={disabled} title="Insert link" aria-label="Insert link"
+              disabled={disabled} title={t("editor.insertLink")} aria-label={t("editor.insertLink")}
             >
               <Link2 className="h-4 w-4" />
             </Button>
@@ -365,10 +367,10 @@ export default function RichTextEditor({
               className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground transition-colors hover:border-border/70 hover:bg-muted/70 hover:text-foreground"
               onMouseDown={(event) => event.preventDefault()}
               onClick={async () => {
-                const src = await promptText({ title: "Embed Image", description: "Image URL", placeholder: "https://", confirmText: "Embed", cancelText: "Cancel", defaultValue: "https://" });
+                const src = await promptText({ title: t("editor.embedImage"), description: t("editor.imageUrl"), placeholder: "https://", confirmText: t("editor.embed"), cancelText: t("confirm.cancel"), defaultValue: "https://" });
                 if (src) runCommand("insertImage", src);
               }}
-              disabled={disabled} title="Embed image" aria-label="Embed image"
+              disabled={disabled} title={t("editor.embedImage")} aria-label={t("editor.embedImage")}
             >
               <ImagePlus className="h-4 w-4" />
             </Button>
@@ -378,7 +380,7 @@ export default function RichTextEditor({
               className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground transition-colors hover:border-border/70 hover:bg-muted/70 hover:text-foreground"
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => runCommand("insertHTML", "<table><tbody><tr><td>Cell</td><td>Cell</td></tr><tr><td>Cell</td><td>Cell</td></tr></tbody></table><p></p>")}
-              disabled={disabled} title="Insert table" aria-label="Insert table"
+              disabled={disabled} title={t("editor.insertTable")} aria-label={t("editor.insertTable")}
             >
               <Table className="h-4 w-4" />
             </Button>
@@ -397,9 +399,9 @@ export default function RichTextEditor({
             )}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => setShowAdvanced(v => !v)}
-            aria-label="More formatting options"
+            aria-label={t("editor.more")}
           >
-            More
+            {t("editor.more")}
             <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showAdvanced && "rotate-180")} />
           </Button>
         </div>
@@ -425,11 +427,11 @@ export default function RichTextEditor({
             <div className="mx-0.5 h-6 w-px bg-border/70" />
 
             {/* Color pickers on mobile */}
-            <label className="flex shrink-0 items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui cursor-pointer" title="Text color">
+            <label className="flex shrink-0 items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui cursor-pointer" title={t("editor.textColor")}>
               <Pilcrow className="h-3.5 w-3.5 text-muted-foreground" />
               <Input type="color" className="h-6 w-8 border-none p-0" onChange={(event) => runCommand("foreColor", event.target.value)} disabled={disabled} />
             </label>
-            <label className="flex shrink-0 items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui cursor-pointer" title="Highlight">
+            <label className="flex shrink-0 items-center gap-1 rounded-md border border-border/70 bg-background px-2 py-1 text-xs font-ui cursor-pointer" title={t("editor.highlightColor")}>
               <Highlighter className="h-3.5 w-3.5 text-muted-foreground" />
               <Input type="color" className="h-6 w-8 border-none p-0" onChange={(event) => runCommand("hiliteColor", event.target.value)} disabled={disabled} />
             </label>
@@ -438,8 +440,8 @@ export default function RichTextEditor({
               type="button" variant="ghost" size="icon"
               className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground hover:border-border/70 hover:bg-muted/70"
               onMouseDown={(e) => e.preventDefault()}
-              onClick={async () => { const href = await promptText({ title: "Insert Link", description: "Enter link URL", placeholder: "https://", confirmText: "Insert", defaultValue: "https://" }); if (href) runCommand("createLink", href); }}
-              disabled={disabled} title="Insert link" aria-label="Insert link"
+              onClick={async () => { const href = await promptText({ title: t("editor.insertLink"), description: t("editor.insertLinkDesc"), placeholder: "https://", confirmText: t("editor.insert"), defaultValue: "https://" }); if (href) runCommand("createLink", href); }}
+              disabled={disabled} title={t("editor.insertLink")} aria-label={t("editor.insertLink")}
             >
               <Link2 className="h-4 w-4" />
             </Button>
@@ -447,8 +449,8 @@ export default function RichTextEditor({
               type="button" variant="ghost" size="icon"
               className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground hover:border-border/70 hover:bg-muted/70"
               onMouseDown={(e) => e.preventDefault()}
-              onClick={async () => { const src = await promptText({ title: "Embed Image", description: "Image URL", placeholder: "https://", confirmText: "Embed", defaultValue: "https://" }); if (src) runCommand("insertImage", src); }}
-              disabled={disabled} title="Embed image" aria-label="Embed image"
+              onClick={async () => { const src = await promptText({ title: t("editor.embedImage"), description: t("editor.imageUrl"), placeholder: "https://", confirmText: t("editor.embed"), defaultValue: "https://" }); if (src) runCommand("insertImage", src); }}
+              disabled={disabled} title={t("editor.embedImage")} aria-label={t("editor.embedImage")}
             >
               <ImagePlus className="h-4 w-4" />
             </Button>
@@ -457,7 +459,7 @@ export default function RichTextEditor({
               className="h-9 w-9 shrink-0 border border-transparent text-muted-foreground hover:border-border/70 hover:bg-muted/70"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => runCommand("insertHTML", "<table><tbody><tr><td>Cell</td><td>Cell</td></tr><tr><td>Cell</td><td>Cell</td></tr></tbody></table><p></p>")}
-              disabled={disabled} title="Insert table" aria-label="Insert table"
+              disabled={disabled} title={t("editor.insertTable")} aria-label={t("editor.insertTable")}
             >
               <Table className="h-4 w-4" />
             </Button>
@@ -485,7 +487,7 @@ export default function RichTextEditor({
 
       {/* ─── Shortcuts hint ───────────────────────────────── */}
       <div className="border-t border-border/70 px-3 py-2 font-ui text-xs text-muted-foreground hidden sm:block">
-        Shortcuts: Ctrl/Cmd+B Bold · Ctrl/Cmd+I Italic · Ctrl/Cmd+U Underline
+        {t("editor.shortcuts")}: {t("editor.shortcutsHint")}
       </div>
     </div>
   );

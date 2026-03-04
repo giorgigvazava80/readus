@@ -7,6 +7,7 @@ import type {
   MeUser,
   NotificationItem,
   PaginatedResponse,
+  PublicAuthorSummary,
   RedactorUser,
   RegisteredRole,
   WriterApplication,
@@ -102,6 +103,7 @@ export interface ContentListFilters {
   mine?: boolean;
   status?: ContentStatus;
   q?: string;
+  author?: string;
   page?: number;
   date_from?: string;
   date_to?: string;
@@ -711,6 +713,7 @@ export async function fetchContent(
       mine: filters.mine ? 1 : undefined,
       status: filters.status,
       q: filters.q,
+      author: filters.author,
       page: filters.page,
       date_from: filters.date_from,
       date_to: filters.date_to,
@@ -720,6 +723,27 @@ export async function fetchContent(
     requiresAuth,
   );
   return asPaginated(payload);
+}
+
+export async function fetchPublicAuthors(params: {
+  page?: number;
+  q?: string;
+} = {}): Promise<PaginatedResponse<PublicAuthorSummary>> {
+  const payload = await apiRequest<PaginatedResponse<PublicAuthorSummary> | PublicAuthorSummary[]>(
+    `/api/content/authors/${buildQueryString({
+      page: params.page,
+      q: params.q,
+    })}`,
+    { method: "GET" },
+  );
+  return asPaginated(payload);
+}
+
+export async function fetchPublicAuthorDetail(authorKey: string): Promise<PublicAuthorSummary> {
+  return apiRequest<PublicAuthorSummary>(
+    `/api/content/authors/${encodeURIComponent(authorKey)}/`,
+    { method: "GET" },
+  );
 }
 
 export async function fetchContentDetail(

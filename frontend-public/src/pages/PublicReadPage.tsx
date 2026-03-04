@@ -9,6 +9,7 @@ import ReadingFontSizeControl from "@/components/reader/ReadingFontSizeControl";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { fetchContentDetail, resolveMediaUrl } from "@/lib/api";
+import { authorProfilePath, resolveAuthorKey } from "@/lib/authors";
 import { getStoredReadingFontSize, readingFontSizeClassByPreference, setStoredReadingFontSize, type ReadingFontSize } from "@/lib/fontSize";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n";
@@ -205,6 +206,8 @@ const PublicReadPage = () => {
   }
 
   const coverUrl = resolveMediaUrl(content.cover_image);
+  const authorDisplay = content.author_name || content.author_username || t("workcard.anonymous", "anonymous");
+  const authorPath = authorProfilePath(resolveAuthorKey(content));
 
   const navigateToPage = (p: number) => {
     navigate(buildReadPath(p));
@@ -259,7 +262,10 @@ const PublicReadPage = () => {
                 {content.title}
               </h1>
               <p className="mt-4 font-ui text-lg text-muted-foreground">
-                {t("workcard.by", "by ")}{content.author_name || content.author_username || t("workcard.anonymous", "anonymous")}
+                {t("workcard.by", "by ")}
+                <Link to={authorPath} className="hover:text-primary hover:underline">
+                  {authorDisplay}
+                </Link>
               </p>
 
               {content.description ? (

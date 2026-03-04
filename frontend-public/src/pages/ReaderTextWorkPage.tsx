@@ -7,6 +7,7 @@ import ReadingFontSizeControl from "@/components/reader/ReadingFontSizeControl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { fetchContentDetail } from "@/lib/api";
+import { authorProfilePath, resolveAuthorKey } from "@/lib/authors";
 import { getStoredReadingFontSize, readingFontSizeClassByPreference, setStoredReadingFontSize, type ReadingFontSize } from "@/lib/fontSize";
 import { useI18n } from "@/i18n";
 import { cn } from "@/lib/utils";
@@ -83,6 +84,8 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
   }
 
   const work = detailQuery.data;
+  const authorDisplay = work.author_name || work.author_username || t("workcard.anonymous", "anonymous");
+  const authorPath = authorProfilePath(resolveAuthorKey(work));
   const handleReadingFontSizeChange = (next: ReadingFontSize) => {
     setStoredReadingFontSize(next);
     setFontSize(next);
@@ -110,7 +113,9 @@ const ReaderTextWorkPage = ({ type }: ReaderTextWorkPageProps) => {
         </div>
         <p className="mt-2 font-ui text-sm text-muted-foreground">
           {t("workcard.by", "by ")}
-          {work.author_name || work.author_username || t("workcard.anonymous", "anonymous")}
+          <Link to={authorPath} className="hover:text-primary hover:underline">
+            {authorDisplay}
+          </Link>
           {" - "}
           {estimateReadTimeFromHtml(work.body || work.extracted_text || work.description, readTimeTemplate)}
         </p>

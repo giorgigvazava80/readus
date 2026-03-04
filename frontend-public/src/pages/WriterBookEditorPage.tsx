@@ -158,12 +158,12 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
       {/* Title & Order */}
       <section className="flex flex-row items-end gap-3">
         <div className="flex-1 space-y-1.5 min-w-0">
-          <Label className="font-ui text-sm font-medium">{t("work.title")} <span className="text-muted-foreground font-normal">(არასავალდებულო)</span></Label>
+          <Label className="font-ui text-sm font-medium">{t("work.title")} <span className="text-muted-foreground font-normal">({t("settings.optional")})</span></Label>
           <Input
             value={draft.title}
             onChange={(e) => setDraft(p => ({ ...p, title: e.target.value }))}
             className="font-ui h-11 text-base"
-            placeholder="თავის სათაური..."
+            placeholder={`${t("editor.chapter")} ${t("work.title")}...`}
           />
         </div>
         <div className="w-20 sm:w-28 space-y-1.5 shrink-0">
@@ -360,7 +360,7 @@ const WriterBookEditorPage = () => {
 
   // Helper: human-readable label for active section
   const activeSectionLabel = useMemo(() => {
-    if (activeSection === "settings") return "Overview & Settings";
+    if (activeSection === "settings") return t("editor.overviewSettings");
     if (activeSection === "foreword") return t("work.foreword");
     if (activeSection === "afterword") return t("work.afterword");
     const ch = chapters.find(c => c.id === activeSection);
@@ -424,8 +424,8 @@ const WriterBookEditorPage = () => {
   const navItems: Array<{ value: string; label: string; hint?: string; icon: React.ReactNode; canClear?: boolean }> = [
     {
       value: "settings",
-      label: "Overview & Settings",
-      hint: "Title, cover, description",
+      label: t("editor.overviewSettings"),
+      hint: t("editor.editBookDesc"),
       icon: <Settings className="h-4 w-4 shrink-0" />,
     },
     ...(hasForeword
@@ -439,8 +439,8 @@ const WriterBookEditorPage = () => {
       : []),
     ...chapters.map(ch => ({
       value: ch.id.toString(),
-      label: ch.title || `Chapter ${ch.order}`,
-      hint: `Order ${ch.order}`,
+      label: ch.title || t("editor.chapterPattern", "Chapter {num}").replace("{num}", ch.order.toString()),
+      hint: t("editor.orderPattern", "Order {num}").replace("{num}", ch.order.toString()),
       icon: <AlignLeft className="h-4 w-4 shrink-0" />,
     })),
     ...(hasAfterword
@@ -467,7 +467,7 @@ const WriterBookEditorPage = () => {
           <Menu className="h-5 w-5" />
         </button>
         <div className="flex-1 min-w-0">
-          <p className="font-ui text-xs text-muted-foreground truncate">{t("work.book")}ს რედაქტორი</p>
+          <p className="font-ui text-xs text-muted-foreground truncate">{t("editor.bookLabel")}</p>
           <p className="font-ui text-sm font-semibold text-foreground truncate">{activeSectionLabel}</p>
         </div>
         <SaveStateBadge
@@ -491,7 +491,7 @@ const WriterBookEditorPage = () => {
             <div className="flex items-center justify-between px-4 py-4 border-b border-border/40">
               <div className="flex items-center gap-2">
                 <BookOpenText className="h-4 w-4 text-primary" />
-                <span className="font-ui text-sm font-semibold">{t("work.book")}ს სექციები</span>
+                <span className="font-ui text-sm font-semibold">{t("editor.sections")}</span>
               </div>
               <button onClick={() => setSidebarOpen(false)} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted">
                 <X className="h-4 w-4" />
@@ -526,14 +526,14 @@ const WriterBookEditorPage = () => {
                 className="w-full gap-2 h-11 font-ui text-sm border-dashed"
                 variant="outline"
               >
-                <Plus className="h-4 w-4" /> Add Chapter
+                <Plus className="h-4 w-4" /> {t("editor.addChapter")}
               </Button>
               {!hasForeword && (
                 <button
                   onClick={() => { setActiveSection("foreword"); setSidebarOpen(false); }}
                   className="flex items-center gap-2 w-full rounded-xl px-3 py-2.5 text-left font-ui text-xs text-muted-foreground border border-dashed border-border/50 hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors"
                 >
-                  <Plus className="h-3 w-3" /> Add {t("work.foreword")}
+                  <Plus className="h-3 w-3" /> {t("editor.addForeword")}
                 </button>
               )}
               {!hasAfterword && (
@@ -542,7 +542,7 @@ const WriterBookEditorPage = () => {
                   onClick={() => { setActiveSection("afterword"); setSidebarOpen(false); }}
                   className="flex items-center gap-2 w-full rounded-xl px-3 py-2.5 text-left font-ui text-xs text-muted-foreground border border-dashed border-border/50 hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  <Plus className="h-3 w-3" /> Add {t("work.afterword")}
+                  <Plus className="h-3 w-3" /> {t("editor.addAfterword")}
                 </button>
               )}
             </div>
@@ -559,11 +559,11 @@ const WriterBookEditorPage = () => {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1 mb-2">
               <BookOpenText className="h-3.5 w-3.5 text-primary" />
-              <span className="font-ui text-xs text-muted-foreground">{t("work.book")}ს რედაქტორი</span>
+              <span className="font-ui text-xs text-muted-foreground">{t("editor.bookLabel")}</span>
             </div>
             <h1 className="font-display text-2xl lg:text-3xl font-semibold text-foreground">{draft.title || t("editor.untitledBook")}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className={statusClass}>{status}</Badge>
+              <Badge variant="outline" className={statusClass}>{t("status." + status, status)}</Badge>
               <SaveStateBadge
                 isSaving={autosave.isSaving}
                 hasUnsavedChanges={autosave.hasUnsavedChanges}
@@ -594,7 +594,7 @@ const WriterBookEditorPage = () => {
             disabled={addChapterMutation.isPending}
             className="flex items-center gap-1.5 shrink-0 rounded-full px-4 h-10 font-ui text-sm font-medium border border-dashed border-border/70 bg-card text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors whitespace-nowrap"
           >
-            <Plus className="h-3.5 w-3.5" /> Add Chapter
+            <Plus className="h-3.5 w-3.5" /> {t("editor.addChapter")}
           </button>
         </nav>
 
@@ -604,7 +604,7 @@ const WriterBookEditorPage = () => {
           {/* Desktop Sidebar */}
           <aside className="hidden lg:flex flex-col w-60 shrink-0">
             <div className="sticky top-6 flex flex-col gap-2 rounded-2xl border border-border/70 bg-card/80 p-3 shadow-card">
-              <p className="font-ui text-xs text-muted-foreground px-2 pt-1 pb-0.5 uppercase tracking-wide">სექციები</p>
+              <p className="font-ui text-xs text-muted-foreground px-2 pt-1 pb-0.5 uppercase tracking-wide">{t("editor.sections")}</p>
               <nav className="flex flex-col gap-0.5">
                 {navItems.map(item => (
                   <button
@@ -633,7 +633,7 @@ const WriterBookEditorPage = () => {
                   className="w-full gap-2 h-10 font-ui text-sm border-dashed"
                   variant="outline"
                 >
-                  <Plus className="h-4 w-4" /> Add Chapter
+                  <Plus className="h-4 w-4" /> {t("editor.addChapter")}
                 </Button>
               </div>
 
@@ -645,7 +645,7 @@ const WriterBookEditorPage = () => {
                     onClick={() => { setActiveSection("foreword"); }}
                     className="flex items-center gap-2 w-full rounded-xl px-3 py-2 text-left font-ui text-xs text-muted-foreground border border-dashed border-border/50 hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors"
                   >
-                    <Plus className="h-3 w-3" /> Add {t("work.foreword")}
+                    <Plus className="h-3 w-3" /> {t("editor.addForeword")}
                   </button>
                 )}
                 {!hasAfterword && (
@@ -680,8 +680,8 @@ const WriterBookEditorPage = () => {
                   {/* Section header */}
                   <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-5">
                     <div>
-                      <h2 className="font-display text-xl sm:text-2xl font-semibold text-foreground">Overview & Settings</h2>
-                      <p className="mt-1 font-ui text-sm text-muted-foreground">Edit your book's title, cover, description and settings</p>
+                      <h2 className="font-display text-xl sm:text-2xl font-semibold text-foreground">{t("editor.overviewSettings")}</h2>
+                      <p className="mt-1 font-ui text-sm text-muted-foreground">{t("editor.editBookDesc")}</p>
                     </div>
                     {/* Desktop action buttons */}
                     <div className="hidden sm:flex items-center gap-2">
@@ -690,7 +690,7 @@ const WriterBookEditorPage = () => {
                         size="sm"
                         className="gap-2 h-10"
                         onClick={async () => {
-                          if (await confirm({ title: t("editor.deleteBookConfirm"), description: "This action cannot be undone.", destructive: true, confirmText: "Delete Book" })) {
+                          if (await confirm({ title: t("editor.deleteBookConfirm"), description: t("editor.deleteConfirmDesc"), destructive: true, confirmText: t("editor.deleteBook") })) {
                             try {
                               await deleteContentItem("books", bookId);
                               toast({ title: t("editor.bookDeleted") });
@@ -701,10 +701,10 @@ const WriterBookEditorPage = () => {
                           }
                         }}
                       >
-                        <Trash className="h-3.5 w-3.5" /> Delete Book
+                        <Trash className="h-3.5 w-3.5" /> {t("editor.deleteBook")}
                       </Button>
                       <Button size="sm" className="gap-2 h-10" onClick={handleSave} disabled={autosave.isSaving}>
-                        <Save className="h-4 w-4" /> Save Book
+                        <Save className="h-4 w-4" /> {t("editor.save")}
                       </Button>
                     </div>
                   </div>
@@ -740,7 +740,7 @@ const WriterBookEditorPage = () => {
 
                   {/* Description */}
                   <div className="space-y-2">
-                    <Label className="font-ui text-sm font-medium">{t("work.book")}ს აღწერა</Label>
+                    <Label className="font-ui text-sm font-medium">{t("editor.bookDescLabel")}</Label>
                     <Textarea
                       value={draft.description}
                       onChange={(e) => setDraft(p => ({ ...p, description: e.target.value }))}
@@ -758,7 +758,7 @@ const WriterBookEditorPage = () => {
                         variant="outline"
                         className="gap-2 h-10 border-dashed font-ui text-sm text-muted-foreground hover:text-primary hover:border-primary/40"
                       >
-                        <Plus className="h-3.5 w-3.5" /> Add {t("work.foreword")}
+                        <Plus className="h-3.5 w-3.5" /> {t("editor.addForeword")}
                       </Button>
                     )}
                     {!hasAfterword && (
@@ -768,7 +768,7 @@ const WriterBookEditorPage = () => {
                         variant="outline"
                         className="gap-2 h-10 border-dashed font-ui text-sm text-muted-foreground hover:text-primary hover:border-primary/40"
                       >
-                        <Plus className="h-3.5 w-3.5" /> Add {t("work.afterword")}
+                        <Plus className="h-3.5 w-3.5" /> {t("editor.addAfterword")}
                       </Button>
                     )}
                   </div>
@@ -776,7 +776,7 @@ const WriterBookEditorPage = () => {
                   {/* Source type / upload */}
                   <div className="space-y-5 pt-4 border-t border-border/40">
                     <div className="space-y-2">
-                      <Label className="font-ui text-sm font-medium">{t("work.sourceType")} და ატვირთვის პარამეტრები</Label>
+                      <Label className="font-ui text-sm font-medium">{t("work.sourceType")}</Label>
                       <Select
                         value={draft.source_type}
                         onValueChange={(value) => {
@@ -809,7 +809,7 @@ const WriterBookEditorPage = () => {
                         </div>
                         {detailQuery.data.upload_file && (
                           <p className="font-ui text-sm text-muted-foreground">
-                            Current file:{" "}
+                            {t("editor.currentFile")}
                             <a className="underline text-primary" href={detailQuery.data.upload_file} target="_blank" rel="noreferrer">{t("editor.openFile")}</a>
                           </p>
                         )}
@@ -822,7 +822,7 @@ const WriterBookEditorPage = () => {
                         <div className="flex items-start justify-between gap-4">
                           <div className="space-y-1">
                             <Label htmlFor="bookAnonymousToggle" className="font-ui text-sm font-medium cursor-pointer">{t("editor.publishAnon")}</Label>
-                            <p className="font-ui text-xs text-muted-foreground">Hidden from readers. Visible to admins.</p>
+                            <p className="font-ui text-xs text-muted-foreground">{t("editor.hiddenFromReaders")}</p>
                           </div>
                           <Switch
                             id="bookAnonymousToggle"
@@ -835,7 +835,7 @@ const WriterBookEditorPage = () => {
                         <div className="flex items-start justify-between gap-4">
                           <div className="space-y-1">
                             <Label htmlFor="bookHiddenToggle" className="font-ui text-sm font-medium cursor-pointer">{t("editor.hiddenPub")}</Label>
-                            <p className="font-ui text-xs text-muted-foreground">{t("editor.hiddenDesc")}</p>
+                            <p className="font-ui text-xs text-muted-foreground">{t("editor.linkSharingOnly")}</p>
                           </div>
                           <Switch
                             id="bookHiddenToggle"
@@ -907,7 +907,7 @@ const WriterBookEditorPage = () => {
                             className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium font-ui transition-colors hover:border-primary/40 hover:text-primary w-fit"
                           >
                             <ImagePlus className="h-4 w-4" />
-                            {currentCoverUrl ? "Change cover" : "Upload cover"}
+                            {currentCoverUrl ? t("editor.changeCover") : t("editor.uploadCover")}
                           </button>
                           {coverImage && (
                             <p className="font-ui text-xs text-muted-foreground">{t("editor.selected")} {coverImage.name}</p>
@@ -922,7 +922,7 @@ const WriterBookEditorPage = () => {
                         variant="destructive"
                         className="w-full h-11 gap-2 font-ui"
                         onClick={async () => {
-                          if (await confirm({ title: t("editor.deleteBookConfirm"), destructive: true, confirmText: "Delete Book" })) {
+                          if (await confirm({ title: t("editor.deleteBookConfirm"), destructive: true, confirmText: t("editor.deleteBook") })) {
                             try {
                               await deleteContentItem("books", bookId);
                               toast({ title: t("editor.bookDeleted") });
@@ -933,7 +933,25 @@ const WriterBookEditorPage = () => {
                           }
                         }}
                       >
-                        <Trash className="h-4 w-4" /> Delete Book
+                        <Trash className="h-4 w-4" /> {t("editor.deleteBook")}
+                      </Button>
+                    </div>
+
+                    {/* Navigation Button */}
+                    <div className="pt-6 border-t border-border/40 flex justify-center">
+                      <Button
+                        variant="outline"
+                        className="gap-2 px-8 h-12 rounded-xl border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all text-primary font-ui"
+                        onClick={() => {
+                          if (chapters.length > 0) {
+                            setActiveSection(chapters[0].id);
+                          } else if (hasForeword) {
+                            setActiveSection("foreword" as any);
+                          }
+                        }}
+                      >
+                        {t("editor.goToChapters")}
+                        <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -946,7 +964,7 @@ const WriterBookEditorPage = () => {
                   <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-4">
                     <div>
                       <h2 className="font-display text-xl sm:text-2xl font-semibold text-foreground">{t("editor.editForeword")}</h2>
-                      <p className="mt-1 font-ui text-sm text-muted-foreground">Write an introduction to your book</p>
+                      <p className="mt-1 font-ui text-sm text-muted-foreground">{t("editor.writeIntro")}</p>
                     </div>
                     <Button
                       className="gap-2 h-10 hidden sm:inline-flex"

@@ -1,5 +1,5 @@
-﻿import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { fetchContent } from "@/lib/api";
+import { authorProfilePath, resolveAuthorKey } from "@/lib/authors";
 import { useI18n } from "@/i18n";
 import { estimateReadTimeFromHtml, toExcerpt } from "@/lib/content";
 import type { ContentCategory } from "@/lib/types";
@@ -29,6 +30,7 @@ const paths = {
 
 const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
   const { t, language } = useI18n();
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const locale = language === "ka" ? "ka-GE" : "en-US";
@@ -79,9 +81,25 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
           </div>
         ) : null}
 
-        {items.map((item) => (
-          <Link key={item.id} to={`${paths[category]}/${item.public_slug || item.id}`} className="group block">
-            <article className="rounded-xl border border-border/70 bg-card/85 p-5 shadow-card transition-all hover:-translate-y-1 hover:shadow-card-hover">
+        {items.map((item) => {
+          const itemPath = `${paths[category]}/${item.public_slug || item.id}`;
+          const authorPath = authorProfilePath(resolveAuthorKey(item));
+          const authorDisplay = item.author_name || item.author_username || t("workcard.anonymous", "anonymous");
+
+          return (
+            <article
+              key={item.id}
+              role="link"
+              tabIndex={0}
+              onClick={() => navigate(itemPath)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  navigate(itemPath);
+                }
+              }}
+              className="group rounded-xl border border-border/70 bg-card/85 p-5 shadow-card transition-all hover:-translate-y-1 hover:shadow-card-hover cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
               <div className="flex items-center justify-between gap-2">
                 <p className="font-display text-2xl font-semibold text-foreground transition-colors group-hover:text-primary">
                   {item.title}
@@ -93,7 +111,15 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
                 )}
               </div>
               <p className="mt-1 font-ui text-sm text-muted-foreground">
-                {t("workcard.by", "by ")}{item.author_name || item.author_username || t("workcard.anonymous", "anonymous")}
+                {t("workcard.by", "by ")}
+                <Link
+                  to={authorPath}
+                  onClick={(event) => event.stopPropagation()}
+                  onKeyDown={(event) => event.stopPropagation()}
+                  className="hover:text-primary hover:underline"
+                >
+                  {authorDisplay}
+                </Link>
               </p>
               <p className="mt-3 font-body text-sm leading-relaxed text-foreground/80">
                 {toExcerpt(item.body || item.extracted_text || item.description, excerptFallback)}
@@ -103,8 +129,8 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
                 <span>{estimateReadTimeFromHtml(item.body || item.extracted_text || item.description, readTimeTemplate)}</span>
               </div>
             </article>
-          </Link>
-        ))}
+          );
+        })}
       </section>
 
       <section className="flex items-center justify-between">
@@ -130,7 +156,3 @@ const ReaderWorksListPage = ({ category }: ReaderWorksListPageProps) => {
 };
 
 export default ReaderWorksListPage;
-
-
-
-

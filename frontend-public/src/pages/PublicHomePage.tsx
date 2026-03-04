@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import WorkCard, { type PublicWorkCardItem } from "@/components/WorkCard";
 import { useI18n } from "@/i18n";
+import { resolveAuthorKey } from "@/lib/authors";
 import { fetchContent, resolveMediaUrl } from "@/lib/api";
 import type { ContentItem } from "@/lib/types";
 import heroImage from "@/assets/hero-literary.jpg";
@@ -51,6 +52,7 @@ function toCardItem(
     category,
     title: item.title,
     author: item.author_name || item.author_username || "",
+    authorKey: resolveAuthorKey(item),
     excerpt: toExcerpt(item, excerptFallback),
     coverColor: colorFor(category, item.id),
     coverImageUrl: resolveMediaUrl(item.cover_image),

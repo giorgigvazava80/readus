@@ -1,10 +1,12 @@
 from hashlib import sha256
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import Count, F, Q, Value
+from django.db.models.functions import Concat
 from django.http import Http404
-from rest_framework import permissions, status, viewsets
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -20,11 +22,13 @@ from content.serializers import (
     ChapterSerializer,
     ContentReviewSerializer,
     PoemSerializer,
+    PublicAuthorSummarySerializer,
     StorySerializer,
 )
 
 
 PUBLIC_CONTENT_CACHE_VERSION_KEY = "public-content-cache-version"
+ANONYMOUS_AUTHOR_KEY = "anonymous"
 
 
 def _send_review_email(user, status_value):
@@ -63,6 +67,242 @@ def _public_cache_key(prefix: str, path: str) -> str:
     path_hash = sha256(path.encode("utf-8")).hexdigest()
     version = _get_public_cache_version()
     return f"{prefix}:v{version}:{path_hash}"
+
+
+def _public_content_base_q() -> Q:
+    return Q(status=StatusChoices.APPROVED, is_hidden=False)
+
+
+def _resolve_profile_photo_url(photo_name: str | None) -> str | None:
+    if not photo_name:
+        return None
+
+    media_url = settings.MEDIA_URL or "/media/"
+    if not media_url.endswith("/"):
+        media_url = f"{media_url}/"
+
+    return f"{media_url}{str(photo_name).lstrip('/')}"
+
+
+def _build_anonymous_summary() -> dict[str, object] | None:
+    base = _public_content_base_q() & Q(is_anonymous=True)
+    books_count = Book.objects.filter(base).count()
+    stories_count = Story.objects.filter(base).count()
+    poems_count = Poem.objects.filter(base).count()
+    works_count = books_count + stories_count + poems_count
+    if works_count <= 0:
+        return None
+
+    return {
+        "key": ANONYMOUS_AUTHOR_KEY,
+        "display_name": "Anonymous",
+        "username": None,
+        "profile_photo": None,
+        "works_count": works_count,
+        "books_count": books_count,
+        "stories_count": stories_count,
+        "poems_count": poems_count,
+        "is_anonymous": True,
+    }
+
+
+def _anonymous_matches_search(search: str) -> bool:
+    if not search:
+        return True
+
+    normalized = search.lower()
+    aliases = ("anonymous", "anon", "ანონიმური", "ანონიმ")
+    return any(normalized in alias for alias in aliases)
+
+
+def _build_named_author_queryset(search: str = ""):
+    User = get_user_model()
+    books_public_q = Q(
+        book_items__status=StatusChoices.APPROVED,
+        book_items__is_hidden=False,
+        book_items__is_anonymous=False,
+    )
+    stories_public_q = Q(
+        story_items__status=StatusChoices.APPROVED,
+        story_items__is_hidden=False,
+        story_items__is_anonymous=False,
+    )
+    poems_public_q = Q(
+        poem_items__status=StatusChoices.APPROVED,
+        poem_items__is_hidden=False,
+        poem_items__is_anonymous=False,
+    )
+
+    queryset = (
+        User.objects.annotate(
+            books_count=Count(
+                "book_items",
+                filter=books_public_q,
+                distinct=True,
+            ),
+            stories_count=Count(
+                "story_items",
+                filter=stories_public_q,
+                distinct=True,
+            ),
+            poems_count=Count(
+                "poem_items",
+                filter=poems_public_q,
+                distinct=True,
+            ),
+        )
+        .annotate(
+            works_count=F("books_count") + F("stories_count") + F("poems_count"),
+            full_name=Concat("first_name", Value(" "), "last_name"),
+        )
+        .filter(works_count__gt=0)
+    )
+
+    if search:
+        queryset = queryset.filter(
+            Q(username__icontains=search)
+            | Q(first_name__icontains=search)
+            | Q(last_name__icontains=search)
+            | Q(full_name__icontains=search)
+        )
+
+    return queryset
+
+
+def _to_named_author_summary(row: dict[str, object]) -> dict[str, object]:
+    full_name = str(row.get("full_name") or "").strip()
+    username = str(row.get("username") or "").strip()
+    display_name = full_name or username
+
+    return {
+        "key": username,
+        "display_name": display_name,
+        "username": username,
+        "profile_photo": _resolve_profile_photo_url(row.get("profile_photo")),
+        "works_count": int(row.get("works_count") or 0),
+        "books_count": int(row.get("books_count") or 0),
+        "stories_count": int(row.get("stories_count") or 0),
+        "poems_count": int(row.get("poems_count") or 0),
+        "is_anonymous": False,
+    }
+
+
+def _get_author_summary_by_key(author_key: str) -> dict[str, object]:
+    normalized_key = author_key.strip()
+    if not normalized_key:
+        raise Http404("Author not found.")
+
+    if normalized_key == ANONYMOUS_AUTHOR_KEY:
+        anonymous_summary = _build_anonymous_summary()
+        if not anonymous_summary:
+            raise Http404("Author not found.")
+        return anonymous_summary
+
+    row = (
+        _build_named_author_queryset()
+        .filter(username=normalized_key)
+        .values(
+            "username",
+            "full_name",
+            "profile__profile_photo",
+            "works_count",
+            "books_count",
+            "stories_count",
+            "poems_count",
+        )
+        .first()
+    )
+    if not row:
+        raise Http404("Author not found.")
+
+    row["profile_photo"] = row.pop("profile__profile_photo", None)
+    return _to_named_author_summary(row)
+
+
+class PublicAuthorListView(generics.GenericAPIView):
+    serializer_class = PublicAuthorSummarySerializer
+    permission_classes = [permissions.AllowAny]
+
+    def _can_use_public_cache(self, request):
+        user = request.user
+        return request.method == "GET" and not (user and user.is_authenticated)
+
+    def get(self, request):
+        use_cache = self._can_use_public_cache(request)
+        cache_key = _public_cache_key("public-authors:list", request.get_full_path())
+        if use_cache:
+            cached_payload = cache.get(cache_key)
+            if cached_payload is not None:
+                response = Response(cached_payload)
+                response["X-Cache"] = "HIT"
+                return response
+
+        search = request.query_params.get("q", "").strip()
+        named_rows = (
+            _build_named_author_queryset(search)
+            .values(
+                "username",
+                "full_name",
+                "profile__profile_photo",
+                "works_count",
+                "books_count",
+                "stories_count",
+                "poems_count",
+            )
+        )
+        authors = []
+        for row in named_rows:
+            row["profile_photo"] = row.pop("profile__profile_photo", None)
+            authors.append(_to_named_author_summary(row))
+
+        anonymous_summary = _build_anonymous_summary()
+        if anonymous_summary and _anonymous_matches_search(search):
+            authors.append(anonymous_summary)
+
+        authors.sort(key=lambda item: (-int(item["works_count"]), str(item["display_name"]).lower()))
+
+        page = self.paginate_queryset(authors)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+        else:
+            serializer = self.get_serializer(authors, many=True)
+            response = Response(serializer.data)
+
+        if use_cache and response.status_code == status.HTTP_200_OK:
+            cache.set(cache_key, response.data, timeout=getattr(settings, "CACHE_TTL_PUBLIC_LIST", 120))
+            response["X-Cache"] = "MISS"
+
+        return response
+
+
+class PublicAuthorDetailView(generics.GenericAPIView):
+    serializer_class = PublicAuthorSummarySerializer
+    permission_classes = [permissions.AllowAny]
+
+    def _can_use_public_cache(self, request):
+        user = request.user
+        return request.method == "GET" and not (user and user.is_authenticated)
+
+    def get(self, request, author_key: str):
+        use_cache = self._can_use_public_cache(request)
+        cache_key = _public_cache_key("public-authors:detail", request.get_full_path())
+        if use_cache:
+            cached_payload = cache.get(cache_key)
+            if cached_payload is not None:
+                response = Response(cached_payload)
+                response["X-Cache"] = "HIT"
+                return response
+
+        summary = _get_author_summary_by_key(author_key)
+        serializer = self.get_serializer(summary)
+        response = Response(serializer.data)
+
+        if use_cache and response.status_code == status.HTTP_200_OK:
+            cache.set(cache_key, response.data, timeout=getattr(settings, "CACHE_TTL_PUBLIC_DETAIL", 300))
+            response["X-Cache"] = "MISS"
+
+        return response
 
 
 class ReviewActionMixin:
@@ -193,6 +433,7 @@ class AuthorContentViewSet(ReviewActionMixin, viewsets.ModelViewSet):
         mine = request.query_params.get("mine", "0") in {"1", "true", "True"}
         status_filter = request.query_params.get("status", "").strip()
         q = request.query_params.get("q", "").strip()
+        author_filter = request.query_params.get("author", "").strip()
         date_from = request.query_params.get("date_from", "").strip()
         date_to = request.query_params.get("date_to", "").strip()
 
@@ -211,6 +452,12 @@ class AuthorContentViewSet(ReviewActionMixin, viewsets.ModelViewSet):
 
         if q:
             queryset = queryset.filter(Q(title__icontains=q) | Q(description__icontains=q) | Q(extracted_text__icontains=q))
+
+        if author_filter:
+            if author_filter == ANONYMOUS_AUTHOR_KEY:
+                queryset = queryset.filter(is_anonymous=True)
+            else:
+                queryset = queryset.filter(author__username=author_filter, is_anonymous=False)
 
         if date_from:
             queryset = queryset.filter(created_at__date__gte=date_from)

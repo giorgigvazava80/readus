@@ -89,6 +89,7 @@ export interface ContentItem {
   extracted_text?: string;
   author_username?: string;
   author_name?: string;
+  author_key?: string;
 }
 
 export interface ContentDetail extends ContentItem {
@@ -100,6 +101,18 @@ export interface ContentDetail extends ContentItem {
   book?: number;
   order?: number;
   auto_label?: string;
+}
+
+export interface PublicAuthorSummary {
+  key: string;
+  display_name: string;
+  username: string | null;
+  profile_photo: string | null;
+  works_count: number;
+  books_count: number;
+  stories_count: number;
+  poems_count: number;
+  is_anonymous: boolean;
 }
 
 export interface RedactorPermissions {
