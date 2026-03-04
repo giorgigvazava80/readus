@@ -127,7 +127,7 @@ class ContentValidationMixin(serializers.ModelSerializer):
         upload_file = attrs.get("upload_file", getattr(instance, "upload_file", None))
 
         if source_type == SourceType.MANUAL:
-            if supports_body and not body:
+            if supports_body and body is None:
                 raise serializers.ValidationError({"body": "When source_type is 'manual', body is required."})
             if upload_file and "upload_file" in attrs:
                 raise serializers.ValidationError(

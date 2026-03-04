@@ -164,7 +164,7 @@ class Story(BaseContent):
 
 
 class Poem(BaseContent):
-    body = models.TextField()
+    body = models.TextField(blank=True)
 
     def __str__(self):
         return f"Poem: {self.title}"
