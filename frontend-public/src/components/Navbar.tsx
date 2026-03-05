@@ -391,7 +391,7 @@ const Navbar = () => {
                     {isActive && (
                       <motion.span
                         layoutId="bottom-nav-pill"
-                        className="absolute top-1.5 w-10 h-10 rounded-full"
+                        className="absolute top-0.5 h-12 w-12 rounded-full sm:top-1 sm:h-11 sm:w-11"
                         style={{ background: "hsl(var(--primary) / 0.12)" }}
                         initial={{ opacity: 0, scale: 0.75 }}
                         animate={{ opacity: 1, scale: 1 }}

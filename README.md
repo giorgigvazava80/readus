@@ -96,6 +96,24 @@ First login requires password change. After changing password, privileged endpoi
 - `MEDIA_ROOT` and `MEDIA_URL` (where uploaded files are stored and served from)
 - `CACHE_URL`, `CACHE_KEY_PREFIX`, `CACHE_DEFAULT_TIMEOUT`, `CACHE_TTL_PUBLIC_LIST`, `CACHE_TTL_PUBLIC_DETAIL`
 
+## Auto Seed on Docker Startup
+
+`api/entrypoint.sh` now supports automatic seed data creation on startup (after migrations and root bootstrap).
+
+- Enabled by default for testing/staging via `AUTO_SEED_ON_START=1`
+- Safe for restarts by default via `AUTO_SEED_ONLY_IF_EMPTY=1` (skips if `seed_reader_*` or `seed_writer_*` users already exist)
+- Uses DB advisory lock (`SEED_LOCK_ID`) to prevent multiple instances from seeding at the same time
+
+Tune scale with:
+
+- `SEED_READERS`, `SEED_WRITERS`
+- `SEED_STORIES_PER_WRITER`, `SEED_POEMS_PER_WRITER`, `SEED_BOOKS_PER_WRITER`, `SEED_CHAPTERS_PER_BOOK`
+- `SEED_FOLLOWS_PER_READER`, `SEED_LIKES_PER_READER`, `SEED_COMMENTS_PER_READER`, `SEED_PROGRESS_PER_READER`
+- `SEED_READER_PASSWORD`, `SEED_WRITER_PASSWORD`
+
+For very low-resource plans, keep the defaults from `.env.example`.
+Set `AUTO_SEED_ON_START=0` to disable automatic seeding.
+
 ## Google OAuth Checklist
 
 1. In Google Cloud Console, create an OAuth 2.0 **Web application** client.

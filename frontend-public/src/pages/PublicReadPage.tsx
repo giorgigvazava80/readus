@@ -674,10 +674,6 @@ const PublicReadPage = () => {
                 ) : sections[currentPage - 1] ? (
                   /* ──── CHAPTER CONTENT ──── */
                   <section className="animate-in fade-in duration-500" data-reading-body="true" key={currentPage}>
-                    {/* Minimal inline chapter title in focus mode */}
-                    {focusMode && (
-                      <p className="font-ui text-xs text-muted-foreground mb-1 tracking-wide uppercase">{content.title}</p>
-                    )}
                     <h2 className="font-display text-2xl sm:text-3xl font-semibold text-foreground mb-6">{sections[currentPage - 1].title}</h2>
                     <div
                       className="reader-html prose-literary text-foreground/90"
