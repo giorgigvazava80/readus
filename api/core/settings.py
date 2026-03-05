@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     "accounts",
     "content",
+    "engagement",
     "cloudinary_storage",
     "cloudinary",
 ]
@@ -363,6 +364,5 @@ SWAGGER_SETTINGS = {
         }
     }
 }
-
 
 

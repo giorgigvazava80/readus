@@ -1,12 +1,13 @@
-﻿import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { BookOpen, LogOut, Shield, Menu, X, Languages } from "lucide-react";
+import { BookOpen, LogOut, Shield, Languages, Bell, Home, Compass, PenTool, User } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { useSession } from "@/hooks/useSession";
 import { useI18n } from "@/i18n";
 import { isAdminAppHost } from "@/lib/runtime";
-import { logout } from "@/lib/api";
+import { fetchNotificationUnreadCount, logout } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 
 interface NavItem {
@@ -37,22 +38,37 @@ const Navbar = () => {
   const { language, toggleLanguage, t } = useI18n();
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [readingFocus, setReadingFocus] = useState(false);
+  const [isCompactViewport, setIsCompactViewport] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width: 1279px)").matches;
+  });
+  const [editorHeaderInView, setEditorHeaderInView] = useState(true);
   const navRef = useRef<HTMLDivElement>(null);
 
   const adminHost = isAdminAppHost();
+  const isWriterEditorRoute = useMemo(() => {
+    if (adminHost) return false;
+    return /^\/writer\/(books|poems|stories|chapters)\/[^/]+\/edit\/?$/.test(location.pathname);
+  }, [adminHost, location.pathname]);
+  const unreadQuery = useQuery({
+    queryKey: ["notification-unread-count"],
+    queryFn: fetchNotificationUnreadCount,
+    enabled: Boolean(me),
+    refetchInterval: 20000,
+  });
 
+  // Listen for reading-focus custom events from PublicReadPage
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (navRef.current && !navRef.current.contains(event.target as Node)) {
-        setMobileOpen(false);
-      }
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setReadingFocus(Boolean(detail?.active));
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    window.addEventListener("reading-focus", handler);
+    return () => window.removeEventListener("reading-focus", handler);
   }, []);
 
   useEffect(() => {
@@ -73,7 +89,80 @@ const Navbar = () => {
   }, [lastScrollY]);
 
   useEffect(() => {
-    setMobileOpen(false);
+    const mediaQuery = window.matchMedia("(max-width: 1279px)");
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsCompactViewport(event.matches);
+    };
+    setIsCompactViewport(mediaQuery.matches);
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  useEffect(() => {
+    if (!isWriterEditorRoute || !isCompactViewport) {
+      setEditorHeaderInView(true);
+      return;
+    }
+
+    let intersectionObserver: IntersectionObserver | null = null;
+    let mutationObserver: MutationObserver | null = null;
+    const visibilityByAnchor = new Map<HTMLElement, boolean>();
+
+    const isAnchorInViewport = (anchor: HTMLElement) => {
+      const rect = anchor.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < window.innerHeight;
+    };
+
+    const bindAnchors = () => {
+      const anchors = Array.from(
+        document.querySelectorAll<HTMLElement>('[data-editor-header-anchor="true"]'),
+      );
+      if (!anchors.length) {
+        return false;
+      }
+
+      intersectionObserver?.disconnect();
+      visibilityByAnchor.clear();
+
+      intersectionObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            visibilityByAnchor.set(
+              entry.target as HTMLElement,
+              entry.isIntersecting && entry.intersectionRatio > 0,
+            );
+          });
+          setEditorHeaderInView(Array.from(visibilityByAnchor.values()).some(Boolean));
+        },
+        { threshold: [0, 0.01] },
+      );
+
+      anchors.forEach((anchor) => {
+        visibilityByAnchor.set(anchor, false);
+        intersectionObserver?.observe(anchor);
+      });
+
+      setEditorHeaderInView(anchors.some(isAnchorInViewport));
+      return true;
+    };
+
+    if (!bindAnchors()) {
+      setEditorHeaderInView(true);
+      mutationObserver = new MutationObserver(() => {
+        if (bindAnchors()) {
+          mutationObserver?.disconnect();
+        }
+      });
+      mutationObserver.observe(document.body, { childList: true, subtree: true });
+    }
+
+    return () => {
+      intersectionObserver?.disconnect();
+      mutationObserver?.disconnect();
+    };
+  }, [isWriterEditorRoute, isCompactViewport, location.pathname]);
+
+  useEffect(() => {
     setIsVisible(true);
   }, [location.pathname]);
 
@@ -86,13 +175,10 @@ const Navbar = () => {
     ];
 
     if (me.is_writer_approved) {
-      dashboardNav.push({ labelKey: "nav.newWork", defaultLabel: "New Work", path: "/writer/new" });
-    } else {
+      dashboardNav.push({ labelKey: "nav.analytics", defaultLabel: "Analytics", path: "/writer/analytics" });
+    } else if (me.role_registered === "writer") {
       dashboardNav.push({ labelKey: "nav.writerApp", defaultLabel: "Writer App", path: "/writer-application" });
     }
-
-    dashboardNav.push({ labelKey: "nav.myWorks", defaultLabel: "My Works", path: "/my-works" });
-    dashboardNav.push({ labelKey: "nav.settings", defaultLabel: "Settings", path: "/settings" });
 
     return [...publicUserNav, ...dashboardNav];
   }, [adminHost, me]);
@@ -104,15 +190,67 @@ const Navbar = () => {
     navigate("/");
   };
 
+  const isNotificationsRoute = location.pathname === "/notifications" || location.pathname.startsWith("/notifications/");
+  const handleNotificationsToggle = () => {
+    if (isNotificationsRoute) {
+      if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        navigate(me ? "/dashboard" : "/");
+      }
+      return;
+    }
+    navigate("/notifications");
+  };
+
+  const mobileNavItems = useMemo(() => {
+    if (adminHost) return [];
+
+    const canSeeWriteNav = !me || me.is_writer_approved || me.role_registered === "writer";
+
+    return [
+      { icon: Home, labelKey: "nav.home", defaultLabel: "Home", path: "/" },
+      { icon: Compass, labelKey: "nav.browse", defaultLabel: "Browse", path: "/browse" },
+      ...(canSeeWriteNav
+        ? [{
+          icon: PenTool,
+          labelKey: "nav.write",
+          defaultLabel: "Write",
+          path: me ? (me.is_writer_approved ? "/writer/new" : "/writer-application") : "/login",
+        }]
+        : []),
+      {
+        icon: User,
+        labelKey: "nav.profile",
+        defaultLabel: "Profile",
+        path: me ? "/dashboard" : "/login",
+      },
+    ];
+  }, [adminHost, me]);
+
+  const shouldHideEditorNav = isWriterEditorRoute && isCompactViewport && !editorHeaderInView;
+  const shouldShowTopNav = isWriterEditorRoute && isCompactViewport
+    ? !readingFocus && !shouldHideEditorNav
+    : !readingFocus && isVisible;
+  const shouldShowMobileNav = !adminHost && !readingFocus && !shouldHideEditorNav;
+
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("mobile-nav-visibility", {
+        detail: { visible: shouldShowMobileNav },
+      }),
+    );
+  }, [shouldShowMobileNav]);
+
   return (
     <div ref={navRef}>
       <header
-        className={`sticky top-0 z-50 transition-all duration-300 ${isVisible ? "translate-y-0" : "-translate-y-full"} ${scrolled
+        className={`sticky top-0 z-50 transition-all duration-300 ${shouldShowTopNav ? "translate-y-0" : "-translate-y-full"} ${scrolled
           ? "bg-background/70 backdrop-blur-lg shadow-sm border-b border-border/40"
           : "bg-background/60 backdrop-blur-md border-b border-transparent"
           }`}
       >
-        <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 sm:px-6">
+        <div className="container mx-auto flex h-16 items-center justify-between gap-2 px-3 sm:px-4 xl:px-6">
           <Link to={adminHost ? "/admin" : "/"} className="group flex flex-shrink-0 items-center gap-2.5">
             <div
               className="flex h-8 w-8 items-center justify-center rounded-lg shadow-sm transition-transform duration-200 group-hover:scale-105"
@@ -125,17 +263,17 @@ const Navbar = () => {
             </span>
           </Link>
 
-          <nav className="hidden flex-1 items-center gap-1 overflow-hidden xl:flex">
+          <nav className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 overflow-x-auto whitespace-nowrap scrollbar-none xl:flex">
             {navItems.map((item) => {
               const isAuthorsNav = item.path === "/authors";
               const isActive = isAuthorsNav
-                ? location.pathname === "/authors"
-                  || location.pathname.startsWith("/authors/")
-                  || location.pathname === "/browse/authors"
-                  || location.pathname.startsWith("/browse/authors/")
+                ? location.pathname === "/authors" ||
+                location.pathname.startsWith("/authors/") ||
+                location.pathname === "/browse/authors" ||
+                location.pathname.startsWith("/browse/authors/")
                 : location.pathname === item.path;
               return (
-                <Link key={item.path} to={item.path}>
+                <Link key={item.path} to={item.path} className="shrink-0">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -157,7 +295,7 @@ const Navbar = () => {
             })}
           </nav>
 
-          <div className="flex flex-shrink-0 items-center gap-2">
+          <div className="flex flex-shrink-0 items-center gap-1.5">
             <Button
               variant="outline"
               size="sm"
@@ -172,7 +310,22 @@ const Navbar = () => {
 
             {me ? (
               <>
-                <span className="hidden rounded-full border border-border/70 bg-card/80 px-3 py-1 font-ui text-xs text-muted-foreground lg:inline-flex">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleNotificationsToggle}
+                  aria-label={t("nav.notifications", "Notifications")}
+                  title={t("nav.notifications", "Notifications")}
+                  className="relative h-9 w-9 p-0"
+                >
+                  <Bell className="h-4 w-4" />
+                  {unreadQuery.data ? (
+                    <span className="absolute -right-1.5 -top-1.5 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] text-primary-foreground">
+                      {unreadQuery.data > 9 ? "9+" : unreadQuery.data}
+                    </span>
+                  ) : null}
+                </Button>
+                <span className="hidden rounded-full border border-border/70 bg-card/80 px-3 py-1 font-ui text-xs text-muted-foreground 2xl:inline-flex">
                   {me.username}
                 </span>
                 <Button
@@ -180,19 +333,21 @@ const Navbar = () => {
                   size="sm"
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="gap-1.5 font-ui"
+                  className="hidden xl:flex h-9 w-9 p-0 2xl:h-9 2xl:w-auto 2xl:px-3 gap-1.5 font-ui"
                 >
                   <LogOut className="h-3.5 w-3.5" />
-                  {isLoggingOut ? "..." : t("nav.logout", "Logout")}
+                  <span className="hidden 2xl:inline">{isLoggingOut ? "..." : t("nav.logout", "Logout")}</span>
                 </Button>
               </>
             ) : (
               <>
-                <Link to={adminHost ? "/admin/login" : "/login"} className="hidden sm:block">
-                  <Button variant="outline" size="sm" className="font-ui">{t("nav.login", "Login")}</Button>
+                <Link to={adminHost ? "/admin/login" : "/login"} className="hidden xl:block">
+                  <Button variant="outline" size="sm" className="font-ui">
+                    {t("nav.login", "Login")}
+                  </Button>
                 </Link>
                 {!adminHost ? (
-                  <Link to="/register" className="hidden sm:block">
+                  <Link to="/register" className="hidden xl:block">
                     <Button size="sm" className="font-ui shadow-sm transition-all hover:shadow-warm">
                       {t("nav.register", "Register")}
                     </Button>
@@ -200,105 +355,81 @@ const Navbar = () => {
                 ) : null}
               </>
             )}
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 text-muted-foreground xl:hidden"
-              onClick={() => setMobileOpen((v) => !v)}
-              aria-label={t("nav.toggleMenu", "Toggle menu")}
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                {mobileOpen ? (
-                  <motion.span
-                    key="x"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    <X className="h-5 w-5" />
-                  </motion.span>
-                ) : (
-                  <motion.span
-                    key="menu"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    <Menu className="h-5 w-5" />
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </Button>
           </div>
         </div>
       </header>
 
-      <AnimatePresence>
-        {mobileOpen ? (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-            className="glass-panel fixed left-0 right-0 top-16 z-40 max-h-[calc(100vh-4rem)] overflow-y-auto border-b xl:hidden"
-          >
-            <div className="container mx-auto space-y-1 px-4 py-4">
-              {navItems.map((item, i) => {
-                const isAuthorsNav = item.path === "/authors";
-                const isActive = isAuthorsNav
-                  ? location.pathname === "/authors"
-                    || location.pathname.startsWith("/authors/")
-                    || location.pathname === "/browse/authors"
-                    || location.pathname.startsWith("/browse/authors/")
-                  : location.pathname === item.path;
-                return (
-                  <motion.div
-                    key={item.path}
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.04 }}
-                  >
-                    <Link to={item.path}>
-                      <div
-                        className={`flex items-center rounded-lg px-3 py-2.5 font-ui text-sm font-medium transition-colors ${isActive ? "text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                          }`}
-                        style={isActive ? { background: "hsl(36 70% 50% / 0.08)" } : undefined}
-                      >
-                        {t(item.labelKey, item.defaultLabel)}
-                        {isActive ? <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" /> : null}
-                      </div>
-                    </Link>
-                  </motion.div>
-                );
-              })}
-
-              {!me ? (
-                <motion.div
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: navItems.length * 0.04 }}
-                  className="flex flex-col gap-2 pb-1 pt-2"
+      {/* ── Mobile Bottom Navigation — Wattpad-style (hidden during reading focus) ── */}
+      {shouldShowMobileNav && (
+        <nav
+          data-mobile-bottom-nav="true"
+          className="fixed bottom-0 left-0 right-0 z-50 xl:hidden"
+          style={{
+            background: "hsl(var(--background) / 0.97)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            borderTop: "1px solid hsl(var(--border) / 0.4)",
+            paddingBottom: "env(safe-area-inset-bottom)",
+            boxShadow: "0 -2px 20px rgba(0,0,0,0.06)",
+          }}
+        >
+          <div className="flex items-stretch justify-around h-16">
+            {mobileNavItems.map((item) => {
+              const isActive =
+                item.path === "/"
+                  ? location.pathname === "/"
+                  : location.pathname === item.path || location.pathname.startsWith(item.path + "/");
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`relative flex flex-col items-center justify-center flex-1 gap-1 py-2 focus:outline-none touch-action-manip transition-colors duration-150 ${isActive ? "text-primary" : "text-muted-foreground"
+                    }`}
                 >
-                  <Link to={adminHost ? "/admin/login" : "/login"}>
-                    <Button variant="outline" size="sm" className="w-full font-ui">{t("nav.login", "Login")}</Button>
-                  </Link>
-                  {!adminHost ? (
-                    <Link to="/register">
-                      <Button size="sm" className="w-full font-ui">{t("nav.register", "Register")}</Button>
-                    </Link>
-                  ) : null}
-                </motion.div>
-              ) : null}
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+                  {/* Active pill highlight behind icon */}
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.span
+                        layoutId="bottom-nav-pill"
+                        className="absolute top-1.5 w-10 h-10 rounded-full"
+                        style={{ background: "hsl(var(--primary) / 0.12)" }}
+                        initial={{ opacity: 0, scale: 0.75 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.75 }}
+                        transition={{ type: "spring", stiffness: 420, damping: 28 }}
+                      />
+                    )}
+                  </AnimatePresence>
+
+                  {/* Icon with spring scale on active */}
+                  <motion.div
+                    animate={{ scale: isActive ? 1.15 : 1 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    className="relative z-10 flex items-center justify-center"
+                  >
+                    <item.icon className="h-5 w-5" strokeWidth={isActive ? 2.25 : 1.75} />
+                    {item.badge ? (
+                      <span className="absolute -top-1.5 -right-2 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground shadow-sm">
+                        {item.badge > 9 ? "9+" : item.badge}
+                      </span>
+                    ) : null}
+                  </motion.div>
+
+                  {/* Label */}
+                  <span
+                    className={`z-10 text-[10px] sm:text-[11px] font-ui font-medium leading-none transition-colors ${isActive ? "text-primary" : "text-muted-foreground"
+                      }`}
+                  >
+                    {t(item.labelKey, item.defaultLabel)}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      )}
     </div>
   );
 };
 
 export default Navbar;
-

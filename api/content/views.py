@@ -27,6 +27,7 @@ from content.serializers import (
     PublicAuthorSummarySerializer,
     StorySerializer,
 )
+from engagement.models import AuthorFollow
 
 
 PUBLIC_CONTENT_CACHE_VERSION_KEY = "public-content-cache-version"
@@ -106,6 +107,7 @@ def _build_anonymous_summary() -> dict[str, object] | None:
         return None
 
     return {
+        "id": None,
         "key": ANONYMOUS_AUTHOR_KEY,
         "display_name": "Anonymous",
         "username": None,
@@ -114,6 +116,8 @@ def _build_anonymous_summary() -> dict[str, object] | None:
         "books_count": books_count,
         "stories_count": stories_count,
         "poems_count": poems_count,
+        "follower_count": 0,
+        "is_following": False,
         "is_anonymous": True,
     }
 
@@ -168,6 +172,7 @@ def _build_named_author_queryset(search: str = ""):
         )
         .annotate(
             works_count=F("books_count") + F("stories_count") + F("poems_count"),
+            follower_count=Count("author_followers", distinct=True),
             full_name=Concat("first_name", Value(" "), "last_name"),
         )
         .filter(works_count__gt=0)
@@ -190,6 +195,7 @@ def _to_named_author_summary(row: dict[str, object]) -> dict[str, object]:
     display_name = full_name or username
 
     return {
+        "id": int(row["id"]) if row.get("id") is not None else None,
         "key": username,
         "display_name": display_name,
         "username": username,
@@ -198,6 +204,8 @@ def _to_named_author_summary(row: dict[str, object]) -> dict[str, object]:
         "books_count": int(row.get("books_count") or 0),
         "stories_count": int(row.get("stories_count") or 0),
         "poems_count": int(row.get("poems_count") or 0),
+        "follower_count": int(row.get("follower_count") or 0),
+        "is_following": bool(row.get("is_following", False)),
         "is_anonymous": False,
     }
 
@@ -217,6 +225,7 @@ def _get_author_summary_by_key(author_key: str) -> dict[str, object]:
         _build_named_author_queryset()
         .filter(username=normalized_key)
         .values(
+            "id",
             "username",
             "full_name",
             "profile__profile_photo",
@@ -224,6 +233,7 @@ def _get_author_summary_by_key(author_key: str) -> dict[str, object]:
             "books_count",
             "stories_count",
             "poems_count",
+            "follower_count",
         )
         .first()
     )
@@ -256,6 +266,7 @@ class PublicAuthorListView(generics.GenericAPIView):
         named_rows = (
             _build_named_author_queryset(search)
             .values(
+                "id",
                 "username",
                 "full_name",
                 "profile__profile_photo",
@@ -263,12 +274,21 @@ class PublicAuthorListView(generics.GenericAPIView):
                 "books_count",
                 "stories_count",
                 "poems_count",
+                "follower_count",
             )
         )
         authors = []
         for row in named_rows:
             row["profile_photo"] = row.pop("profile__profile_photo", None)
             authors.append(_to_named_author_summary(row))
+
+        if request.user and request.user.is_authenticated:
+            followed_author_ids = set(
+                AuthorFollow.objects.filter(follower=request.user).values_list("author_id", flat=True)
+            )
+            for item in authors:
+                author_id = item.get("id")
+                item["is_following"] = bool(author_id and author_id in followed_author_ids)
 
         anonymous_summary = _build_anonymous_summary()
         if anonymous_summary and _anonymous_matches_search(search):
@@ -310,6 +330,11 @@ class PublicAuthorDetailView(generics.GenericAPIView):
                 return response
 
         summary = _get_author_summary_by_key(author_key)
+        if request.user and request.user.is_authenticated and summary.get("id"):
+            summary["is_following"] = AuthorFollow.objects.filter(
+                follower=request.user,
+                author_id=summary["id"],
+            ).exists()
         serializer = self.get_serializer(summary)
         response = Response(serializer.data)
 
@@ -345,6 +370,11 @@ class ReviewActionMixin:
                 )
 
         obj.set_status(status_value, user=request.user, reason=reason)
+
+        if previous_status != StatusChoices.APPROVED and status_value == StatusChoices.APPROVED:
+            from engagement.services import notify_followers_about_publication
+
+            notify_followers_about_publication(obj)
 
         author = obj.book.author if isinstance(obj, Chapter) else obj.author
         create_notification(

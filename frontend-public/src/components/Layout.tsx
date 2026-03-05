@@ -1,4 +1,4 @@
-﻿import { Outlet, Link } from "react-router-dom";
+﻿import { Outlet, Link, useLocation } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
 import { useI18n } from "@/i18n";
@@ -10,10 +10,12 @@ const Layout = () => {
   const adminHost = isAdminAppHost();
   const { t } = useI18n();
   const { isAuthenticated, me } = useSession();
+  const location = useLocation();
 
   // Show CTA for: guests (not logged in) OR logged-in users who are NOT approved writers
   const isWriter = Boolean(me?.is_writer_approved);
-  const showCta = !isWriter;
+  const isReadRoute = location.pathname === "/read" || location.pathname.startsWith("/read/");
+  const showCta = !isWriter && !isReadRoute;
 
   // Where the CTA button links to:
   // - Not logged in → /login
@@ -32,7 +34,7 @@ const Layout = () => {
 
       <Navbar />
 
-      <main className="relative flex-1">
+      <main className="relative flex-1 pb-16 xl:pb-0">
         <Outlet />
       </main>
 
@@ -82,4 +84,5 @@ const Layout = () => {
 };
 
 export default Layout;
+
 

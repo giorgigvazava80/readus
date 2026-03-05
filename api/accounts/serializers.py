@@ -6,6 +6,7 @@ from dj_rest_auth.registration.serializers import RegisterSerializer
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.db import IntegrityError
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -82,6 +83,8 @@ class CustomRegisterSerializer(RegisterSerializer):
                 category=Notification.Category.SYSTEM,
                 title="Welcome to Readus",
                 message="Your account is active. You can start using the platform now.",
+                title_ka="მოგესალმებით Readus-ზე",
+                message_ka="თქვენი ანგარიში აქტიურია. პლატფორმის გამოყენება უკვე შეგიძლიათ.",
             )
         else:
             create_notification(
@@ -89,6 +92,8 @@ class CustomRegisterSerializer(RegisterSerializer):
                 category=Notification.Category.VERIFICATION,
                 title="Verify your email",
                 message="Check your inbox and verify your email to activate your account.",
+                title_ka="დაადასტურეთ ელფოსტა",
+                message_ka="შეამოწმეთ ელფოსტა და დაადასტურეთ მისამართი ანგარიშის გასააქტიურებლად.",
             )
 
         return user
@@ -106,6 +111,7 @@ class MeSerializer(serializers.ModelSerializer):
     birth_date = serializers.SerializerMethodField()
     age = serializers.SerializerMethodField()
     profile_photo = serializers.SerializerMethodField()
+    nationality = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -118,6 +124,7 @@ class MeSerializer(serializers.ModelSerializer):
             "birth_date",
             "age",
             "profile_photo",
+            "nationality",
             "role_registered",
             "is_email_verified",
             "is_writer_approved",
@@ -171,12 +178,16 @@ class MeSerializer(serializers.ModelSerializer):
         url = photo.url
         return request.build_absolute_uri(url) if request else url
 
+    def get_nationality(self, obj):
+        return (get_profile(obj).nationality or "").strip()
+
 
 class MeUpdateSerializer(serializers.Serializer):
     username = serializers.CharField(required=False, max_length=150)
     first_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
     last_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
     birth_date = serializers.DateField(required=False, allow_null=True)
+    nationality = serializers.CharField(required=False, allow_blank=True, max_length=120)
     profile_photo = serializers.ImageField(required=False, allow_null=True)
     remove_profile_photo = serializers.BooleanField(required=False, default=False)
 
@@ -234,6 +245,10 @@ class MeUpdateSerializer(serializers.Serializer):
         if "birth_date" in validated_data:
             profile.birth_date = validated_data["birth_date"]
             profile_changed_fields.append("birth_date")
+
+        if "nationality" in validated_data:
+            profile.nationality = validated_data["nationality"].strip() or "georgian"
+            profile_changed_fields.append("nationality")
 
         remove_profile_photo = validated_data.get("remove_profile_photo", False)
         photo_in_payload = "profile_photo" in validated_data
@@ -350,7 +365,10 @@ class WriterApplicationSerializer(serializers.ModelSerializer):
         profile.role_registered = REGISTERED_ROLE_WRITER
         profile.save(update_fields=["role_registered", "updated_at"])
 
-        return WriterApplication.objects.create(user=user, **validated_data)
+        try:
+            return WriterApplication.objects.create(user=user, **validated_data)
+        except IntegrityError as exc:
+            raise serializers.ValidationError("You already have a pending writer application.") from exc
 
 
 class WriterApplicationReviewSerializer(serializers.ModelSerializer):
@@ -361,6 +379,9 @@ class WriterApplicationReviewSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         status = attrs.get("status")
         review_comment = (attrs.get("review_comment") or "").strip()
+
+        if status and status not in {WriterApplicationStatus.APPROVED, WriterApplicationStatus.REJECTED}:
+            raise serializers.ValidationError({"status": "Status must be approved or rejected."})
 
         if status == WriterApplicationStatus.REJECTED and not review_comment:
             raise serializers.ValidationError(
@@ -402,6 +423,8 @@ class WriterApplicationReviewSerializer(serializers.ModelSerializer):
                 category=Notification.Category.WRITER_APPLICATION,
                 title="Writer application approved",
                 message="Your writer application has been approved. You can now access the writer dashboard.",
+                title_ka="ავტორის განაცხადი დამტკიცებულია",
+                message_ka="თქვენი ავტორის განაცხადი დამტკიცდა. ახლა შეგიძლიათ ავტორის პანელის გამოყენება.",
                 metadata={"application_id": instance.id, "status": new_status},
             )
         elif new_status == WriterApplicationStatus.REJECTED:
@@ -413,6 +436,8 @@ class WriterApplicationReviewSerializer(serializers.ModelSerializer):
                 category=Notification.Category.WRITER_APPLICATION,
                 title="Writer application rejected",
                 message="Your writer application was rejected. See reviewer comment in your dashboard.",
+                title_ka="ავტორის განაცხადი უარყოფილია",
+                message_ka="თქვენი ავტორის განაცხადი უარყოფილია. იხილეთ რედაქტორის კომენტარი თქვენს პანელში.",
                 metadata={"application_id": instance.id, "status": new_status},
             )
 

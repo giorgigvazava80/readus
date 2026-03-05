@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { BookOpen, Clock, EyeOff, FileText, PenLine } from "lucide-react";
+import { BookOpen, EyeOff, FileText, PenLine } from "lucide-react";
 
 import { authorProfilePath } from "@/lib/authors";
 import type { ContentCategory } from "@/lib/types";
@@ -54,9 +54,10 @@ const WorkCard = ({ work, index = 0 }: WorkCardProps) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.08, ease: "easeOut" }}
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.35, delay: index * 0.045, ease: "easeOut" }}
+      className="h-full"
     >
       <article
         role="link"
@@ -68,83 +69,73 @@ const WorkCard = ({ work, index = 0 }: WorkCardProps) => {
             handleOpenWork();
           }
         }}
-        className="group relative h-full min-h-[320px] sm:min-h-[380px] overflow-hidden rounded-2xl border border-border/40 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md flex flex-col cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="group relative flex flex-col h-full cursor-pointer focus:outline-none touch-action-manip"
       >
-        {/* Background Layer with Photo/Color */}
-        <div className="absolute inset-0 z-0 overflow-hidden bg-background">
+        {/* ── Cover Container ── */}
+        <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl sm:rounded-2xl shadow-sm border border-border/30 transition-all duration-300 group-hover:shadow-md group-hover:-translate-y-1 bg-muted/20">
+
+          {/* Cover image or gradient placeholder */}
           {work.coverImageUrl ? (
             <img
               src={work.coverImageUrl}
               alt={work.title}
-              className="absolute inset-0 h-full w-full object-cover opacity-70 blur-[3px] scale-105 transition-transform duration-700 ease-out group-hover:scale-110"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+              loading="lazy"
             />
           ) : (
             <div
-              className="absolute inset-0 h-full w-full opacity-60 blur-[3px] scale-105 transition-transform duration-700 ease-out group-hover:scale-110"
+              className="absolute inset-0 h-full w-full transition-transform duration-700 ease-out group-hover:scale-110"
               style={{
-                background: `linear-gradient(135deg, ${work.coverColor}, ${work.coverColor}99)`,
+                background: `linear-gradient(160deg, ${work.coverColor}cc, ${work.coverColor})`,
               }}
             >
-              <div className="absolute -top-4 -right-4 h-32 w-32 rounded-full opacity-40 bg-white" />
-              <div className="absolute bottom-10 -left-10 h-24 w-24 rounded-full opacity-30 bg-white" />
+              <Icon className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-10 w-10 sm:h-14 sm:w-14 text-white/20" />
             </div>
           )}
-          <div className="absolute inset-0 bg-white/40 backdrop-blur-sm pointer-events-none" />
-        </div>
 
-        {/* Foreground Content */}
-        <div className="relative z-10 p-4 sm:p-5 flex flex-col flex-1 h-full">
-          <div className="mb-auto flex items-start justify-between gap-2 pb-6 sm:pb-12">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/50 backdrop-blur-md border border-white/60 shadow-sm text-foreground/80">
-              <Icon className="h-5 w-5" />
-            </div>
-
-            <Badge variant="secondary" className="gap-1 font-ui text-[10px] uppercase tracking-wider px-2.5 py-1 bg-white/60 text-foreground hover:bg-white/80 backdrop-blur-md border border-white/60 shadow-sm transition-colors">
-              <Clock className="h-3 w-3" />
-              {work.readTime}
-            </Badge>
-          </div>
-
-          <div className="mt-auto">
-            <div className="mb-3 flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className="font-ui text-[10px] uppercase tracking-wider px-2 py-0 border-white/60 text-foreground bg-white/40 backdrop-blur-md shadow-sm">
-                {t(categoryLabels[work.category].key, categoryLabels[work.category].fallback)}
-              </Badge>
-              {work.isHidden && (
-                <Badge variant="outline" className="font-ui text-[10px] uppercase tracking-wider px-2 py-0 border-amber-500/40 text-amber-900 bg-amber-500/20 backdrop-blur-md shadow-sm flex items-center gap-1">
-                  <EyeOff className="h-2.5 w-2.5" />
-                  {t("workcard.hidden", "Hidden")}
-                </Badge>
-              )}
-            </div>
-
-            <h3 className="font-display text-lg sm:text-xl font-bold leading-tight text-foreground transition-colors group-hover:text-primary line-clamp-2 drop-shadow-sm">
+          {/* ── Wattpad-style gradient scrim + title overlay ── */}
+          <div className="cover-scrim absolute inset-0 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 p-2.5 sm:p-3 z-10">
+            <p className="font-display font-bold text-white text-sm sm:text-base leading-tight line-clamp-2 drop-shadow-sm">
               {work.title}
-            </h3>
-
-            <p className="mt-1.5 font-ui text-sm text-foreground/70 font-medium drop-shadow-sm">
-              {t("workcard.by", "by ")}
-              <Link
-                to={authorLink}
-                onClick={(event) => event.stopPropagation()}
-                onKeyDown={(event) => event.stopPropagation()}
-                className="relative z-20 text-foreground/90 hover:text-primary hover:underline"
+            </p>
+            <p className="mt-0.5 font-ui text-[11px] sm:text-xs text-white/75 line-clamp-1">
+              <span
+                onClick={(e) => { e.stopPropagation(); navigate(authorLink); }}
+                className="hover:underline cursor-pointer"
               >
                 {work.author || t("workcard.anonymous", "anonymous")}
-              </Link>
-            </p>
-
-            <p className="mt-4 line-clamp-3 font-body text-sm leading-relaxed text-foreground/85 drop-shadow-sm">
-              {work.excerpt}
-            </p>
-
-            <div className="mt-5 border-t border-black/10 pt-4 flex flex-row items-center justify-between">
-              <span className="font-ui text-xs font-medium text-foreground/60">{work.date}</span>
-              <span className="flex items-center gap-1 font-ui text-xs font-bold text-primary transition-all duration-300 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 drop-shadow-sm">
-                {t("workcard.readNow", "Read now")} <span className="text-lg leading-none">→</span>
               </span>
-            </div>
+            </p>
           </div>
+
+          {/* Top badges */}
+          <div className="absolute top-2 left-2 right-2 flex justify-between items-start gap-1 z-10">
+            <Badge
+              variant="secondary"
+              className="font-ui text-[9px] sm:text-[10px] uppercase tracking-wider px-1.5 sm:px-2 py-0.5 bg-black/40 text-white backdrop-blur-md border border-white/10 shadow-sm"
+            >
+              {t(categoryLabels[work.category].key, categoryLabels[work.category].fallback)}
+            </Badge>
+            {work.isHidden && (
+              <Badge
+                variant="outline"
+                className="font-ui text-[9px] uppercase tracking-wider px-1.5 py-0.5 border-amber-500/40 text-white bg-amber-500/80 backdrop-blur-md shadow-sm"
+              >
+                <EyeOff className="h-2.5 w-2.5" />
+              </Badge>
+            )}
+          </div>
+
+          {/* Read-time badge bottom-right */}
+          <div className="absolute top-2 right-2 z-10">
+          </div>
+        </div>
+
+        {/* ── Minimal info row below cover (accessible fallback) ── */}
+        {/* Title & author shown in overlay above; keep a tiny date line for a11y on desktop */}
+        <div className="pt-1.5 px-0.5 hidden sm:flex flex-col flex-1">
+          <p className="font-ui text-[10px] text-muted-foreground">{work.readTime.replace(" min read", "m read")}</p>
         </div>
       </article>
     </motion.div>

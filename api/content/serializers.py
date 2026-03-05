@@ -45,9 +45,14 @@ ALLOWED_RICH_TEXT_TAGS = [
 ALLOWED_RICH_TEXT_ATTRIBUTES = {
     "a": ["href", "title", "target", "rel"],
     "img": ["src", "alt", "title"],
-    "p": ["style", "align"],
-    "div": ["style", "align"],
-    "span": ["style"],
+    "p": ["style", "align", "id", "data-block-id"],
+    "div": ["style", "align", "id", "data-block-id"],
+    "span": ["style", "id", "data-block-id"],
+    "h1": ["style", "id", "data-block-id"],
+    "h2": ["style", "id", "data-block-id"],
+    "h3": ["style", "id", "data-block-id"],
+    "blockquote": ["style", "id", "data-block-id"],
+    "li": ["style", "id", "data-block-id"],
     "td": ["colspan", "rowspan", "style"],
     "th": ["colspan", "rowspan", "style"],
 }
@@ -173,6 +178,7 @@ class ContentValidationMixin(serializers.ModelSerializer):
 
 
 class PublicAuthorSummarySerializer(serializers.Serializer):
+    id = serializers.IntegerField(allow_null=True, required=False)
     key = serializers.CharField()
     display_name = serializers.CharField()
     username = serializers.CharField(allow_null=True)
@@ -181,6 +187,8 @@ class PublicAuthorSummarySerializer(serializers.Serializer):
     books_count = serializers.IntegerField()
     stories_count = serializers.IntegerField()
     poems_count = serializers.IntegerField()
+    follower_count = serializers.IntegerField(required=False, default=0)
+    is_following = serializers.BooleanField(required=False, default=False)
     is_anonymous = serializers.BooleanField()
 
     def get_profile_photo(self, obj):
@@ -191,6 +199,7 @@ class PublicAuthorSummarySerializer(serializers.Serializer):
 
 
 class StorySerializer(ContentValidationMixin):
+    author_id = serializers.SerializerMethodField()
     author_username = serializers.SerializerMethodField()
     author_name = serializers.SerializerMethodField()
     author_key = serializers.SerializerMethodField()
@@ -212,6 +221,7 @@ class StorySerializer(ContentValidationMixin):
             "author_username",
             "author_name",
             "author_key",
+            "author_id",
             "status",
             "rejection_reason",
             "is_deleted",
@@ -225,6 +235,7 @@ class StorySerializer(ContentValidationMixin):
             "author_username",
             "author_name",
             "author_key",
+            "author_id",
             "status",
             "rejection_reason",
             "is_deleted",
@@ -237,6 +248,11 @@ class StorySerializer(ContentValidationMixin):
         if not self._can_view_real_author(obj):
             return self._public_author_name()
         return obj.author.username
+
+    def get_author_id(self, obj):
+        if not self._can_view_real_author(obj):
+            return None
+        return obj.author_id
 
     def get_author_name(self, obj):
         if not self._can_view_real_author(obj):
@@ -270,6 +286,7 @@ class StorySerializer(ContentValidationMixin):
 
 
 class PoemSerializer(ContentValidationMixin):
+    author_id = serializers.SerializerMethodField()
     author_username = serializers.SerializerMethodField()
     author_name = serializers.SerializerMethodField()
     author_key = serializers.SerializerMethodField()
@@ -291,6 +308,7 @@ class PoemSerializer(ContentValidationMixin):
             "author_username",
             "author_name",
             "author_key",
+            "author_id",
             "status",
             "rejection_reason",
             "is_deleted",
@@ -304,6 +322,7 @@ class PoemSerializer(ContentValidationMixin):
             "author_username",
             "author_name",
             "author_key",
+            "author_id",
             "status",
             "rejection_reason",
             "is_deleted",
@@ -316,6 +335,11 @@ class PoemSerializer(ContentValidationMixin):
         if not self._can_view_real_author(obj):
             return self._public_author_name()
         return obj.author.username
+
+    def get_author_id(self, obj):
+        if not self._can_view_real_author(obj):
+            return None
+        return obj.author_id
 
     def get_author_name(self, obj):
         if not self._can_view_real_author(obj):
@@ -392,6 +416,7 @@ class BookChapterCreateSerializer(serializers.ModelSerializer):
 
 
 class BookSerializer(ContentValidationMixin):
+    author_id = serializers.SerializerMethodField()
     author_username = serializers.SerializerMethodField()
     author_name = serializers.SerializerMethodField()
     author_key = serializers.SerializerMethodField()
@@ -418,6 +443,7 @@ class BookSerializer(ContentValidationMixin):
             "author_username",
             "author_name",
             "author_key",
+            "author_id",
             "status",
             "rejection_reason",
             "is_deleted",
@@ -434,6 +460,7 @@ class BookSerializer(ContentValidationMixin):
             "author_username",
             "author_name",
             "author_key",
+            "author_id",
             "status",
             "rejection_reason",
             "is_deleted",
@@ -446,6 +473,11 @@ class BookSerializer(ContentValidationMixin):
         if not self._can_view_real_author(obj):
             return self._public_author_name()
         return obj.author.username
+
+    def get_author_id(self, obj):
+        if not self._can_view_real_author(obj):
+            return None
+        return obj.author_id
 
     def get_author_name(self, obj):
         if not self._can_view_real_author(obj):

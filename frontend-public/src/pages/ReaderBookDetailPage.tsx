@@ -1,18 +1,21 @@
-﻿import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, BookText, ListTree, EyeOff } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import EngagementPanel from "@/components/engagement/EngagementPanel";
+import FollowAuthorButton from "@/components/FollowAuthorButton";
 import ReadingFontSizeControl from "@/components/reader/ReadingFontSizeControl";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useI18n } from "@/i18n";
 import { authorProfilePath, resolveAuthorKey } from "@/lib/authors";
-import { fetchContentDetail } from "@/lib/api";
+import { fetchContentDetail, fetchMyContinueReading, saveReadingProgress, saveReadingProgressKeepalive, trackContentView } from "@/lib/api";
 import { getStoredReadingFontSize, readingFontSizeClassByPreference, setStoredReadingFontSize, type ReadingFontSize } from "@/lib/fontSize";
 import { useReadChapters } from "@/hooks/useReadChapters";
 import { cn } from "@/lib/utils";
+import { useSession } from "@/hooks/useSession";
 
 const hasTextContent = (html?: string | null) => {
   if (!html) return false;
@@ -27,7 +30,9 @@ const ReaderBookDetailPage = () => {
   const location = useLocation();
   const contentIdentifier = (identifier || "").trim();
   const { isRead } = useReadChapters();
+  const { me } = useSession();
   const [fontSize, setFontSize] = useState<ReadingFontSize>(() => getStoredReadingFontSize());
+  const [liveProgress, setLiveProgress] = useState(0);
   const readingFontSizeClass = readingFontSizeClassByPreference[fontSize];
 
   const bookQuery = useQuery({
@@ -45,6 +50,72 @@ const ReaderBookDetailPage = () => {
       navigate(target, { replace: true });
     }
   }, [bookQuery.data?.public_slug, contentIdentifier, location.pathname, navigate]);
+
+  const book = bookQuery.data ?? null;
+  const continueReadingQuery = useQuery({
+    queryKey: ["continue-reading-book", me?.id, book?.id],
+    queryFn: () => fetchMyContinueReading(30),
+    enabled: Boolean(me && book?.id),
+  });
+  const savedProgress = useMemo(() => {
+    if (!book?.id) return 0;
+    const match = (continueReadingQuery.data || []).find(
+      (item) => item.work.id === book.id,
+    );
+    return Number(match?.progress_percent || 0);
+  }, [book?.id, continueReadingQuery.data]);
+  const displayProgress = Math.max(liveProgress, savedProgress);
+
+  useEffect(() => {
+    if (!book) return;
+    const targetIdentifier = book.public_slug || book.id;
+    const computeProgressPercent = () => {
+      const doc = document.documentElement;
+      const scrollable = Math.max(1, doc.scrollHeight - window.innerHeight);
+      return Math.max(0, Math.min(100, (window.scrollY / scrollable) * 100));
+    };
+
+    trackContentView("books", targetIdentifier).catch(() => undefined);
+
+    const sendProgress = () => {
+      const progressPercent = computeProgressPercent();
+      setLiveProgress(progressPercent);
+      if (!me) return;
+
+      saveReadingProgress({
+        work_id: book.id,
+        work_type: "books",
+        progress_percent: Number(progressPercent.toFixed(2)),
+        last_position: {
+          scroll_y: Math.round(window.scrollY),
+          route: location.pathname,
+        },
+      }).catch(() => undefined);
+    };
+
+    const handleBeforeUnload = () => {
+      if (!me) return;
+      const progressPercent = computeProgressPercent();
+      saveReadingProgressKeepalive({
+        work_id: book.id,
+        work_type: "books",
+        progress_percent: Number(progressPercent.toFixed(2)),
+        last_position: {
+          scroll_y: Math.round(window.scrollY),
+          route: location.pathname,
+        },
+      });
+    };
+
+    sendProgress();
+    const intervalId = window.setInterval(sendProgress, 15000);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      sendProgress();
+    };
+  }, [book, location.pathname, me]);
 
   if (!contentIdentifier) {
     return (
@@ -72,8 +143,6 @@ const ReaderBookDetailPage = () => {
       </div>
     );
   }
-
-  const book = bookQuery.data;
   const canonicalIdentifier = (book.public_slug || contentIdentifier).trim();
   const chapters = (book.chapters || []).slice().sort((a, b) => a.order - b.order);
   const authorDisplay = book.author_name || book.author_username || t("workcard.anonymous", "anonymous");
@@ -102,17 +171,34 @@ const ReaderBookDetailPage = () => {
             </Badge>
           )}
         </div>
-        <p className="mt-1 font-ui text-sm text-muted-foreground">
-          {t("workcard.by", "by ")}
-          <Link to={authorPath} className="hover:text-primary hover:underline">
-            {authorDisplay}
-          </Link>
-        </p>
+        <div className="mt-1 flex flex-wrap items-center gap-3">
+          <p className="font-ui text-sm text-muted-foreground">
+            {t("workcard.by", "by ")}
+            <Link to={authorPath} className="hover:text-primary hover:underline">
+              {authorDisplay}
+            </Link>
+          </p>
+          <FollowAuthorButton authorId={book.author_id} />
+        </div>
 
         {book.description ? (
           <div className={cn("reader-html prose-literary mt-5 text-foreground/85", readingFontSizeClass)} dangerouslySetInnerHTML={{ __html: book.description }} />
         ) : null}
       </section>
+
+      {displayProgress > 0 && displayProgress < 100 ? (
+        <div className="rounded-xl border border-border/60 bg-card/80 p-3 shadow-card">
+          <div className="h-2 rounded-full bg-muted">
+            <div
+              className="h-2 rounded-full bg-gradient-to-r from-primary to-accent transition-all"
+              style={{ width: `${Math.max(1, Math.min(100, displayProgress))}%` }}
+            />
+          </div>
+          <p className="mt-2 font-ui text-xs text-muted-foreground">
+            Progress: {displayProgress.toFixed(0)}%
+          </p>
+        </div>
+      ) : null}
 
       <ReadingFontSizeControl value={fontSize} onChange={handleReadingFontSizeChange} />
 
@@ -173,13 +259,10 @@ const ReaderBookDetailPage = () => {
           ) : null}
         </article>
       </section>
+
+      <EngagementPanel category="books" identifier={book.public_slug || book.id} />
     </div>
   );
 };
 
 export default ReaderBookDetailPage;
-
-
-
-
-

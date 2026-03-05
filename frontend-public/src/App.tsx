@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 
 import Layout from "@/components/Layout";
-import { AdminAppOnly, RequireAdminAccess, RequireAuth, RequireWriterApproved, UserAppOnly } from "@/components/guards";
+import { AdminAppOnly, RequireAdminAccess, RequireAuth, RequireWriterApproved, RequireWriterRole, UserAppOnly } from "@/components/guards";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,10 +18,12 @@ import AdminRedactorsPage from "@/pages/AdminRedactorsPage";
 import AdminWriterApplicationsPage from "@/pages/AdminWriterApplicationsPage";
 import DashboardPage from "@/pages/DashboardPage";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
+import FollowingFeedPage from "@/pages/FollowingFeedPage";
 import LoginPage from "@/pages/LoginPage";
 import LogoutPage from "@/pages/LogoutPage";
 import MyWorksPage from "@/pages/MyWorksPage";
 import NotFound from "@/pages/NotFound";
+import NotificationsPage from "@/pages/NotificationsPage";
 import PublicBrowsePage from "@/pages/PublicBrowsePage";
 import PublicHomePage from "@/pages/PublicHomePage";
 import PublicAuthorProfilePage from "@/pages/PublicAuthorProfilePage";
@@ -37,6 +39,7 @@ import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import SettingsPage from "@/pages/SettingsPage";
 import VerifyEmailPage from "@/pages/VerifyEmailPage";
 import WriterApplicationPage from "@/pages/WriterApplicationPage";
+import WriterAnalyticsPage from "@/pages/WriterAnalyticsPage";
 import WriterBookChaptersPage from "@/pages/WriterBookChaptersPage";
 import WriterBookEditorPage from "@/pages/WriterBookEditorPage";
 // WriterChapterEditorPage is deprecated
@@ -257,6 +260,26 @@ const App = () => (
                   }
                 />
                 <Route
+                  path="/notifications"
+                  element={
+                    <UserAppOnly>
+                      <RequireAuth>
+                        <NotificationsPage />
+                      </RequireAuth>
+                    </UserAppOnly>
+                  }
+                />
+                <Route
+                  path="/following"
+                  element={
+                    <UserAppOnly>
+                      <RequireAuth>
+                        <FollowingFeedPage />
+                      </RequireAuth>
+                    </UserAppOnly>
+                  }
+                />
+                <Route
                   path="/writer-application"
                   element={
                     <UserAppOnly>
@@ -271,7 +294,9 @@ const App = () => (
                   element={
                     <UserAppOnly>
                       <RequireAuth>
-                        <MyWorksPage />
+                        <RequireWriterRole>
+                          <MyWorksPage />
+                        </RequireWriterRole>
                       </RequireAuth>
                     </UserAppOnly>
                   }
@@ -296,6 +321,18 @@ const App = () => (
                       <RequireAuth>
                         <RequireWriterApproved>
                           <MyWorksPage />
+                        </RequireWriterApproved>
+                      </RequireAuth>
+                    </UserAppOnly>
+                  }
+                />
+                <Route
+                  path="/writer/analytics"
+                  element={
+                    <UserAppOnly>
+                      <RequireAuth>
+                        <RequireWriterApproved>
+                          <WriterAnalyticsPage />
                         </RequireWriterApproved>
                       </RequireAuth>
                     </UserAppOnly>

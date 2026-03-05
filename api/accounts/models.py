@@ -13,6 +13,7 @@ class WriterApplicationStatus(models.TextChoices):
     PENDING = "pending", "Pending"
     APPROVED = "approved", "Approved"
     REJECTED = "rejected", "Rejected"
+    CANCELED = "canceled", "Canceled"
 
 
 class UserProfile(models.Model):
@@ -27,6 +28,7 @@ class UserProfile(models.Model):
         default=RegisteredRole.READER,
     )
     is_writer_approved = models.BooleanField(default=False)
+    nationality = models.CharField(max_length=120, blank=True, default="georgian")
     birth_date = models.DateField(blank=True, null=True)
     profile_photo = models.ImageField(upload_to="profiles/", blank=True, null=True)
     forced_password_change = models.BooleanField(default=False)
@@ -83,6 +85,13 @@ class WriterApplication(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user"],
+                condition=models.Q(status=WriterApplicationStatus.PENDING),
+                name="accounts_unique_pending_writer_application_per_user",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.user.username} - {self.status}"
@@ -93,6 +102,11 @@ class Notification(models.Model):
         VERIFICATION = "verification", "Verification"
         WRITER_APPLICATION = "writer_application", "Writer application"
         CONTENT_REVIEW = "content_review", "Content review"
+        FOLLOW = "follow", "Follow"
+        LIKE = "like", "Like"
+        REACTION = "reaction", "Reaction"
+        COMMENT = "comment", "Comment"
+        PUBLICATION = "publication", "Publication"
         SYSTEM = "system", "System"
 
     user = models.ForeignKey(

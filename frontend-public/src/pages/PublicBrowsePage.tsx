@@ -8,7 +8,7 @@ import CategoryFilter, { type PublicBrowseCategory } from "@/components/Category
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/i18n";
 import { resolveAuthorKey } from "@/lib/authors";
-import { fetchContent, resolveMediaUrl } from "@/lib/api";
+import { fetchContent, fetchTrending, resolveMediaUrl } from "@/lib/api";
 import type { ContentItem } from "@/lib/types";
 
 const CATEGORY_COLOR_PALETTE: Record<"books" | "stories" | "poems", string[]> = {
@@ -19,9 +19,7 @@ const CATEGORY_COLOR_PALETTE: Record<"books" | "stories" | "poems", string[]> = 
 
 function toExcerpt(item: ContentItem): string {
   const rawHtml = item.description || item.extracted_text || item.body || "";
-  // Remove HTML tags using regex and clean up extra spaces
   const raw = rawHtml.replace(/<[^>]*>?/gm, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
-
   if (!raw) return "";
   if (raw.length <= 190) return raw;
   return `${raw.slice(0, 187)}...`;
@@ -47,7 +45,6 @@ function toCardItem(
   readTimeTemplate: string,
 ): PublicWorkCardItem {
   const excerpt = toExcerpt(item) || excerptFallback;
-
   return {
     id: item.id,
     publicSlug: item.public_slug || String(item.id),
@@ -69,10 +66,19 @@ function toCardItem(
   };
 }
 
+type SortOption = "new" | "top" | "trending";
+
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: "new", label: "New" },
+  { value: "trending", label: "Trending" },
+  { value: "top", label: "Top" },
+];
+
 const PublicBrowsePage = () => {
   const { t, language } = useI18n();
   const [category, setCategory] = useState<PublicBrowseCategory>("all");
   const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<SortOption>("new");
   const locale = language === "ka" ? "ka-GE" : "en-US";
   const excerptFallback = t("home.excerptUnavailable", "Excerpt is not available yet.");
   const readTimeTemplate = t("home.readTime", "{minutes} min read");
@@ -94,74 +100,112 @@ const PublicBrowsePage = () => {
     },
   });
 
+  const trendingWeekQuery = useQuery({
+    queryKey: ["browse-trending-week"],
+    queryFn: () => fetchTrending("week", 120),
+  });
+
   const filtered = useMemo(() => {
     const works = worksQuery.data || [];
-    return works.filter((item) => {
+    const trendingScoreByKey = new Map(
+      (trendingWeekQuery.data || []).map((item) => [`${item.category}-${item.id}`, item.score || 0]),
+    );
+    const rows = works.filter((item) => {
       const matchCategory = category === "all" || item.category === category;
       const text = `${item.title} ${item.author} ${item.excerpt}`.toLowerCase();
       const matchSearch = text.includes(search.toLowerCase());
       return matchCategory && matchSearch;
     });
-  }, [worksQuery.data, category, search]);
+
+    if (sort === "new") {
+      rows.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    } else {
+      rows.sort(
+        (a, b) =>
+          Number(trendingScoreByKey.get(`${b.category}-${b.id}`) || 0) -
+          Number(trendingScoreByKey.get(`${a.category}-${a.id}`) || 0),
+      );
+    }
+    return rows;
+  }, [worksQuery.data, trendingWeekQuery.data, category, search, sort]);
 
   return (
     <div>
-      {/* Hero header */}
-      <div className="border-b border-border/30 bg-muted/20 py-10 md:py-14">
-        <div className="container mx-auto px-4 sm:px-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="font-display text-4xl font-bold text-foreground md:text-5xl">
-              {t("browse.title", "Library")}
-            </h1>
-            <p className="mt-2 font-ui text-base text-muted-foreground max-w-lg">
-              {t("browse.subtitle", "Discover books, stories, and poetry from the community")}
-            </p>
-
-            {/* Search bar — big and prominent */}
-            <div className="relative mt-6 w-full max-w-xl">
-              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder={t("browse.searchPlaceholder", "Search by title or author...")}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-12 pr-4 font-ui h-14 text-base rounded-xl bg-background border-border/60 focus:border-primary/40 shadow-sm transition-colors"
-              />
-            </div>
-          </motion.div>
+      {/* ── Sticky filter + search bar ── */}
+      <div className="sticky top-0 z-40 bg-background/97 backdrop-blur-md border-b border-border/40 shadow-sm">
+        {/* Search bar */}
+        <div className="container mx-auto px-4 sm:px-6 pt-3 pb-2">
+          <div className="relative w-full">
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder={t("browse.searchPlaceholder", "Search by title or author...")}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10 pr-4 font-ui h-11 text-sm rounded-xl bg-muted/40 border-transparent focus:border-primary/40 focus:bg-background transition-all"
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Sticky filter bar */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border/40 shadow-sm">
-        <div className="container mx-auto px-4 sm:px-6 py-3">
-          <div className="flex items-center justify-between gap-4">
-            <CategoryFilter active={category} onChange={setCategory} />
-            <span className="hidden sm:inline-flex items-center rounded-full px-3 py-1 text-xs font-ui font-medium text-muted-foreground border border-border/50 bg-muted/30">
-              {worksQuery.isLoading ? "..." : t("browse.worksCount", "{count} {plural}").replace("{count}", String(filtered.length)).replace("{plural}", filtered.length === 1 ? t("browse.work", "work") : t("browse.works", "works"))}
-            </span>
+        {/* Category + sort row */}
+        <div className="container mx-auto px-4 sm:px-6 pb-3">
+          <div className="flex items-center justify-between gap-3">
+            {/* Category pills */}
+            <div className="flex-1 overflow-x-auto scrollbar-none">
+              <CategoryFilter active={category} onChange={setCategory} />
+            </div>
+
+            {/* Sort pills */}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              {SORT_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setSort(opt.value)}
+                  style={{ touchAction: "manipulation" }}
+                  className={`h-8 px-3 rounded-full text-xs font-ui font-semibold whitespace-nowrap transition-all duration-200 ${sort === opt.value
+                      ? "text-primary-foreground shadow-sm"
+                      : "text-muted-foreground bg-muted/50 hover:bg-muted"
+                    }`}
+                  {...(sort === opt.value ? { style: { background: "var(--hero-gradient)", touchAction: "manipulation" } } : {})}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="container mx-auto px-4 sm:px-6 py-8 md:py-10">
-        {/* Loading skeleton */}
+      {/* ── Page header (non-sticky) ── */}
+      <div className="container mx-auto px-4 sm:px-6 pt-6 pb-2">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground md:text-4xl">
+                {t("browse.title", "Library")}
+              </h1>
+              <p className="mt-1 font-ui text-sm text-muted-foreground">
+                {t("browse.subtitle", "Discover books, stories, and poetry from the community")}
+              </p>
+            </div>
+            {!worksQuery.isLoading && (
+              <span className="hidden sm:inline-flex items-center rounded-full px-3 py-1 text-xs font-ui font-medium text-muted-foreground border border-border/50 bg-muted/30 flex-shrink-0">
+                {filtered.length} {filtered.length === 1 ? t("browse.work", "work") : t("browse.works", "works")}
+              </span>
+            )}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ── Content ── */}
+      <div className="container mx-auto px-4 sm:px-6 py-4 pb-24 md:pb-10">
         {worksQuery.isLoading ? (
-          <div className="grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="rounded-2xl border bg-card shadow-card overflow-hidden animate-pulse">
-                <div className="h-28 bg-muted" />
-                <div className="p-5 space-y-3">
-                  <div className="h-3 bg-muted rounded w-1/3" />
-                  <div className="h-5 bg-muted rounded w-3/4" />
-                  <div className="h-3 bg-muted rounded w-1/2" />
-                  <div className="h-14 bg-muted rounded mt-3" />
-                </div>
-              </div>
+          <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            {[...Array(12)].map((_, i) => (
+              <div key={i} className="aspect-[2/3] rounded-xl bg-muted animate-pulse" />
             ))}
           </div>
         ) : filtered.length > 0 ? (
-          <div className="grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {filtered.map((work, index) => (
               <WorkCard key={`${work.category}-${work.id}`} work={work} index={index} />
             ))}
@@ -178,12 +222,15 @@ const PublicBrowsePage = () => {
             >
               <BookOpen className="h-9 w-9 text-primary/60" />
             </div>
-            <h3 className="font-display text-xl font-semibold text-foreground">{t("browse.noneFoundTitle", "No works found")}</h3>
+            <h3 className="font-display text-xl font-semibold text-foreground">
+              {t("browse.noneFoundTitle", "No works found")}
+            </h3>
             <p className="mt-2 font-body text-sm text-muted-foreground max-w-xs">
               {t("browse.noneFoundDesc", "Try changing your search or selected category.")}
             </p>
             <button
               onClick={() => { setSearch(""); setCategory("all"); }}
+              style={{ touchAction: "manipulation" }}
               className="mt-5 inline-flex items-center gap-2 font-ui text-sm font-medium text-primary hover:underline px-4 py-2 rounded-lg hover:bg-primary/5 transition-colors"
             >
               {t("browse.clearFilters", "Clear filters")}
@@ -196,6 +243,3 @@ const PublicBrowsePage = () => {
 };
 
 export default PublicBrowsePage;
-
-
-

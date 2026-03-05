@@ -32,15 +32,22 @@ from .utils import (
     create_audit_log,
     ensure_default_groups,
     get_profile,
+    prefers_georgian,
 )
 
 
 User = get_user_model()
 
 
-def _send_outcome_email(user, subject, body):
+def _send_outcome_email(user, *, subject_en: str, body_en: str, subject_ka: str, body_ka: str):
     if not user.email:
         return
+    if prefers_georgian(user):
+        subject = subject_ka
+        body = body_ka
+    else:
+        subject = subject_en
+        body = body_en
     send_mail_safe(subject, body, None, [user.email], fail_silently=True)
 
 
@@ -85,6 +92,38 @@ class WriterApplicationCreateView(generics.CreateAPIView):
             metadata={"status": application.status},
             request=self.request,
         )
+
+
+class CancelWriterApplicationView(APIView):
+    permission_classes = [permissions.IsAuthenticated, VerifiedEmailRequired, PasswordChangeNotForced]
+
+    def post(self, request, pk: int):
+        application = WriterApplication.objects.filter(id=pk, user=request.user).first()
+        if not application:
+            return Response({"detail": "Writer application not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if application.status != WriterApplicationStatus.PENDING:
+            return Response(
+                {"detail": "Only applications under review can be canceled."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        application.status = WriterApplicationStatus.CANCELED
+        application.reviewed_by = None
+        application.reviewed_at = timezone.now()
+        application.save(update_fields=["status", "reviewed_by", "reviewed_at", "updated_at"])
+
+        create_audit_log(
+            actor=request.user,
+            action="writer_application_canceled",
+            target_type="writer_application",
+            target_id=application.id,
+            description="Writer application canceled by applicant",
+            metadata={"status": application.status},
+            request=request,
+        )
+
+        return Response(WriterApplicationSerializer(application, context={"request": request}).data)
 
 
 class MyWriterApplicationListView(generics.ListAPIView):
@@ -146,14 +185,18 @@ class ReviewWriterApplicationView(generics.UpdateAPIView):
         if instance.status == WriterApplicationStatus.APPROVED:
             _send_outcome_email(
                 instance.user,
-                "Writer Application Approved",
-                "Your writer application has been approved. You can now publish and manage works.",
+                subject_en="Writer Application Approved",
+                body_en="Your writer application has been approved. You can now publish and manage works.",
+                subject_ka="ავტორის განაცხადი დამტკიცებულია",
+                body_ka="თქვენი ავტორის განაცხადი დამტკიცდა. ახლა შეგიძლიათ ნაშრომების გამოქვეყნება და მართვა.",
             )
         elif instance.status == WriterApplicationStatus.REJECTED:
             _send_outcome_email(
                 instance.user,
-                "Writer Application Rejected",
-                "Your writer application was rejected. Please check reviewer comments in your dashboard.",
+                subject_en="Writer Application Rejected",
+                body_en="Your writer application was rejected. Please check reviewer comments in your dashboard.",
+                subject_ka="ავტორის განაცხადი უარყოფილია",
+                body_ka="თქვენი ავტორის განაცხადი უარყოფილია. გთხოვთ, იხილოთ რედაქტორის კომენტარი თქვენს პანელში.",
             )
 
         return response
@@ -315,6 +358,35 @@ class NotificationListView(generics.ListAPIView):
         return Notification.objects.filter(user=self.request.user)
 
 
+class NotificationMarkReadView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        all_flag = bool(request.data.get("all"))
+        ids = request.data.get("ids", [])
+
+        queryset = Notification.objects.filter(user=request.user, is_read=False)
+        if all_flag:
+            updated = queryset.update(is_read=True)
+            return Response({"updated": updated, "mode": "all"})
+
+        if not isinstance(ids, list):
+            return Response({"detail": "ids must be a list."}, status=status.HTTP_400_BAD_REQUEST)
+
+        normalized_ids = []
+        for item in ids:
+            try:
+                normalized_ids.append(int(item))
+            except (TypeError, ValueError):
+                return Response({"detail": "ids must only contain integers."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not normalized_ids:
+            return Response({"updated": 0, "mode": "ids"})
+
+        updated = queryset.filter(id__in=normalized_ids).update(is_read=True)
+        return Response({"updated": updated, "mode": "ids"})
+
+
 class NotificationUpdateView(generics.UpdateAPIView):
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -327,6 +399,14 @@ class NotificationUpdateView(generics.UpdateAPIView):
         instance.is_read = request.data.get("is_read", True)
         instance.save(update_fields=["is_read"])
         return Response(NotificationSerializer(instance).data)
+
+
+class NotificationUnreadCountView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+        return Response({"unread_count": unread_count})
 
 
 class AuditLogListView(generics.ListAPIView):

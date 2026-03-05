@@ -37,6 +37,31 @@ def populate_public_slugs(apps, schema_editor):
             model.objects.filter(pk=obj.pk).update(public_slug=slug)
 
 
+def drop_postgres_slug_like_indexes(apps, schema_editor):
+    if schema_editor.connection.vendor != "postgresql":
+        return
+
+    sql = """
+    DO $$
+    DECLARE rec RECORD;
+    BEGIN
+        FOR rec IN
+            SELECT indexname
+            FROM pg_indexes
+            WHERE schemaname = 'public'
+              AND (
+                indexname LIKE 'content_book_public_slug%_like'
+                OR indexname LIKE 'content_poem_public_slug%_like'
+                OR indexname LIKE 'content_story_public_slug%_like'
+              )
+        LOOP
+            EXECUTE format('DROP INDEX IF EXISTS %I', rec.indexname);
+        END LOOP;
+    END $$;
+    """
+    schema_editor.execute(sql)
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -60,27 +85,7 @@ class Migration(migrations.Migration):
             field=models.SlugField(blank=True, db_index=False, max_length=255, null=True),
         ),
         migrations.RunPython(populate_public_slugs, migrations.RunPython.noop),
-        migrations.RunSQL(
-            sql="""
-            DO $$
-            DECLARE rec RECORD;
-            BEGIN
-                FOR rec IN
-                    SELECT indexname
-                    FROM pg_indexes
-                    WHERE schemaname = 'public'
-                      AND (
-                        indexname LIKE 'content_book_public_slug%_like'
-                        OR indexname LIKE 'content_poem_public_slug%_like'
-                        OR indexname LIKE 'content_story_public_slug%_like'
-                      )
-                LOOP
-                    EXECUTE format('DROP INDEX IF EXISTS %I', rec.indexname);
-                END LOOP;
-            END $$;
-            """,
-            reverse_sql=migrations.RunSQL.noop,
-        ),
+        migrations.RunPython(drop_postgres_slug_like_indexes, migrations.RunPython.noop),
         migrations.AlterField(
             model_name="book",
             name="public_slug",

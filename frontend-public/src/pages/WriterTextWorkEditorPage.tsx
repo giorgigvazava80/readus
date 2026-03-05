@@ -8,6 +8,7 @@ import RichTextEditor from "@/components/editor/RichTextEditor";
 import SaveStateBadge from "@/components/editor/SaveStateBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -20,7 +21,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useConfirm } from "@/components/ui/confirm-dialog";
-import { fetchContentDetail, resolveMediaUrl, updatePoem, updateStory, deleteContentItem } from "@/lib/api";
+import { buildFacebookShareIntent, fetchContentDetail, resolveMediaUrl, updatePoem, updateStory, deleteContentItem } from "@/lib/api";
 import { CONTENT_STATUS_STYLES } from "@/lib/content";
 import { useAutosave } from "@/hooks/useAutosave";
 import { toast } from "@/hooks/use-toast";
@@ -101,6 +102,8 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
   const coverInputRef = useRef<HTMLInputElement>(null);
   const [activeSection, setActiveSection] = useState<"settings" | "body">("settings");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [mobileNavVisible, setMobileNavVisible] = useState(false);
 
 
   const saveMutation = useMutation({
@@ -158,6 +161,33 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
   }, [detailQuery.data?.status]);
 
   const currentCoverUrl = coverPreview || resolveMediaUrl(detailQuery.data?.cover_image) || null;
+  const inviteKey = `invite-modal:${type}:${contentId}:${detailQuery.data?.updated_at || ""}`;
+  const inviteLink = detailQuery.data?.public_slug
+    ? `${window.location.origin}/read/${type}/${detailQuery.data.public_slug}?ref=${encodeURIComponent(`@${detailQuery.data.author_username || ""}`)}`
+    : "";
+
+  useEffect(() => {
+    const status = detailQuery.data?.status;
+    if (status !== "approved") return;
+    if (sessionStorage.getItem(inviteKey)) return;
+    sessionStorage.setItem(inviteKey, "1");
+    setInviteOpen(true);
+  }, [detailQuery.data?.status, inviteKey]);
+
+  useEffect(() => {
+    const syncFromDom = () => {
+      setMobileNavVisible(Boolean(document.querySelector('[data-mobile-bottom-nav="true"]')));
+    };
+
+    const handler = (event: Event) => {
+      const detail = (event as CustomEvent<{ visible?: boolean }>).detail;
+      setMobileNavVisible(Boolean(detail?.visible));
+    };
+
+    syncFromDom();
+    window.addEventListener("mobile-nav-visibility", handler);
+    return () => window.removeEventListener("mobile-nav-visibility", handler);
+  }, []);
 
   <div className="container mx-auto px-6 py-10">
     <p className="font-ui text-sm text-muted-foreground">{t("editor.invalidId")}</p>
@@ -224,7 +254,12 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background">
+      <div
+        data-editor-header-anchor="true"
+        className="pointer-events-none absolute left-0 top-0 h-14 w-full opacity-0 sm:hidden"
+        aria-hidden="true"
+      />
       {/* ─── Mobile top bar ─────────────────────────────────── */}
       <div className="sticky top-0 z-30 flex sm:hidden items-center gap-2 border-b border-border/70 bg-background/95 backdrop-blur px-3 py-2 shadow-sm">
         <button
@@ -294,7 +329,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
       <div className="container mx-auto max-w-7xl px-3 sm:px-4 lg:px-6 py-3 sm:py-5 lg:py-8">
 
         {/* Desktop/Tablet page header */}
-        <header className="hidden sm:flex items-start justify-between gap-4 mb-6">
+        <header data-editor-header-anchor="true" className="hidden sm:flex items-start justify-between gap-4 mb-6">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1 mb-2">
               <Icon className="h-3.5 w-3.5 text-primary" />
@@ -685,7 +720,9 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
       </div>
 
       {/* Floating Save Button */}
-      <div className="fixed bottom-6 right-6 lg:bottom-8 lg:right-8 z-50 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div
+        className={`fixed right-4 md:right-6 xl:right-8 z-50 animate-in fade-in slide-in-from-bottom-4 transition-[bottom] duration-200 ${mobileNavVisible ? "bottom-20 md:bottom-20" : "bottom-4 md:bottom-6"} xl:bottom-8`}
+      >
         <Button
           size="lg"
           className="rounded-full shadow-xl shadow-primary/20 gap-2 h-14 sm:px-6 px-5 font-ui text-base transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/30"
@@ -697,6 +734,33 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
           <span className="sm:hidden">{autosave.isSaving ? t("editor.saving") : t("editor.save")}</span>
         </Button>
       </div>
+
+      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share to get your first 100 reads</DialogTitle>
+            <DialogDescription>
+              Invite readers right after publish and track reads from shares in analytics.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              onClick={async () => {
+                if (!inviteLink) return;
+                await navigator.clipboard.writeText(inviteLink);
+              }}
+            >
+              Copy link
+            </Button>
+            {inviteLink ? (
+              <a href={buildFacebookShareIntent(inviteLink)} target="_blank" rel="noreferrer">
+                <Button>Share to Facebook</Button>
+              </a>
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

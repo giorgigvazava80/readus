@@ -6,7 +6,7 @@ import { Clock3, FileText, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { useSession } from "@/hooks/useSession";
-import { fetchMyWriterApplications, submitWriterApplication } from "@/lib/api";
+import { cancelWriterApplication, fetchMyWriterApplications, submitWriterApplication } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ const statusStyles: Record<string, string> = {
   approved: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700",
   rejected: "border-red-500/30 bg-red-500/10 text-red-700",
   pending: "border-amber-500/30 bg-amber-500/10 text-amber-700",
+  canceled: "border-slate-500/30 bg-slate-500/10 text-slate-700",
 };
 
 const WriterApplicationPage = () => {
@@ -26,6 +27,7 @@ const WriterApplicationPage = () => {
   const [sampleText, setSampleText] = useState("");
   const [sampleFile, setSampleFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [canceling, setCanceling] = useState(false);
 
   const applicationsQuery = useQuery({
     queryKey: ["writer-applications", "mine", 1],
@@ -33,6 +35,8 @@ const WriterApplicationPage = () => {
   });
 
   const latestApplication = applicationsQuery.data?.results?.[0];
+  const pendingApplication = applicationsQuery.data?.results?.find((app) => app.status === "pending") || null;
+  const hasPendingApplication = Boolean(pendingApplication);
 
   useEffect(() => {
     if (latestApplication?.status === "approved" && me && !me.is_writer_approved) {
@@ -67,46 +71,84 @@ const WriterApplicationPage = () => {
     }
   };
 
+  const handleCancelPending = async () => {
+    if (!pendingApplication) return;
+    const confirmed = window.confirm(
+      t("writer.cancelPendingConfirm", "Cancel your pending writer application?"),
+    );
+    if (!confirmed) return;
+
+    setCanceling(true);
+    try {
+      await cancelWriterApplication(pendingApplication.id);
+      await queryClient.invalidateQueries({ queryKey: ["writer-applications", "mine"] });
+      toast.success(t("writer.appCanceled", "Writer application canceled."));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to cancel application.";
+      toast.error(message);
+    } finally {
+      setCanceling(false);
+    }
+  };
+
   return (
     <div className="container mx-auto space-y-8 px-6 py-10">
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
         <h1 className="font-display text-4xl font-semibold text-foreground">{t("writer.appTitle", "Writer Application")}</h1>
         <p className="mt-2 font-body text-base text-muted-foreground">{t("writer.appDesc")}</p>
-
-        <form onSubmit={handleSubmit} className="mt-7 space-y-5">
-          <div className="space-y-2">
-            <Label htmlFor="sampleText" className="font-ui">{t("writer.sampleText")}</Label>
-            <Textarea
-              id="sampleText"
-              rows={10}
-              value={sampleText}
-              onChange={(e) => setSampleText(e.target.value)}
-              placeholder={t("writer.pasteSample")}
-              className="font-body leading-relaxed"
-            />
+        {hasPendingApplication ? (
+          <div className="mt-7 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+            <p className="font-ui text-sm text-amber-800">
+              {t("writer.pendingLocked", "Your previous application is under review. You can submit a new one after it is approved, rejected, or canceled.")}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancelPending}
+              disabled={canceling}
+              className="mt-3"
+            >
+              {canceling
+                ? t("writer.canceling", "Canceling...")
+                : t("writer.cancelPending", "Cancel Pending Application")}
+            </Button>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="sampleFile" className="font-ui">{t("writer.sampleFileLabel", "Sample file")}</Label>
-            <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border bg-background/65 px-6 py-8 text-center transition-colors hover:border-primary/60 hover:bg-card/60">
-              <Upload className="h-6 w-6 text-primary" />
-              <span className="font-ui text-sm text-muted-foreground">
-                {sampleFile ? sampleFile.name : t("writer.uploadHint", "Upload .pdf, .doc, .docx or .txt")}
-              </span>
-              <Input
-                id="sampleFile"
-                type="file"
-                accept=".pdf,.doc,.docx,.txt"
-                onChange={(e) => setSampleFile(e.target.files?.[0] || null)}
-                className="hidden"
+        ) : (
+          <form onSubmit={handleSubmit} className="mt-7 space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="sampleText" className="font-ui">{t("writer.sampleText")}</Label>
+              <Textarea
+                id="sampleText"
+                rows={10}
+                value={sampleText}
+                onChange={(e) => setSampleText(e.target.value)}
+                placeholder={t("writer.pasteSample")}
+                className="font-body leading-relaxed"
               />
-            </label>
-          </div>
+            </div>
 
-          <Button type="submit" disabled={loading} className="gap-2">
-            {loading ? t("writer.submitting", "Submitting...") : t("writer.submitApp", "Submit Application")}
-          </Button>
-        </form>
+            <div className="space-y-2">
+              <Label htmlFor="sampleFile" className="font-ui">{t("writer.sampleFileLabel", "Sample file")}</Label>
+              <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border bg-background/65 px-6 py-8 text-center transition-colors hover:border-primary/60 hover:bg-card/60">
+                <Upload className="h-6 w-6 text-primary" />
+                <span className="font-ui text-sm text-muted-foreground">
+                  {sampleFile ? sampleFile.name : t("writer.uploadHint", "Upload .pdf, .doc, .docx or .txt")}
+                </span>
+                <Input
+                  id="sampleFile"
+                  type="file"
+                  accept=".pdf,.doc,.docx,.txt"
+                  onChange={(e) => setSampleFile(e.target.files?.[0] || null)}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            <Button type="submit" disabled={loading} className="gap-2">
+              {loading ? t("writer.submitting", "Submitting...") : t("writer.submitApp", "Submit Application")}
+            </Button>
+          </form>
+        )}
       </section>
 
       <section className="rounded-2xl border border-border/70 bg-card/80 p-7 shadow-card">
@@ -124,7 +166,7 @@ const WriterApplicationPage = () => {
                   <span
                     className={`rounded-full border px-2 py-0.5 text-xs font-medium ${statusStyles[app.status] || "border-border bg-muted text-foreground"}`}
                   >
-                    {app.status}
+                    {t(`status.${app.status}`, app.status)}
                   </span>
                 </p>
                 <p className="mt-2 text-muted-foreground">{t("admin.createdTime")}: {new Date(app.created_at).toLocaleString()}</p>

@@ -85,3 +85,22 @@ export function RequireWriterApproved({ children }: { children: JSX.Element }) {
 
   return children;
 }
+
+export function RequireWriterRole({ children }: { children: JSX.Element }) {
+  const { me, isLoading } = useSession();
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (!me) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const isWriterRole = me.is_writer_approved || me.role_registered === "writer";
+  if (!isWriterRole) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+}

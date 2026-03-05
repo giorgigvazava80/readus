@@ -81,6 +81,7 @@ const SettingsPage = () => {
   const [username, setUsername] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [nationality, setNationality] = useState("georgian");
   const [birthDate, setBirthDate] = useState<Date | undefined>(undefined);
   const [profilePhotoFile, setProfilePhotoFile] = useState<File | null>(null);
   const [profilePhotoPreview, setProfilePhotoPreview] = useState<string | null>(null);
@@ -98,6 +99,7 @@ const SettingsPage = () => {
     setUsername(me?.username || "");
     setFirstName(me?.first_name || "");
     setLastName(me?.last_name || "");
+    setNationality((me?.nationality || "georgian").trim() || "georgian");
     setBirthDate(parseBirthDateFromApi(me?.birth_date));
     setProfilePhotoFile(null);
     setRemoveProfilePhoto(false);
@@ -139,6 +141,7 @@ const SettingsPage = () => {
         username: username.trim(),
         first_name: firstName.trim(),
         last_name: lastName.trim(),
+        nationality: nationality.trim() || "georgian",
         birth_date: birthDatePayload,
         profile_photo: profilePhotoFile,
         remove_profile_photo: removeProfilePhoto,
@@ -278,6 +281,16 @@ const SettingsPage = () => {
           <div className="space-y-2">
             <Label htmlFor="lastName" className="font-ui">{t("settings.lastName")}</Label>
             <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} className="font-ui" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="nationality" className="font-ui">{t("settings.nationality", "Nationality")}</Label>
+            <Input
+              id="nationality"
+              value={nationality}
+              onChange={(e) => setNationality(e.target.value)}
+              placeholder={t("settings.nationalityPlaceholder", "e.g. Georgian")}
+              className="font-ui"
+            />
           </div>
           <div className="space-y-2">
             <Label className="font-ui">{t("settings.birthDate")}</Label>

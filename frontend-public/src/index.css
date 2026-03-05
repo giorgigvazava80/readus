@@ -35,6 +35,7 @@
     --ring: 36 70% 50%;
 
     --radius: 0.5rem;
+    --bottom-nav-h: 4rem;
 
     --sidebar-background: 40 25% 95%;
     --sidebar-foreground: 30 10% 25%;
@@ -97,6 +98,8 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Ensure iOS momentum scrolling everywhere */
+    -webkit-overflow-scrolling: touch;
   }
 
   * {
@@ -142,6 +145,30 @@
     font-size: 1.28rem;
     line-height: 2;
   }
+
+  /* ── Reading progress bar ────────────────────── */
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    z-index: 9999;
+    background: var(--hero-gradient);
+    transition: width 0.15s ease-out;
+    pointer-events: none;
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* ── Scrollbar hide utility ──────────────────── */
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
 
   /* ── Editor styles ─────────────────────────── */
   .editor-content:empty::before {
@@ -295,5 +322,33 @@
 
   .scrollbar-none::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Safe-area bottom padding (iPhone home indicator) */
+  .pb-safe {
+    padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+  }
+
+  .pb-nav {
+    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
+  }
+
+  /* Touch optimisation */
+  .touch-action-manip {
+    touch-action: manipulation;
+  }
+
+  /* Snap card for horizontal carousels */
+  .snap-card {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
+  /* Cover-scrim: gradient overlay on book thumbnails */
+  .cover-scrim {
+    background: linear-gradient(to bottom,
+        transparent 40%,
+        rgba(0, 0, 0, 0.55) 70%,
+        rgba(0, 0, 0, 0.82) 100%);
   }
 }

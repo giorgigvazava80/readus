@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/useSession";
 import { useI18n } from "@/i18n";
-import { fetchContent, fetchMyWriterApplications, fetchNotifications } from "@/lib/api";
+import { buildFacebookShareIntent, fetchContent, fetchMyWriterApplications, fetchNotifications, fetchWriterAnalyticsOverview } from "@/lib/api";
 
 function timeAgo(dateStr: string): string {
   const ms = Date.now() - new Date(dateStr).getTime();
@@ -34,6 +34,7 @@ const statusConfig = {
   approved: { icon: <CheckCircle2 className="h-4 w-4" />, color: "text-emerald-700", bg: "bg-emerald-500/10 border-emerald-500/30" },
   rejected: { icon: <XCircle className="h-4 w-4" />, color: "text-red-700", bg: "bg-red-500/10 border-red-500/30" },
   pending: { icon: <Clock className="h-4 w-4" />, color: "text-amber-700", bg: "bg-amber-500/10 border-amber-500/30" },
+  canceled: { icon: <XCircle className="h-4 w-4" />, color: "text-slate-700", bg: "bg-slate-500/10 border-slate-500/30" },
 };
 
 const workCardConfig = [
@@ -74,7 +75,14 @@ const DashboardPage = () => {
     enabled: Boolean(me),
   });
 
+  const writerGrowthQuery = useQuery({
+    queryKey: ["writer-growth-widget", me?.id],
+    queryFn: () => fetchWriterAnalyticsOverview("7d"),
+    enabled: Boolean(me?.is_writer_approved),
+  });
+
   const latestApplication = writerApplicationQuery.data?.results?.[0];
+  const isWriterRole = Boolean(me?.is_writer_approved || me?.role_registered === "writer");
 
   useEffect(() => {
     if (latestApplication?.status === "approved" && me && !me.is_writer_approved) {
@@ -85,7 +93,7 @@ const DashboardPage = () => {
   const roleLabel = me ? t(`role.${me.effective_role}`, me.effective_role) : "";
 
   return (
-    <div className="container mx-auto space-y-6 px-4 py-8 sm:px-6 sm:py-10">
+    <div className="container mx-auto space-y-6 px-4 py-8 sm:px-6 sm:py-10 pb-20 md:pb-10">
 
       {/* Hero welcome section */}
       <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card backdrop-blur-sm sm:p-7">
@@ -104,27 +112,32 @@ const DashboardPage = () => {
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col w-full md:flex-row md:w-auto gap-3">
             {me?.is_writer_approved ? (
-              <Link to="/writer/new">
+              <Link to="/writer/new" className="w-full md:w-auto">
                 <Button className="gap-2 h-11 font-ui">
                   <PlusSquare className="h-4 w-4" />
                   {t("dashboard.newWork", t("work.newWork"))}
                 </Button>
               </Link>
             ) : (
-              <Link to="/writer-application">
+              <Link to="/writer-application" className="w-full md:w-auto">
                 <Button className="gap-2 h-11 font-ui">
                   <Feather className="h-4 w-4" />
                   {t("dashboard.writerApplication", "Apply as Writer")}
                 </Button>
               </Link>
             )}
-            <Link to="/my-works">
-              <Button variant="outline" className="h-11 font-ui">{t("nav.myWorks", "My Works")}</Button>
+            <Link to="/following" className="w-full md:w-auto">
+              <Button variant="outline" className="w-full h-11 font-ui">{t("nav.following", "Following")}</Button>
             </Link>
-            <Link to="/settings">
-              <Button variant="outline" className="h-11 font-ui">{t("nav.settings", "Settings")}</Button>
+            {isWriterRole ? (
+              <Link to="/my-works" className="w-full md:w-auto">
+                <Button variant="outline" className="w-full h-11 font-ui">{t("nav.myWorks", "My Works")}</Button>
+              </Link>
+            ) : null}
+            <Link to="/settings" className="w-full md:w-auto">
+              <Button variant="outline" className="w-full h-11 font-ui">{t("nav.settings", "Settings")}</Button>
             </Link>
           </div>
         </div>
@@ -148,27 +161,29 @@ const DashboardPage = () => {
       </section>
 
       {/* Stats grid */}
-      <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {workCardConfig.map((item) => {
-          const value = worksSummaryQuery.data?.[item.key as keyof typeof worksSummaryQuery.data] ?? 0;
-          return (
-            <Link key={item.key} to={item.href}>
-              <div className="group rounded-xl border border-border/70 bg-card/80 p-5 shadow-card transition-all hover:border-primary/40 hover:shadow-md cursor-pointer">
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl">{item.icon}</span>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+      {isWriterRole ? (
+        <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {workCardConfig.map((item) => {
+            const value = worksSummaryQuery.data?.[item.key as keyof typeof worksSummaryQuery.data] ?? 0;
+            return (
+              <Link key={item.key} to={item.href}>
+                <div className="group rounded-xl border border-border/70 bg-card/80 p-5 shadow-card transition-all hover:border-primary/40 hover:shadow-md cursor-pointer">
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl">{item.icon}</span>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                  </div>
+                  <p className="mt-3 font-display text-3xl font-semibold text-foreground">
+                    {worksSummaryQuery.isLoading ? "—" : value}
+                  </p>
+                  <p className="mt-1 font-ui text-xs uppercase tracking-wide text-muted-foreground">
+                    {t(item.labelKey, item.defaultLabel)}
+                  </p>
                 </div>
-                <p className="mt-3 font-display text-3xl font-semibold text-foreground">
-                  {worksSummaryQuery.isLoading ? "—" : value}
-                </p>
-                <p className="mt-1 font-ui text-xs uppercase tracking-wide text-muted-foreground">
-                  {t(item.labelKey, item.defaultLabel)}
-                </p>
-              </div>
-            </Link>
-          );
-        })}
-      </section>
+              </Link>
+            );
+          })}
+        </section>
+      ) : null}
 
       {/* Writer application status */}
       {!me?.is_writer_approved && (
@@ -182,7 +197,7 @@ const DashboardPage = () => {
           <div className="flex items-center gap-0 mb-5">
             {[
               { label: "Apply", done: Boolean(latestApplication) },
-              { label: "Under review", done: latestApplication?.status === "approved" || latestApplication?.status === "rejected" },
+              { label: "Under review", done: latestApplication?.status === "approved" || latestApplication?.status === "rejected" || latestApplication?.status === "canceled" },
               { label: "Approved", done: latestApplication?.status === "approved" },
             ].map((step, i, arr) => (
               <div key={step.label} className="flex items-center flex-1">
@@ -210,7 +225,7 @@ const DashboardPage = () => {
                 )}
                 <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${statusConfig[latestApplication.status as keyof typeof statusConfig]?.bg || "border-border bg-muted text-foreground"
                   }`}>
-                  {latestApplication.status}
+                  {t(`status.${latestApplication.status}`, latestApplication.status)}
                 </span>
                 <span className="text-xs text-muted-foreground ml-auto">
                   Submitted {timeAgo(latestApplication.created_at)}
@@ -256,6 +271,52 @@ const DashboardPage = () => {
             <Link to="/my-works">
               <Button variant="outline">{t("nav.myWorks", "My Works")}</Button>
             </Link>
+          </div>
+
+          <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="rounded-lg border border-border/50 bg-background/70 p-3">
+              <p className="font-ui text-[11px] uppercase tracking-wide text-muted-foreground">Reads today</p>
+              <p className="mt-1 font-display text-xl text-foreground">
+                {writerGrowthQuery.data?.reads_today ?? 0}
+              </p>
+            </div>
+            <div className="rounded-lg border border-border/50 bg-background/70 p-3">
+              <p className="font-ui text-[11px] uppercase tracking-wide text-muted-foreground">Reads 7d</p>
+              <p className="mt-1 font-display text-xl text-foreground">
+                {writerGrowthQuery.data?.reads_7d ?? 0}
+              </p>
+            </div>
+            <div className="rounded-lg border border-border/50 bg-background/70 p-3">
+              <p className="font-ui text-[11px] uppercase tracking-wide text-muted-foreground">From shares</p>
+              <p className="mt-1 font-display text-xl text-foreground">
+                {writerGrowthQuery.data?.reads_from_shares ?? 0}
+              </p>
+            </div>
+            <div className="rounded-lg border border-border/50 bg-background/70 p-3">
+              <p className="font-ui text-[11px] uppercase tracking-wide text-muted-foreground">Follower growth</p>
+              <p className="mt-1 font-display text-xl text-foreground">
+                {writerGrowthQuery.data?.follower_growth ?? 0}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Button
+              variant="outline"
+              onClick={async () => {
+                const link = `${window.location.origin}/browse?ref=${encodeURIComponent(`@${me?.username || ""}`)}`;
+                await navigator.clipboard.writeText(link);
+              }}
+            >
+              Invite readers (Copy link)
+            </Button>
+            <a
+              href={buildFacebookShareIntent(`${window.location.origin}/browse?ref=${encodeURIComponent(`@${me?.username || ""}`)}`)}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Button>Share to Facebook</Button>
+            </a>
           </div>
         </section>
       )}

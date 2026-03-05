@@ -13,6 +13,7 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
 from accounts.auth_views import FacebookLoginView, GoogleLoginView, VerifyEmailAndLoginView
+from engagement.contract_views import ShareChapterHtmlView, ShareWorkHtmlView
 
 
 def healthcheck(_request):
@@ -69,7 +70,13 @@ urlpatterns = [
     path("api/accounts/", include("accounts.urls")),
     path("api/admin/", include("accounts.admin_urls")),
     path("api/notifications/", include("accounts.notification_urls")),
+    path("api/", include("engagement.follow_urls")),
+    path("api/", include("engagement.progress_urls")),
+    path("api/", include("engagement.contract_urls")),
     path("api/content/", include("content.urls")),
+    path("api/engagement/", include("engagement.urls")),
+    path("share/work/<int:work_id>/", ShareWorkHtmlView.as_view(), name="share-work-html-public"),
+    path("share/chapter/<int:chapter_id>/", ShareChapterHtmlView.as_view(), name="share-chapter-html-public"),
 ]
 
 if settings.DEBUG or getattr(settings, "SERVE_MEDIA", False):

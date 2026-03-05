@@ -118,7 +118,7 @@ const WriterChapterEditorPage = () => {
 
   return (
     <div className="container mx-auto max-w-5xl flex flex-col h-[calc(100dvh-64px)] sm:h-auto gap-3 px-3 py-3 sm:gap-6 sm:px-6 sm:py-10">
-      <section className="shrink-0 rounded-2xl border border-border/70 bg-card/80 p-3 shadow-card sm:p-6">
+      <section data-editor-header-anchor="true" className="shrink-0 rounded-2xl border border-border/70 bg-card/80 p-3 shadow-card sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1">

@@ -4,10 +4,12 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { ArrowUpDown, BookOpen, Check, Copy, FileText, PenLine, Search, UserRound } from "lucide-react";
 
 import CategoryFilter, { type PublicBrowseCategory } from "@/components/CategoryFilter";
-import WorkCard, { type PublicWorkCardItem } from "@/components/WorkCard";
+import FollowAuthorButton from "@/components/FollowAuthorButton";
+import type { PublicWorkCardItem } from "@/components/WorkCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useSession } from "@/hooks/useSession";
 import { toast } from "@/hooks/use-toast";
 import { useI18n } from "@/i18n";
 import { authorProfilePath, resolveAuthorKey } from "@/lib/authors";
@@ -92,6 +94,7 @@ function flattenPages<T>(pages: PaginatedResponse<T>[] | undefined): T[] {
 
 const PublicAuthorProfilePage = () => {
   const { t, language } = useI18n();
+  const { me } = useSession();
   const { authorKey: rawAuthorKey } = useParams();
   const [category, setCategory] = useState<PublicBrowseCategory>("all");
   const [search, setSearch] = useState("");
@@ -325,6 +328,7 @@ const PublicAuthorProfilePage = () => {
   const author = authorQuery.data;
   const profilePhoto = resolveMediaUrl(author.profile_photo);
   const authorUsername = author.username ? `@${author.username}` : t("authors.anonymous", "Anonymous");
+  const canFollow = Boolean(me && author.id && me.id !== author.id && !author.is_anonymous);
   const totalKnownWorks = author.works_count || loadedTotal;
   const categoryStats: Array<{
     key: AuthorWorkCategory;
@@ -368,15 +372,25 @@ const PublicAuthorProfilePage = () => {
                 <p className="mt-1 font-ui text-sm text-muted-foreground">
                   {t("authors.totalWorks", "{count} works").replace("{count}", String(author.works_count))}
                 </p>
+                {!author.is_anonymous ? (
+                  <p className="font-ui text-sm text-muted-foreground">
+                    Followers: {author.follower_count || 0}
+                  </p>
+                ) : null}
               </div>
             </div>
 
-            <Button type="button" variant="outline" className="w-full md:w-auto" onClick={handleCopyProfileLink}>
-              {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
-              {copied
-                ? t("authors.linkCopied", "Profile link copied")
-                : t("authors.shareProfile", "Copy profile link")}
-            </Button>
+            <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row">
+              {canFollow ? (
+                <FollowAuthorButton authorId={author.id} className="w-full md:w-auto" size="default" />
+              ) : null}
+              <Button type="button" variant="outline" className="w-full md:w-auto" onClick={handleCopyProfileLink}>
+                {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
+                {copied
+                  ? t("authors.linkCopied", "Profile link copied")
+                  : t("authors.shareProfile", "Copy profile link")}
+              </Button>
+            </div>
           </div>
 
           <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
@@ -454,9 +468,52 @@ const PublicAuthorProfilePage = () => {
       <div className="container mx-auto px-4 sm:px-6 py-8 md:py-10">
         {filtered.length > 0 ? (
           <>
-            <div className="grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((work, index) => (
-                <WorkCard key={`${work.category}-${work.id}`} work={work} index={index} />
+            <div className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {filtered.map((work) => (
+                <Link
+                  key={`${work.category}-${work.id}`}
+                  to={`/read/${work.category}/${work.publicSlug}`}
+                  className="group rounded-lg border border-border/60 bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+                >
+                  <article className="flex gap-3">
+                    <div className="relative h-24 w-16 shrink-0 overflow-hidden rounded-md border border-border/40 bg-muted/20 sm:h-28 sm:w-20">
+                      {work.coverImageUrl ? (
+                        <img
+                          src={work.coverImageUrl}
+                          alt={work.title}
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div
+                          className="absolute inset-0"
+                          style={{ background: `linear-gradient(160deg, ${work.coverColor}cc, ${work.coverColor})` }}
+                        />
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="font-ui text-[10px] uppercase tracking-wide text-muted-foreground">
+                        {work.category === "books"
+                          ? t("category.book", "Book")
+                          : work.category === "stories"
+                            ? t("category.story", "Story")
+                            : t("category.poem", "Poem")}
+                      </p>
+                      <h3 className="mt-0.5 line-clamp-2 font-display text-sm font-semibold leading-tight text-foreground sm:text-base">
+                        {work.title}
+                      </h3>
+                      <p className="mt-1 line-clamp-2 font-ui text-xs leading-relaxed text-muted-foreground">
+                        {work.excerpt}
+                      </p>
+                      <div className="mt-2 flex items-center gap-2 font-ui text-[11px] text-muted-foreground">
+                        <span>{work.readTime}</span>
+                        <span>•</span>
+                        <span>{work.date}</span>
+                      </div>
+                    </div>
+                  </article>
+                </Link>
               ))}
             </div>
 

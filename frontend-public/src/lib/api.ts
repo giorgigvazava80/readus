@@ -1,15 +1,28 @@
 import type {
+  AnalyticsMetricSnapshot,
   AuditLogItem,
+  ContinueReadingEntry,
+  ContentCommentItem,
   ContentCategory,
   ContentDetail,
   ContentItem,
   ContentStatus,
+  FollowState,
+  FollowingAuthorItem,
   MeUser,
   NotificationItem,
   PaginatedResponse,
   PublicAuthorSummary,
+  ReactionSummary,
+  RecommendationItem,
+  ReadingProgressItem,
   RedactorUser,
   RegisteredRole,
+  TrendingItem,
+  WriterAnalyticsOverviewResponse,
+  WriterAnalyticsWorkDetailResponse,
+  WriterAnalyticsWorksResponse,
+  WriterAnalyticsResponse,
   WriterApplication,
   WriterApplicationStatus,
 } from "@/lib/types";
@@ -95,6 +108,7 @@ export interface ProfileUpdatePayload {
   last_name?: string;
   username?: string;
   birth_date?: string | null;
+  nationality?: string;
   profile_photo?: File | null;
   remove_profile_photo?: boolean;
 }
@@ -142,6 +156,24 @@ export interface ChapterPayload {
   order: number;
   body?: string;
 }
+
+export interface ReadingProgressPayload {
+  progress_percent?: number;
+  paragraph_index?: number | null;
+  cursor?: string;
+  completed?: boolean;
+}
+
+export interface ReadingProgressUpsertPayload {
+  work_id: number;
+  chapter_id?: number | null;
+  work_type?: "books" | "stories" | "poems";
+  progress_percent: number;
+  last_position?: Record<string, unknown>;
+}
+
+export type EngagementTargetType = "work" | "chapter";
+export type WorkTypeFilter = "books" | "stories" | "poems";
 
 function dispatchAuthChanged() {
   window.dispatchEvent(new Event("auth-changed"));
@@ -539,6 +571,7 @@ export async function updateProfile(payload: ProfileUpdatePayload): Promise<void
     if (payload.first_name !== undefined) form.append("first_name", payload.first_name);
     if (payload.last_name !== undefined) form.append("last_name", payload.last_name);
     if (payload.birth_date !== undefined) form.append("birth_date", payload.birth_date === null ? "" : payload.birth_date);
+    if (payload.nationality !== undefined) form.append("nationality", payload.nationality);
     if (payload.profile_photo instanceof File) form.append("profile_photo", payload.profile_photo);
     if (payload.remove_profile_photo) form.append("remove_profile_photo", "true");
 
@@ -609,6 +642,14 @@ export async function fetchMyWriterApplications(page = 1): Promise<PaginatedResp
     true,
   );
   return asPaginated(payload);
+}
+
+export async function cancelWriterApplication(id: number): Promise<WriterApplication> {
+  return apiRequest<WriterApplication>(
+    `/api/accounts/writer-application/${id}/cancel/`,
+    { method: "POST" },
+    true,
+  );
 }
 
 export async function fetchPendingWriterApplications(page = 1, q = ""): Promise<PaginatedResponse<WriterApplication>> {
@@ -983,6 +1024,10 @@ export async function fetchNotifications(page = 1): Promise<PaginatedResponse<No
 }
 
 export async function markNotificationRead(id: number, isRead = true): Promise<void> {
+  if (isRead) {
+    await markNotificationsRead({ ids: [id] });
+    return;
+  }
   await apiRequest(
     `/api/notifications/${id}/`,
     {
@@ -991,6 +1036,30 @@ export async function markNotificationRead(id: number, isRead = true): Promise<v
     },
     true,
   );
+}
+
+export async function markNotificationsRead(payload: { ids?: number[]; all?: boolean }): Promise<number> {
+  const response = await apiRequest<{ updated: number }>(
+    "/api/notifications/mark-read/",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        ids: payload.ids || [],
+        all: Boolean(payload.all),
+      }),
+    },
+    true,
+  );
+  return Number(response.updated || 0);
+}
+
+export async function fetchNotificationUnreadCount(): Promise<number> {
+  const payload = await apiRequest<{ unread_count: number }>(
+    "/api/notifications/unread-count/",
+    { method: "GET" },
+    true,
+  );
+  return payload.unread_count || 0;
 }
 
 export async function fetchAuditLogs(params: {
@@ -1006,5 +1075,487 @@ export async function fetchAuditLogs(params: {
     true,
   );
   return asPaginated(payload);
+}
+
+export async function followAuthor(authorId: number): Promise<FollowState> {
+  return apiRequest<FollowState>(
+    `/api/authors/${authorId}/follow/`,
+    { method: "POST" },
+    true,
+  );
+}
+
+export async function unfollowAuthor(authorId: number): Promise<FollowState> {
+  return apiRequest<FollowState>(
+    `/api/authors/${authorId}/follow/`,
+    { method: "DELETE" },
+    true,
+  );
+}
+
+export async function fetchAuthorFollowState(authorId: number): Promise<FollowState> {
+  return apiRequest<FollowState>(
+    `/api/authors/${authorId}/follow-state/`,
+    { method: "GET" },
+    isAuthenticated(),
+  );
+}
+
+export async function fetchMyFollowingAuthors(page = 1): Promise<PaginatedResponse<FollowingAuthorItem>> {
+  const payload = await apiRequest<PaginatedResponse<FollowingAuthorItem> | FollowingAuthorItem[]>(
+    `/api/me/following/${buildQueryString({ page })}`,
+    { method: "GET" },
+    true,
+  );
+  return asPaginated(payload);
+}
+
+export async function saveReadingProgress(payload: ReadingProgressUpsertPayload): Promise<ContinueReadingEntry> {
+  return apiRequest<ContinueReadingEntry>(
+    "/api/reading-progress/",
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+    true,
+  );
+}
+
+export function saveReadingProgressKeepalive(payload: ReadingProgressUpsertPayload): void {
+  const accessToken = getAccessToken();
+  if (!accessToken) return;
+
+  try {
+    void fetch(`${API_BASE_URL}/api/reading-progress/`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+      keepalive: true,
+    });
+  } catch {
+    // Best-effort on unload.
+  }
+}
+
+export async function fetchMyContinueReading(limit = 10): Promise<ContinueReadingEntry[]> {
+  const payload = await apiRequest<{ results: ContinueReadingEntry[] }>(
+    `/api/me/continue-reading/${buildQueryString({ limit })}`,
+    { method: "GET" },
+    true,
+  );
+  return payload.results || [];
+}
+
+export async function fetchContinueReading(page = 1): Promise<PaginatedResponse<ReadingProgressItem>> {
+  const payload = await apiRequest<PaginatedResponse<ReadingProgressItem> | ReadingProgressItem[]>(
+    `/api/engagement/progress/continue-reading/${buildQueryString({ page })}`,
+    { method: "GET" },
+    true,
+  );
+  return asPaginated(payload);
+}
+
+export async function fetchReadingProgress(
+  category: ContentCategory,
+  identifier: string | number,
+): Promise<ReadingProgressItem | null> {
+  const payload = await apiRequest<{ progress: ReadingProgressItem | null }>(
+    `/api/engagement/content/${category}/${identifier}/progress/`,
+    { method: "GET" },
+    true,
+  );
+  return payload.progress;
+}
+
+export async function upsertReadingProgress(
+  category: ContentCategory,
+  identifier: string | number,
+  payload: ReadingProgressPayload,
+): Promise<ReadingProgressItem> {
+  const response = await apiRequest<{ progress: ReadingProgressItem }>(
+    `/api/engagement/content/${category}/${identifier}/progress/`,
+    {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    },
+    true,
+  );
+  return response.progress;
+}
+
+export async function trackContentView(
+  category: ContentCategory,
+  identifier: string | number,
+  paragraphIndex?: number,
+): Promise<void> {
+  await apiRequest(
+    `/api/engagement/content/${category}/${identifier}/view/`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        paragraphIndex === undefined ? {} : { paragraph_index: paragraphIndex },
+      ),
+    },
+    false,
+  );
+}
+
+function categoryToTargetType(category: ContentCategory): EngagementTargetType {
+  return category === "chapters" ? "chapter" : "work";
+}
+
+function categoryToWorkType(category: ContentCategory): WorkTypeFilter | undefined {
+  if (category === "books" || category === "stories" || category === "poems") {
+    return category;
+  }
+  return undefined;
+}
+
+export async function fetchLikeSummary(
+  category: ContentCategory,
+  identifier: string | number,
+): Promise<ReactionSummary> {
+  if (typeof identifier === "number") {
+    const targetType = categoryToTargetType(category);
+    if (targetType === "chapter") {
+      return apiRequest<ReactionSummary>(
+        `/api/chapters/${identifier}/like-state/`,
+        { method: "GET" },
+        isAuthenticated(),
+      );
+    }
+    const workType = categoryToWorkType(category);
+    return apiRequest<ReactionSummary>(
+      `/api/works/${identifier}/like-state/${buildQueryString({ work_type: workType })}`,
+      { method: "GET" },
+      isAuthenticated(),
+    );
+  }
+  return apiRequest<ReactionSummary>(
+    `/api/engagement/content/${category}/${identifier}/like/`,
+    { method: "GET" },
+    false,
+  );
+}
+
+export async function likeContent(
+  category: ContentCategory,
+  identifier: string | number,
+): Promise<ReactionSummary> {
+  if (typeof identifier === "number") {
+    const targetType = categoryToTargetType(category);
+    return apiRequest<ReactionSummary>(
+      "/api/likes/",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          target_type: targetType,
+          target_id: identifier,
+          work_type: targetType === "work" ? categoryToWorkType(category) : undefined,
+        }),
+      },
+      true,
+    );
+  }
+  return apiRequest<ReactionSummary>(
+    `/api/engagement/content/${category}/${identifier}/like/`,
+    { method: "POST" },
+    true,
+  );
+}
+
+export async function unlikeContent(
+  category: ContentCategory,
+  identifier: string | number,
+): Promise<ReactionSummary> {
+  if (typeof identifier === "number") {
+    const targetType = categoryToTargetType(category);
+    return apiRequest<ReactionSummary>(
+      "/api/likes/",
+      {
+        method: "DELETE",
+        body: JSON.stringify({
+          target_type: targetType,
+          target_id: identifier,
+          work_type: targetType === "work" ? categoryToWorkType(category) : undefined,
+        }),
+      },
+      true,
+    );
+  }
+  return apiRequest<ReactionSummary>(
+    `/api/engagement/content/${category}/${identifier}/like/`,
+    { method: "DELETE" },
+    true,
+  );
+}
+
+export async function fetchAnchoredComments(
+  targetType: EngagementTargetType,
+  targetId: number,
+  params: { workType?: WorkTypeFilter; page?: number } = {},
+): Promise<PaginatedResponse<ContentCommentItem>> {
+  const payload = await apiRequest<PaginatedResponse<ContentCommentItem> | ContentCommentItem[]>(
+    `/api/comments/${buildQueryString({
+      target_type: targetType,
+      target_id: targetId,
+      work_type: params.workType,
+      page: params.page,
+    })}`,
+    { method: "GET" },
+    false,
+  );
+  return asPaginated(payload);
+}
+
+export async function createAnchoredComment(payload: {
+  targetType: EngagementTargetType;
+  targetId: number;
+  workType?: WorkTypeFilter;
+  anchorType: "block" | "paragraph";
+  anchorKey: string;
+  body: string;
+  parentComment?: number | null;
+  paragraphIndex?: number | null;
+}): Promise<ContentCommentItem> {
+  return apiRequest<ContentCommentItem>(
+    "/api/comments/",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        target_type: payload.targetType,
+        target_id: payload.targetId,
+        work_type: payload.workType,
+        anchor_type: payload.anchorType,
+        anchor_key: payload.anchorKey,
+        body: payload.body,
+        parent_comment: payload.parentComment ?? undefined,
+        paragraph_index: payload.paragraphIndex ?? undefined,
+      }),
+    },
+    true,
+  );
+}
+
+export async function hideComment(
+  commentId: number,
+  payload: { is_hidden: boolean; reason?: string },
+): Promise<ContentCommentItem> {
+  return apiRequest<ContentCommentItem>(
+    `/api/comments/${commentId}/hide/`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    },
+    true,
+  );
+}
+
+export async function deleteCommentById(commentId: number): Promise<void> {
+  await apiRequest(`/api/comments/${commentId}/`, { method: "DELETE" }, true);
+}
+
+export async function fetchComments(
+  category: ContentCategory,
+  identifier: string | number,
+  page = 1,
+): Promise<PaginatedResponse<ContentCommentItem>> {
+  const payload = await apiRequest<PaginatedResponse<ContentCommentItem> | ContentCommentItem[]>(
+    `/api/engagement/content/${category}/${identifier}/comments/${buildQueryString({ page })}`,
+    { method: "GET" },
+    false,
+  );
+  return asPaginated(payload);
+}
+
+export async function createComment(
+  category: ContentCategory,
+  identifier: string | number,
+  payload: { body: string; paragraph_index?: number | null; parent_id?: number | null },
+): Promise<ContentCommentItem> {
+  return apiRequest<ContentCommentItem>(
+    `/api/engagement/content/${category}/${identifier}/comments/`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+    true,
+  );
+}
+
+export async function moderateComment(
+  commentId: number,
+  payload: { is_hidden: boolean; reason?: string },
+): Promise<ContentCommentItem> {
+  return apiRequest<ContentCommentItem>(
+    `/api/engagement/comments/${commentId}/moderate/`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    },
+    true,
+  );
+}
+
+export async function fetchTrending(
+  range: "today" | "week" | "month" = "week",
+  limit = 10,
+  type?: "book" | "story" | "poem",
+): Promise<TrendingItem[]> {
+  const payload = await apiRequest<{
+    range: string;
+    results: Array<{
+      work: TrendingItem;
+      score: number;
+      views: number;
+      likes: number;
+      comments: number;
+      completions: number;
+    }>;
+  }>(
+    `/api/discover/trending/${buildQueryString({ range, limit, type })}`,
+    { method: "GET" },
+    false,
+  );
+  return (payload.results || []).map((item) => ({
+    ...item.work,
+    score: item.score,
+    views: item.views,
+    likes: item.likes,
+    comments: item.comments,
+    unique_readers: 0,
+  }));
+}
+
+export async function fetchRecommendations(limit = 10): Promise<RecommendationItem[]> {
+  const payload = await apiRequest<{
+    results: Array<{
+      work: RecommendationItem;
+      reason: string;
+      score: number;
+    }>;
+  }>(
+    `/api/discover/recommended/${buildQueryString({ limit })}`,
+    { method: "GET" },
+    true,
+  );
+  return (payload.results || []).map((item) => ({
+    ...item.work,
+    score: item.score,
+    explain_reason: item.reason,
+  }));
+}
+
+export async function fetchWriterAnalyticsOverview(
+  range: "7d" | "30d" | "all" = "7d",
+): Promise<WriterAnalyticsOverviewResponse> {
+  return apiRequest<WriterAnalyticsOverviewResponse>(
+    `/api/me/analytics/overview/${buildQueryString({ range })}`,
+    { method: "GET" },
+    true,
+  );
+}
+
+export async function fetchWriterAnalyticsWorks(
+  params: {
+    range?: "7d" | "30d" | "all";
+    sort?: "views" | "likes" | "comments" | "completions";
+  } = {},
+): Promise<WriterAnalyticsWorksResponse> {
+  return apiRequest<WriterAnalyticsWorksResponse>(
+    `/api/me/analytics/works/${buildQueryString({
+      range: params.range || "7d",
+      sort: params.sort || "views",
+    })}`,
+    { method: "GET" },
+    true,
+  );
+}
+
+export async function fetchWriterAnalyticsWorkDetail(
+  workId: number,
+  params: {
+    range?: "7d" | "30d" | "all";
+    work_type?: WorkTypeFilter;
+  } = {},
+): Promise<WriterAnalyticsWorkDetailResponse> {
+  return apiRequest<WriterAnalyticsWorkDetailResponse>(
+    `/api/me/analytics/works/${workId}/${buildQueryString({
+      range: params.range || "7d",
+      work_type: params.work_type,
+    })}`,
+    { method: "GET" },
+    true,
+  );
+}
+
+function toLegacyMetrics(snapshot: AnalyticsMetricSnapshot) {
+  return {
+    views: snapshot.views,
+    unique_readers: snapshot.unique_readers,
+    likes: snapshot.likes,
+    comments: snapshot.comments,
+    completion_estimate: snapshot.avg_progress,
+    completion_rate: snapshot.completions,
+  };
+}
+
+// Backward-compatible aggregate used by existing pages.
+export async function fetchWriterAnalytics(range: "7d" | "30d" | "all" = "7d"): Promise<WriterAnalyticsResponse> {
+  const [overview, works] = await Promise.all([
+    fetchWriterAnalyticsOverview(range),
+    fetchWriterAnalyticsWorks({ range, sort: "views" }),
+  ]);
+
+  return {
+    range: overview.range,
+    generated_at: overview.generated_at,
+    totals: {
+      views: overview.metrics.views,
+      unique_readers: overview.metrics.unique_readers,
+      likes: overview.metrics.likes,
+      comments: overview.metrics.comments,
+    },
+    works: works.results.map((row) => ({
+      ...row.work,
+      metrics: toLegacyMetrics(row.metrics),
+      chapters: row.chapters.map((chapterRow) => ({
+        ...chapterRow.chapter,
+        order: Number((chapterRow.chapter as { order?: number }).order || 0),
+        metrics: toLegacyMetrics(chapterRow.metrics),
+      })),
+    })),
+  };
+}
+
+export async function trackReferralVisit(params: { ref?: string; ref_code?: string }): Promise<boolean> {
+  const payload = await apiRequest<{ tracked: boolean }>(
+    "/api/referrals/visit/",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        ref: params.ref,
+        ref_code: params.ref_code,
+      }),
+    },
+    false,
+  );
+  return Boolean(payload.tracked);
+}
+
+export function buildShareCardWorkUrl(workId: number): string {
+  return `${API_BASE_URL}/api/share-card/work/${workId}.png`;
+}
+
+export function buildShareCardChapterUrl(chapterId: number): string {
+  return `${API_BASE_URL}/api/share-card/chapter/${chapterId}.png`;
+}
+
+export function buildFacebookShareIntent(url: string): string {
+  return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
 }
 

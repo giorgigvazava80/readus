@@ -25,6 +25,25 @@ def get_profile(user):
     return profile
 
 
+def prefers_georgian(user) -> bool:
+    if not user or not user.is_authenticated:
+        return False
+
+    nationality = (get_profile(user).nationality or "").strip().lower()
+    if not nationality:
+        return False
+
+    georgian_markers = {
+        "georgia",
+        "georgian",
+        "geo",
+        "ge",
+        "საქართველო",
+        "ქართველი",
+    }
+    return nationality in georgian_markers
+
+
 def get_redactor_permissions_obj(user):
     cached = getattr(user, "_cached_redactor_permissions", None)
     if cached is not None:
@@ -178,7 +197,20 @@ def create_audit_log(
     )
 
 
-def create_notification(*, user, category: str, title: str, message: str, metadata=None):
+def create_notification(
+    *,
+    user,
+    category: str,
+    title: str,
+    message: str,
+    metadata=None,
+    title_ka: str | None = None,
+    message_ka: str | None = None,
+):
+    if prefers_georgian(user):
+        title = title_ka or title
+        message = message_ka or message
+
     return Notification.objects.create(
         user=user,
         category=category,
