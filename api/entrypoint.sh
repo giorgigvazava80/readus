@@ -106,7 +106,7 @@ if [ "${BOOTSTRAP_ROOT:-1}" = "1" ]; then
     python manage.py bootstrap_root
 fi
 
-if [ "${AUTO_SEED_ON_START:-1}" = "1" ]; then
+run_auto_seed() {
 python - <<'PY'
 import os
 import subprocess
@@ -151,6 +151,7 @@ lock_id = env_int("SEED_LOCK_ID", 38192218)
 lock_timeout = env_int("SEED_LOCK_TIMEOUT", 600)
 start = time.time()
 seed_only_if_empty = env_bool("AUTO_SEED_ONLY_IF_EMPTY", True)
+seed_only_on_empty_data = env_bool("AUTO_SEED_ONLY_ON_EMPTY_DATA", True)
 
 conn = connect_db()
 conn.autocommit = True
@@ -177,14 +178,25 @@ try:
     import django
     django.setup()
     from django.contrib.auth import get_user_model
+    from content.models import Book, Chapter, Poem, Story
 
     User = get_user_model()
     has_seed_users = (
         User.objects.filter(username__startswith="seed_reader_").exists()
         or User.objects.filter(username__startswith="seed_writer_").exists()
     )
+    root_username = os.getenv("ROOT_USERNAME", "root").strip()
+    non_seed_users_qs = User.objects.exclude(username__startswith="seed_reader_").exclude(
+        username__startswith="seed_writer_"
+    )
+    if root_username:
+        non_seed_users_qs = non_seed_users_qs.exclude(username=root_username)
+    has_non_seed_users = non_seed_users_qs.exists()
+    has_any_content = Book.objects.exists() or Story.objects.exists() or Poem.objects.exists() or Chapter.objects.exists()
 
-    if seed_only_if_empty and has_seed_users:
+    if seed_only_on_empty_data and (has_non_seed_users or has_any_content):
+        print("Skipping auto-seed: existing non-seed users/content found.")
+    elif seed_only_if_empty and has_seed_users:
         print("Skipping auto-seed: existing seed users found.")
     else:
         command = [
@@ -195,6 +207,10 @@ try:
             str(env_int("SEED_READERS", 200)),
             "--writers",
             str(env_int("SEED_WRITERS", 30)),
+            "--reader-start-index",
+            str(env_int("SEED_READER_START_INDEX", 50001)),
+            "--writer-start-index",
+            str(env_int("SEED_WRITER_START_INDEX", 70001)),
             "--reader-password",
             os.getenv("SEED_READER_PASSWORD", "Reader@123"),
             "--writer-password",
@@ -233,6 +249,8 @@ try:
             command.append("--skip-body-refresh")
         if env_bool("SEED_SKIP_SMOKE_CHECK", True):
             command.append("--skip-smoke-check")
+        if env_bool("SEED_RESET_BEFORE_RUN", False):
+            command.append("--reset-first")
 
         print("Running auto-seed command...")
         subprocess.run(command, check=True)
@@ -243,10 +261,23 @@ finally:
     cur.close()
     conn.close()
 PY
+}
+
+if [ "${AUTO_SEED_ON_START:-1}" = "1" ]; then
+    if [ "${AUTO_SEED_ASYNC:-1}" = "1" ]; then
+        echo "Launching auto-seed in background..."
+        run_auto_seed &
+    else
+        run_auto_seed
+    fi
 fi
 
 if [ "${RUN_COLLECTSTATIC:-0}" = "1" ]; then
     python manage.py collectstatic --noinput
+fi
+
+if [ "$#" -eq 0 ]; then
+    set -- gunicorn --bind "0.0.0.0:${PORT:-8000}" --workers "${GUNICORN_WORKERS:-3}" core.wsgi:application
 fi
 
 exec "$@"

@@ -1,16 +1,18 @@
 from __future__ import annotations
 
+import io
 import random
 from dataclasses import dataclass
-from pathlib import Path
 
 from allauth.account.models import EmailAddress
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand, CommandError
+from django.db.models import Q
 from django.db import transaction
 from django.utils import timezone
 from PIL import Image, ImageDraw
@@ -78,8 +80,11 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--readers", type=int, default=2000)
         parser.add_argument("--writers", type=int, default=200)
+        parser.add_argument("--reader-start-index", type=int, default=50001)
+        parser.add_argument("--writer-start-index", type=int, default=70001)
         parser.add_argument("--reader-password", type=str, default="Reader@123")
         parser.add_argument("--writer-password", type=str, default="Writer@123")
+        parser.add_argument("--reset-first", action="store_true")
         parser.add_argument("--stories-per-writer", type=int, default=4)
         parser.add_argument("--poems-per-writer", type=int, default=2)
         parser.add_argument("--books-per-writer", type=int, default=1)
@@ -101,8 +106,26 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         readers_target = int(options["readers"])
         writers_target = int(options["writers"])
+        reader_start_index = int(options["reader_start_index"])
+        writer_start_index = int(options["writer_start_index"])
         if readers_target <= 0 or writers_target <= 0:
             raise CommandError("--readers and --writers must be positive integers.")
+        if reader_start_index <= 0 or writer_start_index <= 0:
+            raise CommandError("--reader-start-index and --writer-start-index must be positive integers.")
+
+        if options.get("reset_first"):
+            self.stdout.write(self.style.WARNING("Resetting previous seed data first..."))
+            reset_stats = self._reset_seed_data()
+            self.stdout.write(
+                self.style.SUCCESS(
+                    "Seed reset complete. "
+                    f"users_deleted={reset_stats['users_deleted']}, "
+                    f"stories_deleted={reset_stats['stories_deleted']}, "
+                    f"poems_deleted={reset_stats['poems_deleted']}, "
+                    f"books_deleted={reset_stats['books_deleted']}, "
+                    f"chapters_deleted={reset_stats['chapters_deleted']}"
+                )
+            )
 
         ensure_default_groups()
         reader_group = Group.objects.get(name=GROUP_READERS)
@@ -125,6 +148,7 @@ class Command(BaseCommand):
         reader_seed = self._ensure_seed_users(
             prefix=SEED_READER_PREFIX,
             total=readers_target,
+            start_index=reader_start_index,
             password=options["reader_password"],
             role=REGISTERED_ROLE_READER,
             writer_approved=False,
@@ -134,6 +158,7 @@ class Command(BaseCommand):
         writer_seed = self._ensure_seed_users(
             prefix=SEED_WRITER_PREFIX,
             total=writers_target,
+            start_index=writer_start_index,
             password=options["writer_password"],
             role=REGISTERED_ROLE_WRITER,
             writer_approved=True,
@@ -215,11 +240,40 @@ class Command(BaseCommand):
             )
         )
 
+    def _reset_seed_data(self) -> dict[str, int]:
+        User = get_user_model()
+
+        seed_user_filter = Q(username__startswith=SEED_READER_PREFIX) | Q(username__startswith=SEED_WRITER_PREFIX)
+        seed_user_ids = list(User.objects.filter(seed_user_filter).values_list("id", flat=True))
+
+        chapters_deleted = Chapter.objects.filter(
+            Q(book__author_id__in=seed_user_ids) | Q(title__startswith="Seed Chapter ")
+        ).delete()[0]
+        stories_deleted = Story.objects.filter(
+            Q(author_id__in=seed_user_ids) | Q(title__startswith="Seed Story ")
+        ).delete()[0]
+        poems_deleted = Poem.objects.filter(
+            Q(author_id__in=seed_user_ids) | Q(title__startswith="Seed Poem ")
+        ).delete()[0]
+        books_deleted = Book.objects.filter(
+            Q(author_id__in=seed_user_ids) | Q(title__startswith="Seed Book ")
+        ).delete()[0]
+        users_deleted = User.objects.filter(id__in=seed_user_ids).delete()[0]
+
+        return {
+            "users_deleted": users_deleted,
+            "stories_deleted": stories_deleted,
+            "poems_deleted": poems_deleted,
+            "books_deleted": books_deleted,
+            "chapters_deleted": chapters_deleted,
+        }
+
     def _ensure_seed_users(
         self,
         *,
         prefix: str,
         total: int,
+        start_index: int,
         password: str,
         role: str,
         writer_approved: bool,
@@ -227,7 +281,7 @@ class Command(BaseCommand):
         avatar_pool: list[str],
     ) -> UserSeedResult:
         User = get_user_model()
-        usernames = [_seed_username(prefix, idx) for idx in range(1, total + 1)]
+        usernames = [_seed_username(prefix, idx) for idx in range(start_index, start_index + total)]
         password_hash = make_password(password)
         now = timezone.now()
 
@@ -905,9 +959,7 @@ class Command(BaseCommand):
         }
 
     def _ensure_seed_image_pools(self, *, rng: random.Random, avatar_pool_size: int, cover_pool_size: int) -> tuple[list[str], list[str]]:
-        media_root = Path(settings.MEDIA_ROOT)
         avatar_paths = self._ensure_image_pool(
-            media_root=media_root,
             subdir="uploads/seed/avatars",
             prefix="avatar",
             count=max(1, avatar_pool_size),
@@ -916,7 +968,6 @@ class Command(BaseCommand):
             rng=rng,
         )
         cover_paths = self._ensure_image_pool(
-            media_root=media_root,
             subdir="uploads/seed/covers",
             prefix="cover",
             count=max(1, cover_pool_size),
@@ -929,7 +980,6 @@ class Command(BaseCommand):
     def _ensure_image_pool(
         self,
         *,
-        media_root: Path,
         subdir: str,
         prefix: str,
         count: int,
@@ -937,16 +987,15 @@ class Command(BaseCommand):
         height: int,
         rng: random.Random,
     ) -> list[str]:
-        directory = media_root / subdir
-        directory.mkdir(parents=True, exist_ok=True)
         relative_paths: list[str] = []
+        normalized_subdir = subdir.strip("/").replace("\\", "/")
 
         for idx in range(1, count + 1):
             filename = f"{prefix}_{idx:04d}.png"
-            rel_path = f"{subdir}/{filename}".replace("\\", "/")
-            abs_path = directory / filename
-            relative_paths.append(rel_path)
-            if abs_path.exists():
+            rel_path = f"{normalized_subdir}/{filename}"
+            saved_path = rel_path
+            if default_storage.exists(rel_path):
+                relative_paths.append(rel_path)
                 continue
 
             local_rng = random.Random(f"{prefix}-{idx}-{rng.randint(1, 10_000_000)}")
@@ -978,7 +1027,11 @@ class Command(BaseCommand):
 
             draw.rectangle([0, height - 70, width, height], fill=(0, 0, 0))
             draw.text((24, height - 48), f"Readus Seed {idx}", fill=(255, 255, 255))
-            image.save(abs_path, format="PNG", optimize=True)
+            image_buffer = io.BytesIO()
+            image.save(image_buffer, format="PNG", optimize=True)
+            image_buffer.seek(0)
+            saved_path = default_storage.save(rel_path, ContentFile(image_buffer.read()))
+            relative_paths.append(saved_path.replace("\\", "/"))
 
         return relative_paths
 
