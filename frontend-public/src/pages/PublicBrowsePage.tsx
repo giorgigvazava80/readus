@@ -6,6 +6,13 @@ import { useQuery } from "@tanstack/react-query";
 import WorkCard, { type PublicWorkCardItem } from "@/components/WorkCard";
 import CategoryFilter, { type PublicBrowseCategory } from "@/components/CategoryFilter";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useI18n } from "@/i18n";
 import { resolveAuthorKey } from "@/lib/authors";
 import { fetchContent, fetchTrending, resolveMediaUrl } from "@/lib/api";
@@ -68,10 +75,10 @@ function toCardItem(
 
 type SortOption = "new" | "top" | "trending";
 
-const SORT_OPTIONS: { value: SortOption; label: string }[] = [
-  { value: "new", label: "New" },
-  { value: "trending", label: "Trending" },
-  { value: "top", label: "Top" },
+const SORT_OPTIONS: { value: SortOption; labelKey: string; defaultLabel: string }[] = [
+  { value: "new", labelKey: "browse.sort.new", defaultLabel: "New" },
+  { value: "trending", labelKey: "browse.sort.trending", defaultLabel: "Trending" },
+  { value: "top", labelKey: "browse.sort.top", defaultLabel: "Top" },
 ];
 
 const PublicBrowsePage = () => {
@@ -154,22 +161,20 @@ const PublicBrowsePage = () => {
               <CategoryFilter active={category} onChange={setCategory} />
             </div>
 
-            {/* Sort pills */}
+            {/* Sort Dropdown */}
             <div className="flex items-center gap-1.5 flex-shrink-0">
-              {SORT_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => setSort(opt.value)}
-                  style={{ touchAction: "manipulation" }}
-                  className={`h-8 px-3 rounded-full text-xs font-ui font-semibold whitespace-nowrap transition-all duration-200 ${sort === opt.value
-                      ? "text-primary-foreground shadow-sm"
-                      : "text-muted-foreground bg-muted/50 hover:bg-muted"
-                    }`}
-                  {...(sort === opt.value ? { style: { background: "var(--hero-gradient)", touchAction: "manipulation" } } : {})}
-                >
-                  {opt.label}
-                </button>
-              ))}
+              <Select value={sort} onValueChange={(v) => setSort(v as SortOption)}>
+                <SelectTrigger className="h-8 w-[130px] rounded-full text-xs font-ui font-semibold bg-muted/50 border-0 hover:bg-muted focus:ring-0 focus:ring-offset-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent align="end">
+                  {SORT_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value} className="text-xs font-ui">
+                      {t(opt.labelKey, opt.defaultLabel)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>

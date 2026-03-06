@@ -9,6 +9,7 @@ import { useI18n } from "@/i18n";
 import { isAdminAppHost } from "@/lib/runtime";
 import { fetchNotificationUnreadCount, logout } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface NavItem {
   labelKey: string;
@@ -210,7 +211,13 @@ const Navbar = () => {
     navigate("/notifications");
   };
 
-  const mobileNavItems = useMemo(() => {
+  const mobileNavItems = useMemo<{
+    icon: React.ElementType;
+    labelKey: string;
+    defaultLabel: string;
+    path: string;
+    badge?: number;
+  }[]>(() => {
     if (adminHost) return [];
 
     const canSeeWriteNav = Boolean(me && (me.is_writer_approved || me.role_registered === "writer"));
@@ -309,6 +316,7 @@ const Navbar = () => {
           </nav>
 
           <div className="flex flex-shrink-0 items-center gap-1.5">
+            <ThemeToggle />
             <Button
               variant="outline"
               size="sm"
@@ -406,16 +414,15 @@ const Navbar = () => {
                   className={`relative flex flex-col items-center justify-center flex-1 gap-1 py-2 focus:outline-none touch-action-manip transition-colors duration-150 ${isActive ? "text-primary" : "text-muted-foreground"
                     }`}
                 >
-                  {/* Active pill highlight behind icon */}
+                  {/* Active indicator dot */}
                   <AnimatePresence>
                     {isActive && (
                       <motion.span
-                        layoutId="bottom-nav-pill"
-                        className="absolute top-0.5 h-12 w-12 rounded-full sm:top-1 sm:h-11 sm:w-11"
-                        style={{ background: "hsl(var(--primary) / 0.12)" }}
-                        initial={{ opacity: 0, scale: 0.75 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.75 }}
+                        layoutId="bottom-nav-indicator"
+                        className="absolute bottom-0.5 h-1 w-1 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.6)]"
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 5 }}
                         transition={{ type: "spring", stiffness: 420, damping: 28 }}
                       />
                     )}

@@ -51,7 +51,7 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
 
     "layout.cta.title": "Ready to share your story?",
     "layout.cta.subtitle": "Join hundreds of authors who've found their readership on Readus.",
-    "layout.cta.button": "Join Free",
+    "layout.cta.button": "Join as a writer",
     "layout.cta.buttonApply": "Apply to Write",
     "layout.footer.brandDesc": "A curated home for novels, short stories, and poetry. Quality writing, carefully crafted.",
     "layout.footer.explore": "Explore",
@@ -287,6 +287,9 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
     "browse.noneFoundTitle": "No works found",
     "browse.noneFoundDesc": "Try changing your search or selected category.",
     "browse.clearFilters": "Clear filters",
+    "browse.sort.new": "New",
+    "browse.sort.trending": "Trending",
+    "browse.sort.top": "Top",
 
     "authors.title": "Authors",
     "authors.subtitle": "Browse all authors and open their published works.",
@@ -782,7 +785,7 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
 
     "layout.cta.title": "მზად ხარ, გააზიარო შენი ლიტერატურული ნაშრომი?",
     "layout.cta.subtitle": "შემოუერთდი ავტორებს, რომლებმაც Readus-ზე იპოვეს თავიანთი მკითხველი.",
-    "layout.cta.button": "უფასოდ შეუერთდი",
+    "layout.cta.button": "შემოუერთდი როგორც მწერალი",
     "layout.cta.buttonApply": "გახდი ავტორი",
     "layout.footer.brandDesc": "რომანების, მოთხრობებისა და პოეზიის გამორჩეული სივრცე.",
     "layout.footer.explore": "დათვალიერება",
@@ -1017,6 +1020,9 @@ const dictionaries: Record<AppLanguage, Dictionary> = {
     "browse.noneFoundTitle": "ნამუშევრები ვერ მოიძებნა",
     "browse.noneFoundDesc": "სცადე ძიების ან კატეგორიის ფილტრის შეცვლა.",
     "browse.clearFilters": "ფილტრების გასუფთავება",
+    "browse.sort.new": "ახალი",
+    "browse.sort.trending": "პოპულარული",
+    "browse.sort.top": "საუკეთესო",
 
     "authors.title": "ავტორები",
     "authors.subtitle": "გაეცანი ყველა ავტორს და გახსენი მათი გამოქვეყნებული ნაშრომები.",
