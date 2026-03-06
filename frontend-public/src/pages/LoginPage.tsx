@@ -6,10 +6,19 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Navbar from "@/components/Navbar";
 import { useI18n } from "@/i18n";
 import { fetchMe, login, loginWithGoogleCode, logout } from "@/lib/api";
 import { consumeGoogleOAuthState, createGoogleOAuthState, GOOGLE_OAUTH_SCOPE } from "@/lib/oauth";
 import { isAdminAppHost } from "@/lib/runtime";
+
+function resolvePostLoginPath(
+  adminHost: boolean,
+  me: { is_writer_approved: boolean; role_registered: "reader" | "writer" },
+) {
+  if (adminHost) return "/admin";
+  return me.is_writer_approved || me.role_registered === "writer" ? "/dashboard" : "/";
+}
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -58,7 +67,7 @@ const LoginPage = () => {
           await logout();
           throw new Error(t("login.error.noAdminAccess", "You do not have access to the admin portal."));
         }
-        navigate(adminHost ? "/admin" : "/dashboard", { replace: true });
+        navigate(resolvePostLoginPath(adminHost, me), { replace: true });
         toast.success(t("login.success.google", "Signed in with Google."));
       } catch (error) {
         const message = error instanceof Error ? error.message : t("login.error.failed", "Login failed.");
@@ -105,7 +114,7 @@ const LoginPage = () => {
         await logout();
         throw new Error(t("login.error.noAdminAccess", "You do not have access to the admin portal."));
       }
-      navigate(adminHost ? "/admin" : "/dashboard");
+      navigate(resolvePostLoginPath(adminHost, me), { replace: true });
       toast.success(t("login.success", "Signed in successfully."));
     } catch (error) {
       const message = error instanceof Error ? error.message : t("login.error.failed", "Login failed.");
@@ -119,6 +128,7 @@ const LoginPage = () => {
     <div className="relative min-h-screen overflow-hidden bg-background flex flex-col">
       {/* Background orbs */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,hsl(var(--primary)/0.14),transparent_36%),radial-gradient(circle_at_80%_0%,hsl(var(--accent)/0.12),transparent_30%)]" />
+      <Navbar />
 
       {/* ── Desktop: two-column layout ── */}
       <div className="hidden md:grid flex-1 container mx-auto min-h-screen items-center gap-12 px-6 py-12 md:grid-cols-2">

@@ -50,6 +50,7 @@ const Navbar = () => {
   const navRef = useRef<HTMLDivElement>(null);
 
   const adminHost = isAdminAppHost();
+  const isLoginRoute = location.pathname === "/login" || location.pathname === "/admin/login";
   const isWriterEditorRoute = useMemo(() => {
     if (adminHost) return false;
     return /^\/writer\/(books|poems|stories|chapters)\/[^/]+\/edit\/?$/.test(location.pathname);
@@ -76,6 +77,12 @@ const Navbar = () => {
       const currentScrollY = window.scrollY;
       setScrolled(currentScrollY > 16);
 
+      if (isLoginRoute) {
+        setIsVisible(true);
+        setLastScrollY(currentScrollY);
+        return;
+      }
+
       // Hide on scroll down, show on scroll up
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setIsVisible(false);
@@ -86,7 +93,7 @@ const Navbar = () => {
     };
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
-  }, [lastScrollY]);
+  }, [isLoginRoute, lastScrollY]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 1279px)");
@@ -206,7 +213,7 @@ const Navbar = () => {
   const mobileNavItems = useMemo(() => {
     if (adminHost) return [];
 
-    const canSeeWriteNav = !me || me.is_writer_approved || me.role_registered === "writer";
+    const canSeeWriteNav = Boolean(me && (me.is_writer_approved || me.role_registered === "writer"));
 
     return [
       { icon: Home, labelKey: "nav.home", defaultLabel: "Home", path: "/" },
@@ -219,20 +226,24 @@ const Navbar = () => {
           path: me ? (me.is_writer_approved ? "/writer/new" : "/writer-application") : "/login",
         }]
         : []),
-      {
-        icon: User,
-        labelKey: "nav.profile",
-        defaultLabel: "Profile",
-        path: me ? "/dashboard" : "/login",
-      },
+      ...(me
+        ? [{
+          icon: User,
+          labelKey: "nav.profile",
+          defaultLabel: "Profile",
+          path: "/dashboard",
+        }]
+        : []),
     ];
   }, [adminHost, me]);
 
   const shouldHideEditorNav = isWriterEditorRoute && isCompactViewport && !editorHeaderInView;
-  const shouldShowTopNav = isWriterEditorRoute && isCompactViewport
-    ? !readingFocus && !shouldHideEditorNav
-    : !readingFocus && isVisible;
-  const shouldShowMobileNav = !adminHost && !readingFocus && !shouldHideEditorNav;
+  const shouldShowTopNav = isLoginRoute
+    ? true
+    : isWriterEditorRoute && isCompactViewport
+      ? !readingFocus && !shouldHideEditorNav
+      : !readingFocus && isVisible;
+  const shouldShowMobileNav = isLoginRoute ? !adminHost : !adminHost && !readingFocus && !shouldHideEditorNav;
 
   useEffect(() => {
     window.dispatchEvent(
@@ -251,17 +262,19 @@ const Navbar = () => {
           }`}
       >
         <div className="container mx-auto flex h-16 items-center justify-between gap-2 px-3 sm:px-4 xl:px-6">
-          <Link to={adminHost ? "/admin" : "/"} className="group flex flex-shrink-0 items-center gap-2.5">
-            <div
-              className="flex h-8 w-8 items-center justify-center rounded-lg shadow-sm transition-transform duration-200 group-hover:scale-105"
-              style={{ background: "var(--hero-gradient)" }}
-            >
-              {adminHost ? <Shield className="h-4 w-4 text-white" /> : <BookOpen className="h-4 w-4 text-white" />}
-            </div>
-            <span className={`font-display font-bold tracking-tight text-foreground transition-all duration-300 ${scrolled ? "text-lg" : "text-xl"}`}>
-              {adminHost ? t("brand.admin", "Readus Admin") : t("brand.user", "Readus")}
-            </span>
-          </Link>
+          <div className="flex flex-shrink-0 items-center gap-2">
+            <Link to={adminHost ? "/admin" : "/"} className="group flex items-center gap-2.5">
+              <div
+                className="flex h-8 w-8 items-center justify-center rounded-lg shadow-sm transition-transform duration-200 group-hover:scale-105"
+                style={{ background: "var(--hero-gradient)" }}
+              >
+                {adminHost ? <Shield className="h-4 w-4 text-white" /> : <BookOpen className="h-4 w-4 text-white" />}
+              </div>
+              <span className={`font-display font-bold tracking-tight text-foreground transition-all duration-300 ${scrolled ? "text-lg" : "text-xl"}`}>
+                {adminHost ? t("brand.admin", "Readus Admin") : t("brand.user", "Readus")}
+              </span>
+            </Link>
+          </div>
 
           <nav className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 overflow-x-auto whitespace-nowrap scrollbar-none xl:flex">
             {navItems.map((item) => {
@@ -341,6 +354,13 @@ const Navbar = () => {
               </>
             ) : (
               <>
+                {!adminHost && !isLoginRoute ? (
+                  <Link to="/login" className="xl:hidden">
+                    <Button size="sm" className="font-ui shadow-sm transition-all hover:shadow-warm">
+                      {t("nav.login", "Login")}
+                    </Button>
+                  </Link>
+                ) : null}
                 <Link to={adminHost ? "/admin/login" : "/login"} className="hidden xl:block">
                   <Button variant="outline" size="sm" className="font-ui">
                     {t("nav.login", "Login")}
