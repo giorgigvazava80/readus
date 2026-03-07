@@ -7,7 +7,7 @@ interface UseAutosaveOptions<T> {
   delayMs?: number;
 }
 
-const DEFAULT_AUTOSAVE_DELAY_MS = 5 * 60 * 1000;
+const DEFAULT_AUTOSAVE_DELAY_MS = 600;
 
 function toErrorMessage(error: unknown): string {
   if (error instanceof Error) {

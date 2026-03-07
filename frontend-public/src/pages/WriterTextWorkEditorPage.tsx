@@ -2,7 +2,7 @@ import { useI18n } from "@/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { Feather, FileText, ImagePlus, Save, X, Trash, AlignLeft, Settings, ChevronRight, Menu } from "lucide-react";
+import { Feather, FileText, ImagePlus, X, Trash, AlignLeft, Settings, ChevronRight, Menu } from "lucide-react";
 
 import RichTextEditor from "@/components/editor/RichTextEditor";
 import SaveStateBadge from "@/components/editor/SaveStateBadge";
@@ -103,7 +103,6 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
   const [activeSection, setActiveSection] = useState<"settings" | "body">("settings");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [mobileNavVisible, setMobileNavVisible] = useState(false);
 
 
   const saveMutation = useMutation({
@@ -174,20 +173,6 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
     setInviteOpen(true);
   }, [detailQuery.data?.status, inviteKey]);
 
-  useEffect(() => {
-    const syncFromDom = () => {
-      setMobileNavVisible(Boolean(document.querySelector('[data-mobile-bottom-nav="true"]')));
-    };
-
-    const handler = (event: Event) => {
-      const detail = (event as CustomEvent<{ visible?: boolean }>).detail;
-      setMobileNavVisible(Boolean(detail?.visible));
-    };
-
-    syncFromDom();
-    window.addEventListener("mobile-nav-visibility", handler);
-    return () => window.removeEventListener("mobile-nav-visibility", handler);
-  }, []);
 
   <div className="container mx-auto px-6 py-10">
     <p className="font-ui text-sm text-muted-foreground">{t("editor.invalidId")}</p>
@@ -233,20 +218,6 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
       icon: <Icon className="h-4 w-4 shrink-0" />,
     }
   ];
-
-  const handleSave = async () => {
-    try {
-      await autosave.saveNow();
-      toast({ title: t("editor.saved") });
-      navigate(`/my-works`);
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: t("editor.saveFailed"),
-        description: error instanceof Error ? error.message : t("editor.verifyFields"),
-      });
-    }
-  };
 
   const navigateToSection = (val: "settings" | "body") => {
     setActiveSection(val);
@@ -439,9 +410,6 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                         }}
                       >
                         <Trash className="h-3.5 w-3.5" /> {t("editor.delete")}
-                      </Button>
-                      <Button size="sm" className="gap-2 h-10" onClick={handleSave} disabled={autosave.isSaving}>
-                        <Save className="h-4 w-4" /> {t("editor.save")}
                       </Button>
                     </div>
                   </div>
@@ -645,9 +613,6 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                       >
                         <Trash className="h-3.5 w-3.5" /> {type === "stories" ? t("editor.deleteStory") : t("editor.deletePoem")}
                       </Button>
-                      <Button size="sm" className="gap-2 h-10" onClick={handleSave} disabled={autosave.isSaving}>
-                        <Save className="h-4 w-4" /> {t("editor.save")}
-                      </Button>
                     </div>
                   </div>
 
@@ -717,22 +682,6 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
 
           </main>
         </div>
-      </div>
-
-      {/* Floating Save Button */}
-      <div
-        className={`fixed right-4 md:right-6 xl:right-8 z-50 animate-in fade-in slide-in-from-bottom-4 transition-[bottom] duration-200 ${mobileNavVisible ? "bottom-20 md:bottom-20" : "bottom-4 md:bottom-6"} xl:bottom-8`}
-      >
-        <Button
-          size="lg"
-          className="rounded-full shadow-xl shadow-primary/20 gap-2 h-14 sm:px-6 px-5 font-ui text-base transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/30"
-          onClick={handleSave}
-          disabled={autosave.isSaving}
-        >
-          <Save className="h-5 w-5" />
-          <span className="hidden sm:inline">{autosave.isSaving ? t("editor.saving") : t("editor.save")}</span>
-          <span className="sm:hidden">{autosave.isSaving ? t("editor.saving") : t("editor.save")}</span>
-        </Button>
       </div>
 
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>

@@ -2,7 +2,7 @@ import { useI18n } from "@/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { BookOpenText, ImagePlus, X, Plus, Trash, Save, ChevronDown, Settings, FileText, AlignLeft, ChevronRight, Menu } from "lucide-react";
+import { BookOpenText, ImagePlus, X, Plus, Trash, ChevronDown, Settings, FileText, AlignLeft, ChevronRight, Menu, Send } from "lucide-react";
 
 import RichTextEditor from "@/components/editor/RichTextEditor";
 import SaveStateBadge from "@/components/editor/SaveStateBadge";
@@ -22,7 +22,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 
-import { buildFacebookShareIntent, fetchContentDetail, resolveMediaUrl, updateBook, createChapter, updateChapter, deleteChapter, deleteContentItem } from "@/lib/api";
+import { buildFacebookShareIntent, fetchContentDetail, resolveMediaUrl, updateBook, createChapter, updateChapter, deleteChapter, deleteContentItem, submitContentForReview, submitChapterForReview } from "@/lib/api";
 import { CONTENT_STATUS_STYLES } from "@/lib/content";
 import { useAutosave } from "@/hooks/useAutosave";
 import { toast } from "@/hooks/use-toast";
@@ -72,7 +72,15 @@ function toDraft(data: {
 // ──────────────────────────────────────────────────────────
 // Chapter Editor Component
 // ──────────────────────────────────────────────────────────
-function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: number, bookId: number, onDelete: () => void }) {
+function ChapterEditorInline({
+  chapterId,
+  bookId,
+  onDelete,
+}: {
+  chapterId: number;
+  bookId: number;
+  onDelete: () => void;
+}) {
   const { t } = useI18n();
   const { confirm } = useConfirm();
   const queryClient = useQueryClient();
@@ -102,6 +110,16 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
     }
   });
 
+  const submitMutation = useMutation({
+    mutationFn: () => submitChapterForReview(chapterId),
+    onSuccess: (submitted) => {
+      queryClient.setQueryData(["writer", "chapters", chapterId], submitted);
+      queryClient.invalidateQueries({ queryKey: ["writer", "book", bookId] });
+      queryClient.invalidateQueries({ queryKey: ["my-works"] });
+      toast({ title: t("publish.sent", "Sent to redactor for approval.") });
+    },
+  });
+
   const autosave = useAutosave({
     value: draft,
     enabled: detailQuery.isSuccess,
@@ -123,12 +141,39 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
     }
   }, [detailQuery.data, chaptermarkSaved]);
 
+  const handlePublish = async () => {
+    const isConfirmed = await confirm({
+      title: t("publish.button", "Publish"),
+      description: t(
+        "publish.confirmDescription",
+        "This will be sent to a redactor for approval.",
+      ),
+      confirmText: t("publish.send", "Send"),
+      cancelText: t("publish.cancel", "Decline"),
+    });
+    if (!isConfirmed) return;
+
+    try {
+      await autosave.saveNow();
+      await submitMutation.mutateAsync();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: error instanceof Error ? error.message : t("publish.failed", "Failed to send to redactor."),
+      });
+    }
+  };
+
   if (detailQuery.isLoading) {
     return <p className="font-ui text-sm text-muted-foreground p-6">{t("work.chapter")} იტვირთება...</p>;
   }
   if (!detailQuery.data) {
     return <p className="font-ui text-sm text-red-700 p-6">{t("work.chapter")}ს ჩატვირთვა ვერ მოხერხდა.</p>;
   }
+
+  const canPublish =
+    detailQuery.data.status !== "approved" &&
+    !detailQuery.data.is_submitted_for_review;
 
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
@@ -148,6 +193,21 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
             />
           </div>
         </div>
+        {canPublish && (
+          <Button
+            size="sm"
+            className="gap-2 h-10"
+            onClick={handlePublish}
+            disabled={autosave.isSaving || submitMutation.isPending}
+          >
+            {submitMutation.isPending ? (
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+            {t("publish.button", "Publish")}
+          </Button>
+        )}
       </div>
 
       {detailQuery.data.rejection_reason && (
@@ -190,7 +250,7 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
         />
       </section>
 
-      {/* Desktop action buttons (mobile uses sticky bar) */}
+      {/* Desktop action buttons */}
       <div className="hidden sm:flex items-center justify-end gap-3 pt-2">
         <Button variant="destructive" size="sm" onClick={async () => {
           if (await confirm({ title: t("confirm.deleteChapter"), description: t("confirm.deleteChapterDesc"), destructive: true, confirmText: t("confirm.delete") })) {
@@ -199,24 +259,9 @@ function ChapterEditorInline({ chapterId, bookId, onDelete }: { chapterId: numbe
         }} className="gap-2 h-10" disabled={deleteMutation.isPending}>
           <Trash className="h-3.5 w-3.5" /> {deleteMutation.isPending ? t("editor.deleting") : t("editor.delete")}
         </Button>
-        <Button
-          className="gap-2 h-10"
-          size="sm"
-          onClick={async () => {
-            try {
-              await autosave.saveNow();
-              toast({ title: t("editor.chapterSaved") });
-            } catch {
-              toast({ variant: "destructive", title: t("editor.saveFailed") });
-            }
-          }}
-          disabled={autosave.isSaving}
-        >
-          <Save className="h-4 w-4" /> {t("editor.save")}
-        </Button>
       </div>
 
-      {/* Mobile delete button (save is in sticky bar) */}
+      {/* Mobile delete button */}
       <div className="flex sm:hidden">
         <Button variant="destructive" size="sm" onClick={async () => {
           if (await confirm({ title: t("confirm.deleteChapter"), destructive: true, confirmText: t("confirm.delete") })) {
@@ -251,6 +296,16 @@ const WriterBookEditorPage = () => {
     enabled: Number.isFinite(bookId),
   });
 
+  useEffect(() => {
+    if (detailQuery.data?.upload_processing_status !== "processing") {
+      return;
+    }
+    const timer = window.setInterval(() => {
+      queryClient.invalidateQueries({ queryKey: ["writer", "book", bookId] });
+    }, 2000);
+    return () => window.clearInterval(timer);
+  }, [detailQuery.data?.upload_processing_status, queryClient, bookId]);
+
   const [draft, setDraft] = useState<BookDraft>({
     title: t("editor.untitledBook"),
     description: "",
@@ -268,7 +323,6 @@ const WriterBookEditorPage = () => {
   const [coverRevision, setCoverRevision] = useState(0);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [mobileNavVisible, setMobileNavVisible] = useState(false);
 
   const [activeSection, setActiveSection] = useState<"settings" | "foreword" | "afterword" | number>("settings");
   const [showAddNav, setShowAddNav] = useState(false);
@@ -312,6 +366,15 @@ const WriterBookEditorPage = () => {
       setUploadFile(null);
       setCoverImage(null);
       setCoverPreview(null);
+    },
+  });
+
+  const submitBookMutation = useMutation({
+    mutationFn: () => submitContentForReview("books", bookId),
+    onSuccess: (submitted) => {
+      queryClient.setQueryData(["writer", "book", bookId], submitted);
+      queryClient.invalidateQueries({ queryKey: ["my-works"] });
+      toast({ title: t("publish.sent", "Sent to redactor for approval.") });
     },
   });
 
@@ -373,20 +436,6 @@ const WriterBookEditorPage = () => {
     setInviteOpen(true);
   }, [detailQuery.data?.status, inviteKey]);
 
-  useEffect(() => {
-    const syncFromDom = () => {
-      setMobileNavVisible(Boolean(document.querySelector('[data-mobile-bottom-nav="true"]')));
-    };
-
-    const handler = (event: Event) => {
-      const detail = (event as CustomEvent<{ visible?: boolean }>).detail;
-      setMobileNavVisible(Boolean(detail?.visible));
-    };
-
-    syncFromDom();
-    window.addEventListener("mobile-nav-visibility", handler);
-    return () => window.removeEventListener("mobile-nav-visibility", handler);
-  }, []);
 
   // Helper: human-readable label for active section
   const activeSectionLabel = useMemo(() => {
@@ -397,16 +446,25 @@ const WriterBookEditorPage = () => {
     return ch ? (ch.title || `Chapter ${ch.order}`) : "Editor";
   }, [activeSection, chapters, t]);
 
-  // Handle save action (works for both book settings and chapter)
-  const handleSave = async () => {
+  const handleBookPublish = async () => {
+    const isConfirmed = await confirm({
+      title: t("publish.button", "Publish"),
+      description: t(
+        "publish.confirmDescription",
+        "This will be sent to a redactor for approval.",
+      ),
+      confirmText: t("publish.send", "Send"),
+      cancelText: t("publish.cancel", "Decline"),
+    });
+    if (!isConfirmed) return;
+
     try {
       await autosave.saveNow();
-      toast({ title: t("editor.saved") });
+      await submitBookMutation.mutateAsync();
     } catch (error) {
       toast({
         variant: "destructive",
-        title: t("editor.saveFailed"),
-        description: error instanceof Error ? error.message : "Please fix validation issues and try again.",
+        title: error instanceof Error ? error.message : t("publish.failed", "Failed to send to redactor."),
       });
     }
   };
@@ -446,6 +504,7 @@ const WriterBookEditorPage = () => {
   }
 
   const status = detailQuery.data.status;
+  const canPublishBookFromSettings = status !== "approved" && !detailQuery.data.is_submitted_for_review;
 
   // ── Nav items (only foreword/afterword shown if they have content) ──
   const hasForeword = hasTextContent(draft.foreword);
@@ -599,6 +658,24 @@ const WriterBookEditorPage = () => {
             <h1 className="font-display text-2xl lg:text-3xl font-semibold text-foreground">{draft.title || t("editor.untitledBook")}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <Badge variant="outline" className={statusClass}>{t("status." + status, status)}</Badge>
+              {detailQuery.data.is_submitted_for_review && status === "draft" ? (
+                <Badge
+                  variant="outline"
+                  className="border-sky-500/50 bg-sky-500/10 text-sky-700"
+                >
+                  {t("myWorks.sentToRedactor", "Sent to redactor")}
+                </Badge>
+              ) : null}
+              {detailQuery.data.upload_processing_status === "processing" ? (
+                <Badge variant="outline" className="border-indigo-500/50 bg-indigo-500/10 text-indigo-700">
+                  {t("editor.uploadAnalyzing", "Analyzing uploaded file...")}
+                </Badge>
+              ) : null}
+              {detailQuery.data.upload_processing_status === "failed" ? (
+                <Badge variant="outline" className="border-red-500/50 bg-red-500/10 text-red-700">
+                  {t("editor.uploadAnalyzeFailed", "Upload analysis failed")}
+                </Badge>
+              ) : null}
               <SaveStateBadge
                 isSaving={autosave.isSaving}
                 hasUnsavedChanges={autosave.hasUnsavedChanges}
@@ -720,6 +797,21 @@ const WriterBookEditorPage = () => {
                     </div>
                     {/* Desktop action buttons */}
                     <div className="hidden sm:flex items-center gap-2">
+                      {canPublishBookFromSettings ? (
+                        <Button
+                          size="sm"
+                          className="gap-2 h-10"
+                          onClick={handleBookPublish}
+                          disabled={autosave.isSaving || submitBookMutation.isPending}
+                        >
+                          {submitBookMutation.isPending ? (
+                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                          ) : (
+                            <Send className="h-4 w-4" />
+                          )}
+                          {t("publish.button", "Publish")}
+                        </Button>
+                      ) : null}
                       <Button
                         variant="destructive"
                         size="sm"
@@ -737,9 +829,6 @@ const WriterBookEditorPage = () => {
                         }}
                       >
                         <Trash className="h-3.5 w-3.5" /> {t("editor.deleteBook")}
-                      </Button>
-                      <Button size="sm" className="gap-2 h-10" onClick={handleSave} disabled={autosave.isSaving}>
-                        <Save className="h-4 w-4" /> {t("editor.save")}
                       </Button>
                     </div>
                   </div>
@@ -848,6 +937,16 @@ const WriterBookEditorPage = () => {
                             <a className="underline text-primary" href={detailQuery.data.upload_file} target="_blank" rel="noreferrer">{t("editor.openFile")}</a>
                           </p>
                         )}
+                        {detailQuery.data.upload_processing_status === "processing" && (
+                          <p className="font-ui text-xs text-muted-foreground">
+                            {t("editor.uploadAnalyzingHint", "We are analyzing the upload in the background and splitting it into chapters.")}
+                          </p>
+                        )}
+                        {detailQuery.data.upload_processing_status === "failed" && detailQuery.data.upload_processing_error && (
+                          <p className="font-ui text-xs text-red-700">
+                            {t("editor.uploadAnalyzeError", "Upload analysis error")}: {detailQuery.data.upload_processing_error}
+                          </p>
+                        )}
                       </div>
                     )}
 
@@ -952,7 +1051,21 @@ const WriterBookEditorPage = () => {
                     </div>
 
                     {/* Mobile delete book button */}
-                    <div className="sm:hidden pt-2 border-t border-border/40">
+                    <div className="sm:hidden pt-2 border-t border-border/40 space-y-2">
+                      {canPublishBookFromSettings ? (
+                        <Button
+                          className="w-full h-11 gap-2 font-ui"
+                          onClick={handleBookPublish}
+                          disabled={autosave.isSaving || submitBookMutation.isPending}
+                        >
+                          {submitBookMutation.isPending ? (
+                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                          ) : (
+                            <Send className="h-4 w-4" />
+                          )}
+                          {t("publish.button", "Publish")}
+                        </Button>
+                      ) : null}
                       <Button
                         variant="destructive"
                         className="w-full h-11 gap-2 font-ui"
@@ -1001,20 +1114,6 @@ const WriterBookEditorPage = () => {
                       <h2 className="font-display text-xl sm:text-2xl font-semibold text-foreground">{t("editor.editForeword")}</h2>
                       <p className="mt-1 font-ui text-sm text-muted-foreground">{t("editor.writeIntro")}</p>
                     </div>
-                    <Button
-                      className="gap-2 h-10 hidden sm:inline-flex"
-                      onClick={async () => {
-                        try {
-                          await autosave.saveNow();
-                          toast({ title: t("editor.forewordSaved") });
-                        } catch {
-                          toast({ variant: "destructive", title: t("editor.saveFailed") });
-                        }
-                      }}
-                      disabled={autosave.isSaving}
-                    >
-                      <Save className="h-4 w-4" /> Save
-                    </Button>
                   </div>
                   <div className="space-y-2">
                     <Label className="font-ui text-sm font-medium">{t("editor.forewordText")}</Label>
@@ -1031,20 +1130,6 @@ const WriterBookEditorPage = () => {
                       <h2 className="font-display text-xl sm:text-2xl font-semibold text-foreground">{t("editor.editAfterword")}</h2>
                       <p className="mt-1 font-ui text-sm text-muted-foreground">Write a closing note for your readers</p>
                     </div>
-                    <Button
-                      className="gap-2 h-10 hidden sm:inline-flex"
-                      onClick={async () => {
-                        try {
-                          await autosave.saveNow();
-                          toast({ title: t("editor.afterwordSaved") });
-                        } catch {
-                          toast({ variant: "destructive", title: t("editor.saveFailed") });
-                        }
-                      }}
-                      disabled={autosave.isSaving}
-                    >
-                      <Save className="h-4 w-4" /> Save
-                    </Button>
                   </div>
                   <div className="space-y-2">
                     <Label className="font-ui text-sm font-medium">{t("editor.afterwordText")}</Label>
@@ -1055,28 +1140,16 @@ const WriterBookEditorPage = () => {
 
               {/* ── CHAPTER ──────────────────────────────────── */}
               {typeof activeSection === "number" && (
-                <ChapterEditorInline chapterId={activeSection} bookId={bookId} onDelete={() => setActiveSection("settings")} />
+                <ChapterEditorInline
+                  chapterId={activeSection}
+                  bookId={bookId}
+                  onDelete={() => setActiveSection("settings")}
+                />
               )}
 
             </article>
           </main>
         </div>
-      </div>
-
-      {/* ─── Mobile sticky bottom save bar ──────────────────── */}
-      <div className={`fixed left-0 right-0 z-30 flex sm:hidden items-center gap-3 border-t border-border/70 bg-background/95 backdrop-blur px-4 py-3 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)] transition-[bottom] duration-200 ${mobileNavVisible ? "bottom-16" : "bottom-0"}`}>
-        <div className="flex-1 min-w-0">
-          <p className="font-ui text-xs text-muted-foreground truncate">Editing</p>
-          <p className="font-ui text-sm font-semibold text-foreground truncate">{activeSectionLabel}</p>
-        </div>
-        <Button
-          className="gap-2 h-11 px-5 font-ui text-sm shrink-0"
-          onClick={handleSave}
-          disabled={autosave.isSaving}
-        >
-          <Save className="h-4 w-4" />
-          {autosave.isSaving ? t("editor.saving") : t("editor.save")}
-        </Button>
       </div>
 
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
