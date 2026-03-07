@@ -1,5 +1,9 @@
 import io
 import os
+import re
+import shutil
+import subprocess
+import tempfile
 import zipfile
 from xml.etree import ElementTree
 
@@ -51,10 +55,57 @@ def _extract_text_from_pdf(data: bytes) -> str:
     return "\n\n".join(pages)
 
 
+def _extract_text_from_doc_with_tool(data: bytes) -> str:
+    tool = shutil.which("antiword") or shutil.which("catdoc")
+    if not tool:
+        return ""
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".doc") as tmp_file:
+        tmp_file.write(data)
+        tmp_path = tmp_file.name
+
+    try:
+        completed = subprocess.run(
+            [tool, tmp_path],
+            capture_output=True,
+            check=False,
+            timeout=25,
+        )
+        if completed.returncode != 0:
+            return ""
+        return completed.stdout.decode("utf-8", errors="ignore")
+    except Exception:
+        return ""
+    finally:
+        try:
+            os.unlink(tmp_path)
+        except Exception:
+            pass
+
+
+def _extract_text_from_doc_binary(data: bytes) -> str:
+    # Fallback parser for legacy .doc (best effort).
+    ascii_chunks = [
+        chunk.decode("latin-1", errors="ignore").strip()
+        for chunk in re.findall(rb"(?:[ -~]{4,}(?:\r?\n)?)+", data)
+    ]
+
+    utf16_chunks = []
+    for chunk in re.findall(rb"(?:(?:[\x20-\x7E]\x00){4,})", data):
+        try:
+            utf16_chunks.append(chunk.decode("utf-16-le", errors="ignore").strip())
+        except Exception:
+            continue
+
+    combined = "\n".join([*ascii_chunks, *utf16_chunks])
+    combined = re.sub(r"\n{3,}", "\n\n", combined)
+    return combined.strip()
+
+
 def extract_text_from_upload(upload_file) -> str:
     """
     Extract readable text from supported upload files.
-    DOC extraction is intentionally skipped because legacy .doc requires external tools.
+    Supports TXT, DOCX, PDF, and best-effort DOC extraction.
     """
     if not upload_file:
         return ""
@@ -92,5 +143,16 @@ def extract_text_from_upload(upload_file) -> str:
         except Exception:
             return ""
 
-    # .doc is intentionally unsupported for extraction without external tooling.
+    if ext == ".doc":
+        if raw[:2] == b"PK":
+            # Some uploads are DOCX with wrong extension.
+            try:
+                return _extract_text_from_docx(raw)
+            except Exception:
+                pass
+        with_tool = _extract_text_from_doc_with_tool(raw)
+        if with_tool:
+            return with_tool
+        return _extract_text_from_doc_binary(raw)
+
     return ""

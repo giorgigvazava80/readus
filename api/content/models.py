@@ -3,6 +3,8 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.text import slugify
 
+from .storage import build_content_upload_storage
+
 
 # shared enum
 class StatusChoices(models.TextChoices):
@@ -14,6 +16,13 @@ class StatusChoices(models.TextChoices):
 class SourceType(models.TextChoices):
     MANUAL = 'manual', 'Manual'
     UPLOAD = 'upload', 'Upload'
+
+
+class UploadProcessingStatus(models.TextChoices):
+    IDLE = 'idle', 'Idle'
+    PROCESSING = 'processing', 'Processing'
+    DONE = 'done', 'Done'
+    FAILED = 'failed', 'Failed'
 
 
 class ChapterNumberingStyle(models.TextChoices):
@@ -59,6 +68,7 @@ class StatusTrackedModel(models.Model):
         choices=StatusChoices.choices,
         default=StatusChoices.DRAFT,
     )
+    is_submitted_for_review = models.BooleanField(default=False, db_index=True)
     rejection_reason = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -78,12 +88,14 @@ class StatusTrackedModel(models.Model):
 
     def set_status(self, new_status: str, user=None, reason: str = ""):
         self.status = new_status
+        self.is_submitted_for_review = False
         self.rejection_reason = reason if new_status == StatusChoices.REJECTED else ""
         self.status_changed_at = timezone.now()
         self.status_changed_by = user
         self.save(
             update_fields=[
                 "status",
+                "is_submitted_for_review",
                 "rejection_reason",
                 "status_changed_at",
                 "status_changed_by",
@@ -113,6 +125,7 @@ class BaseContent(StatusTrackedModel):
         default=SourceType.MANUAL,
     )
     upload_file = models.FileField(
+        storage=build_content_upload_storage,
         upload_to='uploads/content/%Y/%m/%d/',
         blank=True,
         null=True,
@@ -179,6 +192,13 @@ class Poem(BaseContent):
 class Book(BaseContent):
     foreword = models.TextField(blank=True)
     afterword = models.TextField(blank=True)
+    upload_processing_status = models.CharField(
+        max_length=20,
+        choices=UploadProcessingStatus.choices,
+        default=UploadProcessingStatus.IDLE,
+    )
+    upload_processing_error = models.TextField(blank=True)
+    upload_processed_at = models.DateTimeField(blank=True, null=True)
 
     numbering_style = models.CharField(
         max_length=20,

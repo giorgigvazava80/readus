@@ -53,6 +53,8 @@ services:
         value: "1"
       - key: EMAIL_SEND_ASYNC
         value: "1"
+      - key: CONTENT_UPLOAD_ASYNC
+        value: "0"
       - key: EMAIL_TIMEOUT
         value: "10"
       - key: RUN_COLLECTSTATIC

@@ -1,10 +1,16 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.core.cache import cache
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
 from rest_framework.test import APITestCase
 
 from allauth.account.models import EmailAddress
+from accounts.constants import GROUP_REDACTORS
+from accounts.models import RedactorPermission
 from accounts.utils import get_profile
-from content.models import Book, Poem, StatusChoices, Story
+from content.models import Book, Chapter, Poem, SourceType, StatusChoices, Story, UploadProcessingStatus
+from content.upload_processing import process_book_upload, split_text_into_chapters
 
 
 class PublicAuthorApiTests(APITestCase):
@@ -281,3 +287,466 @@ class RecycleBinApiTests(APITestCase):
         self.assertFalse(Story.objects.filter(id=self.story.id).exists())
         self.assertFalse(Story.objects.filter(id=second_story.id).exists())
         self.assertTrue(Story.objects.filter(id=active_story.id).exists())
+
+
+class SubmissionWorkflowTests(APITestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.writer = User.objects.create_user(
+            username="submit_writer",
+            email="submit_writer@example.com",
+            password="Test1234!",
+        )
+        self.redactor = User.objects.create_user(
+            username="submit_redactor",
+            email="submit_redactor@example.com",
+            password="Test1234!",
+        )
+
+        EmailAddress.objects.create(user=self.writer, email=self.writer.email, verified=True, primary=True)
+        EmailAddress.objects.create(user=self.redactor, email=self.redactor.email, verified=True, primary=True)
+
+        writer_profile = get_profile(self.writer)
+        writer_profile.is_writer_approved = True
+        writer_profile.save(update_fields=["is_writer_approved", "updated_at"])
+
+        redactor_group, _ = Group.objects.get_or_create(name=GROUP_REDACTORS)
+        self.redactor.groups.add(redactor_group)
+        RedactorPermission.objects.update_or_create(
+            user=self.redactor,
+            defaults={
+                "can_review_content": True,
+                "can_manage_content": False,
+                "can_review_writer_applications": False,
+                "can_manage_redactors": False,
+                "is_active": True,
+            },
+        )
+
+    def test_draft_not_visible_for_redactor_until_writer_submits(self):
+        story = Story.objects.create(
+            author=self.writer,
+            title="Draft story",
+            body="Text",
+            status=StatusChoices.DRAFT,
+            is_submitted_for_review=False,
+        )
+
+        self.client.force_authenticate(self.redactor)
+        before = self.client.get("/api/content/stories/?status=draft")
+        self.assertEqual(before.status_code, 200)
+        self.assertEqual(before.data["count"], 0)
+
+        self.client.force_authenticate(self.writer)
+        submit_response = self.client.post(f"/api/content/stories/{story.id}/submit/")
+        self.assertEqual(submit_response.status_code, 200)
+        self.assertTrue(submit_response.data["is_submitted_for_review"])
+        self.assertEqual(submit_response.data["status"], StatusChoices.DRAFT)
+
+        self.client.force_authenticate(self.redactor)
+        after = self.client.get("/api/content/stories/?status=draft")
+        self.assertEqual(after.status_code, 200)
+        self.assertEqual(after.data["count"], 1)
+        self.assertEqual(after.data["results"][0]["id"], story.id)
+
+    def test_submit_rejected_story_moves_it_back_to_draft(self):
+        story = Story.objects.create(
+            author=self.writer,
+            title="Rejected story",
+            body="Text",
+            status=StatusChoices.REJECTED,
+            rejection_reason="Needs work",
+            is_submitted_for_review=False,
+        )
+
+        self.client.force_authenticate(self.writer)
+        response = self.client.post(f"/api/content/stories/{story.id}/submit/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["status"], StatusChoices.DRAFT)
+        self.assertEqual(response.data["rejection_reason"], "")
+        self.assertTrue(response.data["is_submitted_for_review"])
+
+    def test_book_chapter_submission_flow_for_published_book(self):
+        book = Book.objects.create(
+            author=self.writer,
+            title="Published book",
+            status=StatusChoices.APPROVED,
+        )
+        chapter = Chapter.objects.create(
+            book=book,
+            title="New chapter",
+            order=1,
+            body="Text",
+            status=StatusChoices.DRAFT,
+            is_submitted_for_review=False,
+        )
+
+        self.client.force_authenticate(self.redactor)
+        before = self.client.get("/api/content/chapters/?status=draft")
+        self.assertEqual(before.status_code, 200)
+        self.assertEqual(before.data["count"], 0)
+
+        self.client.force_authenticate(None)
+        public_before_submit = self.client.get(f"/api/content/chapters/?book={book.id}")
+        self.assertEqual(public_before_submit.status_code, 200)
+        self.assertEqual(public_before_submit.data["count"], 0)
+
+        self.client.force_authenticate(self.writer)
+        submit_response = self.client.post(f"/api/content/chapters/{chapter.id}/submit/")
+        self.assertEqual(submit_response.status_code, 200)
+        self.assertTrue(submit_response.data["is_submitted_for_review"])
+
+        self.client.force_authenticate(None)
+        public_after_submit = self.client.get(f"/api/content/chapters/?book={book.id}")
+        self.assertEqual(public_after_submit.status_code, 200)
+        self.assertEqual(public_after_submit.data["count"], 0)
+
+        self.client.force_authenticate(self.redactor)
+        after = self.client.get("/api/content/chapters/?status=draft")
+        self.assertEqual(after.status_code, 200)
+        self.assertEqual(after.data["count"], 1)
+
+        review_response = self.client.post(
+            f"/api/content/chapters/{chapter.id}/review/",
+            {"status": "approved"},
+            format="json",
+        )
+        self.assertEqual(review_response.status_code, 200)
+
+        chapter.refresh_from_db()
+        self.assertEqual(chapter.status, StatusChoices.APPROVED)
+        self.assertFalse(chapter.is_submitted_for_review)
+
+        self.client.force_authenticate(None)
+        public_after_approval = self.client.get(f"/api/content/chapters/?book={book.id}")
+        self.assertEqual(public_after_approval.status_code, 200)
+        self.assertEqual(public_after_approval.data["count"], 1)
+
+    def test_chapter_publish_submits_whole_book_when_nothing_is_approved(self):
+        draft_book = Book.objects.create(
+            author=self.writer,
+            title="Draft parent book",
+            status=StatusChoices.DRAFT,
+            is_submitted_for_review=False,
+        )
+        first_chapter = Chapter.objects.create(
+            book=draft_book,
+            title="Draft chapter 1",
+            order=1,
+            body="Text",
+            status=StatusChoices.DRAFT,
+            is_submitted_for_review=False,
+        )
+        second_chapter = Chapter.objects.create(
+            book=draft_book,
+            title="Draft chapter 2",
+            order=2,
+            body="Text",
+            status=StatusChoices.DRAFT,
+            is_submitted_for_review=False,
+        )
+
+        self.client.force_authenticate(self.writer)
+        submit_response = self.client.post(f"/api/content/chapters/{first_chapter.id}/submit/")
+        self.assertEqual(submit_response.status_code, 200)
+
+        draft_book.refresh_from_db()
+        first_chapter.refresh_from_db()
+        second_chapter.refresh_from_db()
+
+        self.assertTrue(draft_book.is_submitted_for_review)
+        self.assertTrue(first_chapter.is_submitted_for_review)
+        self.assertTrue(second_chapter.is_submitted_for_review)
+
+    def test_chapter_publish_submits_only_target_when_book_has_approved_items(self):
+        book = Book.objects.create(
+            author=self.writer,
+            title="Book with approved chapter",
+            status=StatusChoices.DRAFT,
+            is_submitted_for_review=False,
+        )
+        Chapter.objects.create(
+            book=book,
+            title="Approved chapter",
+            order=1,
+            body="Approved",
+            status=StatusChoices.APPROVED,
+            is_submitted_for_review=False,
+        )
+        target_chapter = Chapter.objects.create(
+            book=book,
+            title="Target draft chapter",
+            order=2,
+            body="Draft",
+            status=StatusChoices.DRAFT,
+            is_submitted_for_review=False,
+        )
+        untouched_chapter = Chapter.objects.create(
+            book=book,
+            title="Other draft chapter",
+            order=3,
+            body="Draft",
+            status=StatusChoices.DRAFT,
+            is_submitted_for_review=False,
+        )
+
+        self.client.force_authenticate(self.writer)
+        submit_response = self.client.post(f"/api/content/chapters/{target_chapter.id}/submit/")
+        self.assertEqual(submit_response.status_code, 200)
+
+        book.refresh_from_db()
+        target_chapter.refresh_from_db()
+        untouched_chapter.refresh_from_db()
+
+        self.assertFalse(book.is_submitted_for_review)
+        self.assertTrue(target_chapter.is_submitted_for_review)
+        self.assertFalse(untouched_chapter.is_submitted_for_review)
+
+    def test_saved_or_submitted_draft_is_not_public_before_approval(self):
+        story = Story.objects.create(
+            author=self.writer,
+            title="Hidden draft story",
+            body="Only draft",
+            status=StatusChoices.DRAFT,
+            is_submitted_for_review=False,
+        )
+
+        self.client.force_authenticate(None)
+        public_before_submit = self.client.get("/api/content/stories/")
+        self.assertEqual(public_before_submit.status_code, 200)
+        self.assertEqual(public_before_submit.data["count"], 0)
+
+        self.client.force_authenticate(self.writer)
+        submit_response = self.client.post(f"/api/content/stories/{story.id}/submit/")
+        self.assertEqual(submit_response.status_code, 200)
+
+        self.client.force_authenticate(None)
+        public_after_submit = self.client.get("/api/content/stories/")
+        self.assertEqual(public_after_submit.status_code, 200)
+        self.assertEqual(public_after_submit.data["count"], 0)
+
+        self.client.force_authenticate(self.redactor)
+        review_response = self.client.post(
+            f"/api/content/stories/{story.id}/review/",
+            {"status": "approved"},
+            format="json",
+        )
+        self.assertEqual(review_response.status_code, 200)
+
+        self.client.force_authenticate(None)
+        public_after_approval = self.client.get("/api/content/stories/")
+        self.assertEqual(public_after_approval.status_code, 200)
+        self.assertEqual(public_after_approval.data["count"], 1)
+
+    def test_saving_book_does_not_submit_without_publish(self):
+        book = Book.objects.create(
+            author=self.writer,
+            title="Save-only draft book",
+            status=StatusChoices.DRAFT,
+            is_submitted_for_review=False,
+        )
+
+        self.client.force_authenticate(self.writer)
+        save_response = self.client.patch(
+            f"/api/content/books/{book.id}/",
+            {"title": "Updated draft title"},
+            format="json",
+        )
+        self.assertEqual(save_response.status_code, 200)
+        self.assertFalse(save_response.data["is_submitted_for_review"])
+
+        book.refresh_from_db()
+        self.assertFalse(book.is_submitted_for_review)
+
+        self.client.force_authenticate(self.redactor)
+        redactor_queue = self.client.get("/api/content/books/?status=draft")
+        self.assertEqual(redactor_queue.status_code, 200)
+        self.assertEqual(redactor_queue.data["count"], 0)
+
+    def test_saving_chapter_does_not_submit_without_publish(self):
+        book = Book.objects.create(
+            author=self.writer,
+            title="Approved parent for chapter save",
+            status=StatusChoices.APPROVED,
+            is_submitted_for_review=False,
+        )
+        chapter = Chapter.objects.create(
+            book=book,
+            title="Unsynced chapter draft",
+            order=1,
+            body="Draft body",
+            status=StatusChoices.DRAFT,
+            is_submitted_for_review=False,
+        )
+
+        self.client.force_authenticate(self.writer)
+        save_response = self.client.patch(
+            f"/api/content/chapters/{chapter.id}/",
+            {"body": "Updated draft body"},
+            format="json",
+        )
+        self.assertEqual(save_response.status_code, 200)
+        self.assertFalse(save_response.data["is_submitted_for_review"])
+
+        chapter.refresh_from_db()
+        self.assertFalse(chapter.is_submitted_for_review)
+
+        self.client.force_authenticate(self.redactor)
+        redactor_queue = self.client.get("/api/content/chapters/?status=draft")
+        self.assertEqual(redactor_queue.status_code, 200)
+        self.assertEqual(redactor_queue.data["count"], 0)
+
+
+class UploadProcessingTests(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.writer = User.objects.create_user(
+            username="upload_writer",
+            email="upload_writer@example.com",
+            password="Test1234!",
+        )
+
+    def test_split_text_into_chapters_detects_multiple_heading_styles(self):
+        text = (
+            "Chapter 1: Dawn\n"
+            "First chapter body line.\n\n"
+            "თავი 2 - გაგრძელება\n"
+            "Second chapter body line.\n"
+        )
+        chapters = split_text_into_chapters(text)
+
+        self.assertEqual(len(chapters), 2)
+        self.assertEqual(chapters[0].title, "Chapter 1: Dawn")
+        self.assertEqual(chapters[1].title, "თავი 2 - გაგრძელება")
+        self.assertIn("<p>First chapter body line.</p>", chapters[0].body_html)
+        self.assertIn("<p>Second chapter body line.</p>", chapters[1].body_html)
+
+    def test_split_text_into_chapters_treats_single_dot_bullet_as_separator(self):
+        text = (
+            "Chapter 1\n"
+            "Alpha body.\n\n"
+            "●\n"
+            "Beta body.\n"
+        )
+        chapters = split_text_into_chapters(text)
+
+        self.assertEqual(len(chapters), 2)
+        self.assertEqual(chapters[0].title, "Chapter 1")
+        self.assertEqual(chapters[1].title, "●")
+        self.assertIn("<p>Alpha body.</p>", chapters[0].body_html)
+        self.assertIn("<p>Beta body.</p>", chapters[1].body_html)
+
+    def test_split_text_into_chapters_treats_single_hyphen_as_separator(self):
+        text = (
+            "Chapter 1\n"
+            "Alpha body.\n\n"
+            "-\n"
+            "Beta body.\n"
+        )
+        chapters = split_text_into_chapters(text)
+
+        self.assertEqual(len(chapters), 2)
+        self.assertEqual(chapters[0].title, "Chapter 1")
+        self.assertEqual(chapters[1].title, "-")
+        self.assertIn("<p>Alpha body.</p>", chapters[0].body_html)
+        self.assertIn("<p>Beta body.</p>", chapters[1].body_html)
+
+    def test_split_text_without_headings_does_not_use_sentence_as_title(self):
+        text = (
+            "This is a long body sentence that should never become a chapter title.\n"
+            "Another body sentence follows.\n"
+        )
+        chapters = split_text_into_chapters(text)
+
+        self.assertEqual(len(chapters), 1)
+        self.assertEqual(chapters[0].title, "Chapter 1")
+        self.assertIn("This is a long body sentence", chapters[0].body_html)
+
+    def test_split_text_repairs_mojibake_dash_separator(self):
+        # "â€”" is mojibake for an em dash.
+        mojibake_em_dash = "\u00e2\u20ac\u201d"
+        text = (
+            "Chapter 1\n"
+            "Alpha body.\n\n"
+            f"{mojibake_em_dash}{mojibake_em_dash}{mojibake_em_dash}\n"
+            "Beta body.\n"
+        )
+        chapters = split_text_into_chapters(text)
+
+        self.assertEqual(len(chapters), 2)
+        self.assertEqual(chapters[0].title, "Chapter 1")
+        self.assertEqual(chapters[1].title, "———")
+        self.assertIn("<p>Alpha body.</p>", chapters[0].body_html)
+        self.assertIn("<p>Beta body.</p>", chapters[1].body_html)
+
+    def test_split_text_normalizes_leading_cyrillic_g_dialog_marker(self):
+        text = (
+            "г ჯემალ, სკრიპკა!\n"
+            "г იანგული, ლაწირაკო!\n"
+        )
+        chapters = split_text_into_chapters(text)
+
+        self.assertEqual(len(chapters), 1)
+        self.assertEqual(chapters[0].title, "Chapter 1")
+        self.assertIn("- ჯემალ, სკრიპკა!", chapters[0].body_html)
+        self.assertIn("- იანგული, ლაწირაკო!", chapters[0].body_html)
+
+    def test_split_text_normalizes_inline_cyrillic_g_dash_variants(self):
+        text = (
+            "\u10d2\u10d0\u10db\u10d0\u10e0\u10ef\u10dd\u10d1\u10d0! \u0433 \u10db\u10d8\u10d7\u10ee\u10e0\u10d0 \u10db\u10d0\u10dc.\n"
+            "\u10dd\u10e0 \u0433\u10e1\u10d0\u10db \u10d1\u10d8\u10ed\u10e1 \u10d4\u10e0\u10d7\u10d0\u10d3 \u10d2\u10d0\u10d0\u10e1\u10d8\u10da\u10d0\u10e5\u10d4\u10d1\u10d3\u10d0.\n"
+            "\u10d6\u10d0\u10db\u10d7\u10d0\u10e0 \u0433\n"
+            "\u10d6\u10d0\u10e4\u10ee\u10e3\u10da \u10e1\u10d8\u10d7\u10d1\u10dd \u10d8\u10e7\u10dd.\n"
+        )
+        chapters = split_text_into_chapters(text)
+
+        self.assertEqual(len(chapters), 1)
+        self.assertIn("! - \u10db\u10d8\u10d7\u10ee\u10e0\u10d0", chapters[0].body_html)
+        self.assertIn("\u10dd\u10e0-\u10e1\u10d0\u10db", chapters[0].body_html)
+        self.assertIn("\u10d6\u10d0\u10db\u10d7\u10d0\u10e0-<br />\u10d6\u10d0\u10e4\u10ee\u10e3\u10da", chapters[0].body_html)
+
+    def test_split_text_keeps_cyrillic_words_intact_when_normalizing_dash_markers(self):
+        text = (
+            "\u0433 \u041e\u0442\u0440\u0430\u0432\u0438\u043b!\n"
+            "\u041c\u0438\u043b\u044b\u0435 \u043c\u043e\u0438, \u0437\u043e\u043b\u043e\u0442\u044b\u0435, \u043d\u0435\u043d\u0430\u0433\u043b\u044f\u0434\u043d\u044b\u0435.\n"
+        )
+        chapters = split_text_into_chapters(text)
+
+        self.assertEqual(len(chapters), 1)
+        self.assertIn("- \u041e\u0442\u0440\u0430\u0432\u0438\u043b!", chapters[0].body_html)
+        self.assertIn(
+            "\u0437\u043e\u043b\u043e\u0442\u044b\u0435, \u043d\u0435\u043d\u0430\u0433\u043b\u044f\u0434\u043d\u044b\u0435.",
+            chapters[0].body_html,
+        )
+
+    def test_process_book_upload_creates_draft_chapters_with_separator_titles(self):
+        upload = SimpleUploadedFile(
+            "upload-book.txt",
+            (
+                "Chapter 1: Beginning\n"
+                "Alpha text.\n\n"
+                "Chapter 2: Turning Point\n"
+                "Beta text.\n"
+            ).encode("utf-8"),
+            content_type="text/plain",
+        )
+        book = Book.objects.create(
+            author=self.writer,
+            title="Imported Book",
+            source_type=SourceType.UPLOAD,
+            upload_file=upload,
+            upload_processing_status=UploadProcessingStatus.IDLE,
+        )
+
+        process_book_upload(book.id, expected_upload_name=book.upload_file.name)
+
+        book.refresh_from_db()
+        chapters = list(book.chapters.order_by("order"))
+
+        self.assertEqual(book.upload_processing_status, UploadProcessingStatus.DONE)
+        self.assertEqual(book.upload_processing_error, "")
+        self.assertEqual(len(chapters), 2)
+        self.assertEqual(chapters[0].title, "Chapter 1: Beginning")
+        self.assertEqual(chapters[1].title, "Chapter 2: Turning Point")
+        self.assertEqual(chapters[0].status, StatusChoices.DRAFT)
+        self.assertFalse(chapters[0].is_submitted_for_review)

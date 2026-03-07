@@ -3,11 +3,13 @@ from html import unescape
 
 import bleach
 from bleach.css_sanitizer import CSSSanitizer
+from django.db import transaction
 from rest_framework import serializers
 
 from accounts.utils import is_admin_user
 from .file_extract import extract_text_from_upload
-from .models import Book, Chapter, Poem, SourceType, StatusChoices, Story
+from .models import Book, Chapter, Poem, SourceType, StatusChoices, Story, UploadProcessingStatus
+from .upload_processing import queue_book_upload_processing
 
 
 ALLOWED_UPLOAD_EXTENSIONS = {".pdf", ".doc", ".docx", ".txt"}
@@ -223,6 +225,7 @@ class StorySerializer(ContentValidationMixin):
             "author_key",
             "author_id",
             "status",
+            "is_submitted_for_review",
             "rejection_reason",
             "is_deleted",
             "deleted_at",
@@ -237,6 +240,7 @@ class StorySerializer(ContentValidationMixin):
             "author_key",
             "author_id",
             "status",
+            "is_submitted_for_review",
             "rejection_reason",
             "is_deleted",
             "deleted_at",
@@ -310,6 +314,7 @@ class PoemSerializer(ContentValidationMixin):
             "author_key",
             "author_id",
             "status",
+            "is_submitted_for_review",
             "rejection_reason",
             "is_deleted",
             "deleted_at",
@@ -324,6 +329,7 @@ class PoemSerializer(ContentValidationMixin):
             "author_key",
             "author_id",
             "status",
+            "is_submitted_for_review",
             "rejection_reason",
             "is_deleted",
             "deleted_at",
@@ -374,23 +380,27 @@ class PoemSerializer(ContentValidationMixin):
 
 class ChapterSerializer(serializers.ModelSerializer):
     auto_label = serializers.ReadOnlyField()
+    book_status = serializers.ReadOnlyField(source="book.status")
 
     class Meta:
         model = Chapter
         fields = [
             "id",
             "book",
+            "book_status",
             "title",
             "order",
             "body",
             "auto_label",
             "status",
+            "is_submitted_for_review",
             "rejection_reason",
             "created_at",
             "updated_at",
         ]
         read_only_fields = [
             "status",
+            "is_submitted_for_review",
             "rejection_reason",
             "created_at",
             "updated_at",
@@ -438,6 +448,9 @@ class BookSerializer(ContentValidationMixin):
             "numbering_style",
             "source_type",
             "upload_file",
+            "upload_processing_status",
+            "upload_processing_error",
+            "upload_processed_at",
             "cover_image",
             "extracted_text",
             "author_username",
@@ -445,6 +458,7 @@ class BookSerializer(ContentValidationMixin):
             "author_key",
             "author_id",
             "status",
+            "is_submitted_for_review",
             "rejection_reason",
             "is_deleted",
             "deleted_at",
@@ -457,11 +471,15 @@ class BookSerializer(ContentValidationMixin):
         read_only_fields = [
             "public_slug",
             "extracted_text",
+            "upload_processing_status",
+            "upload_processing_error",
+            "upload_processed_at",
             "author_username",
             "author_name",
             "author_key",
             "author_id",
             "status",
+            "is_submitted_for_review",
             "rejection_reason",
             "is_deleted",
             "deleted_at",
@@ -516,6 +534,33 @@ class BookSerializer(ContentValidationMixin):
     def validate_afterword(self, value):
         return sanitize_rich_html(value)
 
+    def _reset_upload_processing_state(self, book: Book):
+        changed_fields = []
+        if book.upload_processing_status != UploadProcessingStatus.IDLE:
+            book.upload_processing_status = UploadProcessingStatus.IDLE
+            changed_fields.append("upload_processing_status")
+        if book.upload_processing_error:
+            book.upload_processing_error = ""
+            changed_fields.append("upload_processing_error")
+        if book.upload_processed_at is not None:
+            book.upload_processed_at = None
+            changed_fields.append("upload_processed_at")
+        if changed_fields:
+            book.save(update_fields=[*changed_fields, "updated_at"])
+
+    def _schedule_upload_processing(self, book: Book):
+        if book.source_type != SourceType.UPLOAD or not book.upload_file:
+            self._reset_upload_processing_state(book)
+            return
+
+        if book.upload_processing_status != UploadProcessingStatus.PROCESSING or book.upload_processing_error:
+            book.upload_processing_status = UploadProcessingStatus.PROCESSING
+            book.upload_processing_error = ""
+            book.save(update_fields=["upload_processing_status", "upload_processing_error", "updated_at"])
+
+        upload_name = book.upload_file.name
+        transaction.on_commit(lambda: queue_book_upload_processing(book.id, expected_upload_name=upload_name))
+
     def create(self, validated_data):
         request = self.context.get("request")
         author = request.user
@@ -527,12 +572,22 @@ class BookSerializer(ContentValidationMixin):
             chapter_data.setdefault("order", index)
             Chapter.objects.create(book=book, **chapter_data)
 
-        self._sync_extracted_text(book)
+        if book.source_type == SourceType.UPLOAD and book.upload_file:
+            self._schedule_upload_processing(book)
+        else:
+            self._sync_extracted_text(book)
+            self._reset_upload_processing_state(book)
         return book
 
     def update(self, instance, validated_data):
+        upload_file_changed = bool(validated_data.get("upload_file"))
         instance = super().update(instance, validated_data)
-        self._sync_extracted_text(instance)
+        if instance.source_type == SourceType.UPLOAD and instance.upload_file:
+            if upload_file_changed:
+                self._schedule_upload_processing(instance)
+        else:
+            self._sync_extracted_text(instance)
+            self._reset_upload_processing_state(instance)
         return instance
 
 

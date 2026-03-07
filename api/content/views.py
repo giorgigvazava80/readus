@@ -72,6 +72,10 @@ def _public_cache_key(prefix: str, path: str) -> str:
     return f"{prefix}:v{version}:{path_hash}"
 
 
+def _is_review_staff(user) -> bool:
+    return bool(user and user.is_authenticated and (can_manage_content(user) or can_review_content(user)))
+
+
 def _public_content_base_q() -> Q:
     return Q(status=StatusChoices.APPROVED, is_hidden=False, is_deleted=False)
 
@@ -412,7 +416,117 @@ class ReviewActionMixin:
         return Response({"status": "updated"})
 
 
-class AuthorContentViewSet(ReviewActionMixin, viewsets.ModelViewSet):
+class SubmitActionMixin:
+    _submit_update_fields = [
+        "status",
+        "rejection_reason",
+        "is_submitted_for_review",
+        "status_changed_at",
+        "status_changed_by",
+        "updated_at",
+    ]
+
+    def _mark_submitted_for_review(self, *, obj, actor, request, description: str, metadata: dict | None = None):
+        previous_status = obj.status
+        obj.status = StatusChoices.DRAFT
+        obj.rejection_reason = ""
+        obj.is_submitted_for_review = True
+        obj.status_changed_at = timezone.now()
+        obj.status_changed_by = actor
+        obj.save(update_fields=self._submit_update_fields)
+
+        create_audit_log(
+            actor=actor,
+            action="content_submitted",
+            target_type=obj.__class__.__name__.lower(),
+            target_id=obj.id,
+            description=description,
+            metadata={
+                "old_status": previous_status,
+                "new_status": obj.status,
+                "is_submitted_for_review": True,
+                **(metadata or {}),
+            },
+            request=request,
+        )
+
+    @action(
+        detail=True,
+        methods=["post"],
+        permission_classes=[permissions.IsAuthenticated, PasswordChangeNotForced, IsApprovedWriterOrReadOnly],
+    )
+    def submit(self, request, pk=None):
+        obj = self.get_object()
+        self.check_object_permissions(request, obj)
+
+        if getattr(obj, "is_deleted", False):
+            return Response({"detail": "Deleted content cannot be submitted."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if obj.status == StatusChoices.APPROVED:
+            return Response(
+                {"detail": "Approved content does not need submission."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if obj.is_submitted_for_review:
+            return Response({"detail": "This item is already submitted for review."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if isinstance(obj, Chapter):
+            book = obj.book
+            has_approved_in_book = (
+                book.status == StatusChoices.APPROVED
+                or book.chapters.filter(status=StatusChoices.APPROVED).exists()
+            )
+
+            # First submission from a completely unapproved book sends the whole package.
+            if not has_approved_in_book:
+                submitted_any = False
+
+                if book.status != StatusChoices.APPROVED and not book.is_submitted_for_review:
+                    self._mark_submitted_for_review(
+                        obj=book,
+                        actor=request.user,
+                        request=request,
+                        description="Book submitted via chapter publish",
+                        metadata={"submission_mode": "chapter_full_book"},
+                    )
+                    submitted_any = True
+
+                chapters_to_submit = book.chapters.exclude(status=StatusChoices.APPROVED).filter(
+                    is_submitted_for_review=False
+                )
+                for chapter in chapters_to_submit:
+                    self._mark_submitted_for_review(
+                        obj=chapter,
+                        actor=request.user,
+                        request=request,
+                        description="Chapter submitted via chapter publish",
+                        metadata={"book_id": book.id, "submission_mode": "chapter_full_book"},
+                    )
+                    submitted_any = True
+
+                if not submitted_any:
+                    return Response(
+                        {"detail": "No draft content available to submit."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                obj.refresh_from_db()
+                serializer = self.get_serializer(obj)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+        self._mark_submitted_for_review(
+            obj=obj,
+            actor=request.user,
+            request=request,
+            description="Content explicitly submitted for review",
+        )
+
+        serializer = self.get_serializer(obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AuthorContentViewSet(SubmitActionMixin, ReviewActionMixin, viewsets.ModelViewSet):
     permission_classes = [IsApprovedWriterOrReadOnly]
 
     def _can_use_public_cache(self, request):
@@ -491,7 +605,7 @@ class AuthorContentViewSet(ReviewActionMixin, viewsets.ModelViewSet):
             if not user.is_authenticated:
                 return queryset.none()
             queryset = queryset.filter(is_deleted=True)
-            if mine or not (can_manage_content(user) or can_review_content(user)):
+            if mine or not _is_review_staff(user):
                 queryset = queryset.filter(author=user)
         else:
             if mine:
@@ -501,8 +615,11 @@ class AuthorContentViewSet(ReviewActionMixin, viewsets.ModelViewSet):
             else:
                 if not user.is_authenticated:
                     queryset = queryset.filter(status=StatusChoices.APPROVED, is_hidden=False)
-                elif not (can_manage_content(user) or can_review_content(user)):
+                elif not _is_review_staff(user):
                     queryset = queryset.filter(Q(status=StatusChoices.APPROVED, is_hidden=False) | Q(author=user))
+
+        if not mine and _is_review_staff(user):
+            queryset = queryset.exclude(status=StatusChoices.DRAFT, is_submitted_for_review=False)
 
         if status_filter:
             queryset = queryset.filter(status=status_filter)
@@ -528,11 +645,11 @@ class AuthorContentViewSet(ReviewActionMixin, viewsets.ModelViewSet):
         obj = serializer.save()
         create_audit_log(
             actor=self.request.user,
-            action="content_submitted",
+            action="content_created",
             target_type=obj.__class__.__name__.lower(),
             target_id=obj.id,
-            description="Content submitted for review",
-            metadata={"status": obj.status},
+            description="Content draft created",
+            metadata={"status": obj.status, "is_submitted_for_review": obj.is_submitted_for_review},
             request=self.request,
         )
         _bump_public_cache_version()
@@ -658,18 +775,19 @@ class BookViewSet(AuthorContentViewSet):
         status_filter = request.query_params.get("status", "").strip()
 
         # Custom logic for redactors viewing the review queue
-        if not mine and (can_manage_content(user) or can_review_content(user)):
+        if not mine and _is_review_staff(user):
             if status_filter == StatusChoices.DRAFT:
                 # Include books in draft state OR books with at least one draft chapter
                 queryset = Book.objects.filter(
-                    Q(status=StatusChoices.DRAFT) | Q(chapters__status=StatusChoices.DRAFT),
+                    Q(status=StatusChoices.DRAFT, is_submitted_for_review=True)
+                    | Q(chapters__status=StatusChoices.DRAFT, chapters__is_submitted_for_review=True),
                     is_deleted=False,
                 ).select_related("author").prefetch_related("chapters").distinct()
 
         return queryset.order_by("-created_at")
 
 
-class ChapterViewSet(ReviewActionMixin, viewsets.ModelViewSet):
+class ChapterViewSet(SubmitActionMixin, ReviewActionMixin, viewsets.ModelViewSet):
     queryset = Chapter.objects.select_related("book", "book__author")
     serializer_class = ChapterSerializer
     permission_classes = [IsApprovedWriterOrReadOnly]
@@ -700,11 +818,14 @@ class ChapterViewSet(ReviewActionMixin, viewsets.ModelViewSet):
                     book__status=StatusChoices.APPROVED,
                     book__is_hidden=False
                 )
-            elif not (can_manage_content(user) or can_review_content(user)):
+            elif not _is_review_staff(user):
                 queryset = queryset.filter(
                     (Q(status=StatusChoices.APPROVED, book__status=StatusChoices.APPROVED, book__is_hidden=False))
                     | Q(book__author=user)
                 )
+
+        if not mine and _is_review_staff(user):
+            queryset = queryset.exclude(status=StatusChoices.DRAFT, is_submitted_for_review=False)
 
         if status_filter:
             queryset = queryset.filter(status=status_filter)
@@ -730,11 +851,15 @@ class ChapterViewSet(ReviewActionMixin, viewsets.ModelViewSet):
         chapter = serializer.save()
         create_audit_log(
             actor=user,
-            action="content_submitted",
+            action="content_created",
             target_type="chapter",
             target_id=chapter.id,
-            description="Chapter submitted for review",
-            metadata={"book_id": book.id, "status": chapter.status},
+            description="Chapter draft created",
+            metadata={
+                "book_id": book.id,
+                "status": chapter.status,
+                "is_submitted_for_review": chapter.is_submitted_for_review,
+            },
             request=self.request,
         )
         _bump_public_cache_version()

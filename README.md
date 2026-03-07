@@ -91,33 +91,11 @@ First login requires password change. After changing password, privileged endpoi
 - `BOOTSTRAP_ROOT`, `BOOTSTRAP_FORCE_PASSWORD_CHANGE`, `BOOTSTRAP_ROOT_RESET_PASSWORD`
 - `THROTTLE_ANON`, `THROTTLE_USER`
 - `EMAIL_SEND_ASYNC` (set `1` in production so signup does not wait on SMTP)
+- `CONTENT_UPLOAD_ASYNC` (`0` for reliable inline upload analysis on hosted testing, `1` for in-process background threads)
 - `SOCIAL_AUTH_GOOGLE_CALLBACK_URL`, `SOCIAL_AUTH_FACEBOOK_CALLBACK_URL` (for OAuth code flow)
 - `SERVE_MEDIA` (set `1` to serve uploaded media files like cover images from Django in hosted testing)
 - `MEDIA_ROOT` and `MEDIA_URL` (where uploaded files are stored and served from)
 - `CACHE_URL`, `CACHE_KEY_PREFIX`, `CACHE_DEFAULT_TIMEOUT`, `CACHE_TTL_PUBLIC_LIST`, `CACHE_TTL_PUBLIC_DETAIL`
-
-## Auto Seed on Docker Startup
-
-`api/entrypoint.sh` now supports automatic seed data creation on startup (after migrations and root bootstrap).
-
-- Enabled by default for testing/staging via `AUTO_SEED_ON_START=1`
-- Runs in background by default via `AUTO_SEED_ASYNC=1` so API health checks can pass first
-- Safe for restarts by default via `AUTO_SEED_ONLY_IF_EMPTY=1` (skips if `seed_reader_*` or `seed_writer_*` users already exist)
-- Protects real data by default via `AUTO_SEED_ONLY_ON_EMPTY_DATA=1` (skips when non-seed users/content already exist)
-- Uses DB advisory lock (`SEED_LOCK_ID`) to prevent multiple instances from seeding at the same time
-
-Tune scale with:
-
-- `SEED_READERS`, `SEED_WRITERS`
-- `SEED_READER_START_INDEX`, `SEED_WRITER_START_INDEX` (use high indexes to avoid low-id seed naming ranges)
-- `SEED_STORIES_PER_WRITER`, `SEED_POEMS_PER_WRITER`, `SEED_BOOKS_PER_WRITER`, `SEED_CHAPTERS_PER_BOOK`
-- `SEED_FOLLOWS_PER_READER`, `SEED_LIKES_PER_READER`, `SEED_COMMENTS_PER_READER`, `SEED_PROGRESS_PER_READER`
-- `SEED_READER_PASSWORD`, `SEED_WRITER_PASSWORD`
-- `SEED_RESET_BEFORE_RUN=1` to delete previous seed users/content before re-seeding
-
-For very low-resource plans, keep the defaults from `.env.example`.
-Set `AUTO_SEED_ON_START=0` to disable automatic seeding.
-Set `AUTO_SEED_ASYNC=0` to run seeding synchronously (blocking startup).
 
 ## Google OAuth Checklist
 

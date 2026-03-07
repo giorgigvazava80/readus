@@ -1522,12 +1522,8 @@ function resolveInitialLanguage(): AppLanguage {
     // Ignore storage errors and continue with fallback logic.
   }
 
-  const browser = window.navigator.language.toLowerCase();
-  if (browser.startsWith("ka")) {
-    return "ka";
-  }
-
-  return "en";
+  // First visit default should always be Georgian.
+  return "ka";
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
