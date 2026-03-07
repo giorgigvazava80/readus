@@ -55,8 +55,6 @@ services:
         value: "1"
       - key: CONTENT_UPLOAD_ASYNC
         value: "0"
-      - key: CONTENT_UPLOAD_STORAGE
-        value: auto
       - key: EMAIL_TIMEOUT
         value: "10"
       - key: RUN_COLLECTSTATIC
