@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useI18n } from "@/i18n";
 import { authorProfilePath, resolveAuthorKey } from "@/lib/authors";
+import { formatChapterTitleForDisplay } from "@/lib/content";
 import { fetchContentDetail, fetchMyContinueReading, saveReadingProgress, saveReadingProgressKeepalive, trackContentView } from "@/lib/api";
 import { getStoredReadingFontSize, readingFontSizeClassByPreference, setStoredReadingFontSize, type ReadingFontSize } from "@/lib/fontSize";
 import { useReadChapters } from "@/hooks/useReadChapters";
@@ -213,7 +214,13 @@ const ReaderBookDetailPage = () => {
             {chapters.length ? (
               chapters.map((chapter) => (
                 <Link key={chapter.id} to={`/books/${canonicalIdentifier}/chapters/${chapter.id}`} className="flex justify-between items-center rounded-lg border border-border/60 bg-background/65 px-3 py-2 font-ui text-sm text-foreground transition-colors hover:border-primary/40 hover:text-primary">
-                  <span>{chapter.title || t("reader.chapterUntitled", "Chapter {number}").replace("{number}", String(chapter.auto_label || chapter.order))}</span>
+                  <span>
+                    {formatChapterTitleForDisplay(
+                      chapter.title,
+                      chapter.auto_label || chapter.order,
+                      t("reader.chapterUntitled", "Chapter {number}"),
+                    )}
+                  </span>
                   {!isRead(chapter.id) && (
                     <span className="flex-shrink-0 ml-2 rounded-full px-1.5 py-0.5 text-[10px] uppercase font-bold tracking-wider bg-blue-500/20 text-blue-500">
                       {t("reader.new", "New")}

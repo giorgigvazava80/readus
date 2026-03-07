@@ -1,4 +1,5 @@
 import os
+import re
 from html import unescape
 
 import bleach
@@ -8,7 +9,16 @@ from rest_framework import serializers
 
 from accounts.utils import is_admin_user
 from .file_extract import extract_text_from_upload
-from .models import Book, Chapter, Poem, SourceType, StatusChoices, Story, UploadProcessingStatus
+from .models import (
+    Book,
+    Chapter,
+    ContentLanguageChoices,
+    Poem,
+    SourceType,
+    StatusChoices,
+    Story,
+    UploadProcessingStatus,
+)
 from .upload_processing import queue_book_upload_processing
 
 
@@ -75,19 +85,30 @@ RICH_TEXT_CSS_SANITIZER = CSSSanitizer(allowed_css_properties=ALLOWED_RICH_TEXT_
 
 
 def sanitize_plain_text(value: str) -> str:
-    cleaned = bleach.clean(value or "", tags=[], attributes={}, strip=True).strip()
-    return unescape(cleaned)
+    cleaned = bleach.clean(value or "", tags=[], attributes={}, strip=True)
+    return _normalize_edge_spaces(unescape(cleaned))
 
 
 def sanitize_rich_html(value: str) -> str:
-    return bleach.clean(
+    cleaned = bleach.clean(
         value or "",
         tags=ALLOWED_RICH_TEXT_TAGS,
         attributes=ALLOWED_RICH_TEXT_ATTRIBUTES,
         protocols=["http", "https", "mailto", "data"],
         strip=True,
         css_sanitizer=RICH_TEXT_CSS_SANITIZER,
-    ).strip()
+    )
+    return _normalize_edge_spaces(cleaned)
+
+
+def _normalize_edge_spaces(value: str) -> str:
+    text = (value or "").replace("\u00a0", " ")
+    text = text.strip("\r\n\t")
+    text = re.sub(r"^[ ]{2,}", " ", text)
+    text = re.sub(r"[ ]{2,}$", " ", text)
+    if not text.strip():
+        return ""
+    return text
 
 
 class ContentValidationMixin(serializers.ModelSerializer):
@@ -215,6 +236,7 @@ class StorySerializer(ContentValidationMixin):
             "description",
             "is_anonymous",
             "is_hidden",
+            "content_language",
             "body",
             "source_type",
             "upload_file",
@@ -232,6 +254,11 @@ class StorySerializer(ContentValidationMixin):
             "created_at",
             "updated_at",
         ]
+        extra_kwargs = {
+            "title": {"trim_whitespace": False},
+            "description": {"trim_whitespace": False},
+            "body": {"trim_whitespace": False},
+        }
         read_only_fields = [
             "public_slug",
             "extracted_text",
@@ -304,6 +331,7 @@ class PoemSerializer(ContentValidationMixin):
             "description",
             "is_anonymous",
             "is_hidden",
+            "content_language",
             "body",
             "source_type",
             "upload_file",
@@ -321,6 +349,11 @@ class PoemSerializer(ContentValidationMixin):
             "created_at",
             "updated_at",
         ]
+        extra_kwargs = {
+            "title": {"trim_whitespace": False},
+            "description": {"trim_whitespace": False},
+            "body": {"trim_whitespace": False},
+        }
         read_only_fields = [
             "public_slug",
             "extracted_text",
@@ -398,6 +431,10 @@ class ChapterSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+        extra_kwargs = {
+            "title": {"trim_whitespace": False},
+            "body": {"trim_whitespace": False},
+        }
         read_only_fields = [
             "status",
             "is_submitted_for_review",
@@ -417,6 +454,10 @@ class BookChapterCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter
         fields = ["title", "order", "body"]
+        extra_kwargs = {
+            "title": {"trim_whitespace": False},
+            "body": {"trim_whitespace": False},
+        }
 
     def validate_title(self, value):
         return sanitize_plain_text(value)
@@ -443,6 +484,7 @@ class BookSerializer(ContentValidationMixin):
             "description",
             "is_anonymous",
             "is_hidden",
+            "content_language",
             "foreword",
             "afterword",
             "numbering_style",
@@ -468,6 +510,12 @@ class BookSerializer(ContentValidationMixin):
             "has_draft_chapters",
             "new_chapters",
         ]
+        extra_kwargs = {
+            "title": {"trim_whitespace": False},
+            "description": {"trim_whitespace": False},
+            "foreword": {"trim_whitespace": False},
+            "afterword": {"trim_whitespace": False},
+        }
         read_only_fields = [
             "public_slug",
             "extracted_text",
@@ -524,6 +572,12 @@ class BookSerializer(ContentValidationMixin):
 
     def validate_title(self, value):
         return sanitize_plain_text(value)
+
+    def validate_content_language(self, value):
+        normalized = (value or "").strip().lower()
+        if normalized not in ContentLanguageChoices.values:
+            raise serializers.ValidationError("Unsupported content language.")
+        return normalized
 
     def validate_description(self, value):
         return sanitize_rich_html(value)

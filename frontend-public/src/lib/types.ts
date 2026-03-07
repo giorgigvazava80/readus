@@ -14,6 +14,7 @@ export type WriterApplicationStatus = "pending" | "approved" | "rejected" | "can
 export type ContentStatus = "draft" | "approved" | "rejected";
 
 export type ContentCategory = "books" | "chapters" | "poems" | "stories";
+export type ContentLanguage = "en" | "ka";
 
 export interface MeUser {
   id: number;
@@ -82,6 +83,7 @@ export interface ContentItem {
   description: string;
   is_anonymous: boolean;
   is_hidden: boolean;
+  content_language?: ContentLanguage;
   source_type: "manual" | "upload";
   upload_file: string | null;
   upload_processing_status?: "idle" | "processing" | "done" | "failed";

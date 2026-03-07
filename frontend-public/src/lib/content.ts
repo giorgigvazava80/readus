@@ -51,6 +51,26 @@ export function estimateReadTimeFromHtml(
   return template.replace("{minutes}", String(minutes));
 }
 
+const GENERIC_CHAPTER_TITLE_RE = /^chapter\s*:?\s*(\d+)\s*$/i;
+
+export function formatChapterTitleForDisplay(
+  title: string | null | undefined,
+  fallbackNumber: number | string,
+  localizedTemplate: string,
+): string {
+  const cleanedTitle = (title || "").trim();
+  const genericMatch = cleanedTitle.match(GENERIC_CHAPTER_TITLE_RE);
+  const number = genericMatch?.[1] || String(fallbackNumber);
+
+  if (!cleanedTitle || genericMatch) {
+    return localizedTemplate
+      .replace("{number}", number)
+      .replace("{num}", number);
+  }
+
+  return cleanedTitle;
+}
+
 
 
 

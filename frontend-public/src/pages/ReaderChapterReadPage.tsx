@@ -8,6 +8,7 @@ import EngagementPanel from "@/components/engagement/EngagementPanel";
 import ReadingFontSizeControl from "@/components/reader/ReadingFontSizeControl";
 import { Button } from "@/components/ui/button";
 import { fetchContentDetail, fetchMyContinueReading, saveReadingProgress, saveReadingProgressKeepalive, trackContentView } from "@/lib/api";
+import { formatChapterTitleForDisplay } from "@/lib/content";
 import { getStoredReadingFontSize, readingFontSizeClassByPreference, setStoredReadingFontSize, type ReadingFontSize } from "@/lib/fontSize";
 import { cn } from "@/lib/utils";
 import { useReadChapters } from "@/hooks/useReadChapters";
@@ -230,6 +231,11 @@ const ReaderChapterReadPage = () => {
   const canonicalBookIdentifier = (book.public_slug || bookIdentifier).trim();
   const previousChapter = currentIndex > 0 ? chapters[currentIndex - 1] : null;
   const nextChapter = currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : null;
+  const chapterDisplayTitle = formatChapterTitleForDisplay(
+    chapter.title,
+    chapter.auto_label || chapter.order,
+    t("reader.chapterUntitled", "Chapter {number}"),
+  );
   const isLastChapter = !nextChapter;
   const readingWidthClass =
     book.source_type === "upload"
@@ -257,7 +263,7 @@ const ReaderChapterReadPage = () => {
               <div className="flex-1 min-w-0">
                 <p className="font-ui text-xs md:text-sm uppercase tracking-wider text-muted-foreground truncate">{book.title}</p>
                 <h1 className="font-display text-2xl md:text-4xl font-semibold text-foreground truncate">
-                  {chapter.title || t("reader.chapterUntitled", "Chapter {number}").replace("{number}", String(chapter.auto_label || chapter.order))}
+                  {chapterDisplayTitle}
                 </h1>
               </div>
             </div>
@@ -269,7 +275,7 @@ const ReaderChapterReadPage = () => {
           <div className="pt-2">
             <p className="font-ui text-xs text-muted-foreground tracking-wide uppercase">{book.title}</p>
             <h2 className="font-display text-xl sm:text-2xl font-semibold text-foreground mt-0.5">
-              {chapter.title || t("reader.chapterUntitled", "Chapter {number}").replace("{number}", String(chapter.auto_label || chapter.order))}
+              {chapterDisplayTitle}
             </h2>
           </div>
         )}

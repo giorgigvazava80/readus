@@ -131,6 +131,7 @@ export interface BookCreatePayload {
   description?: string;
   foreword?: string;
   afterword?: string;
+  content_language?: "en" | "ka";
   numbering_style?: "arabic" | "roman" | "separator";
   source_type?: "manual" | "upload";
   upload_file?: File | null;
@@ -143,6 +144,7 @@ export interface TextContentPayload {
   title: string;
   description?: string;
   body?: string;
+  content_language?: "en" | "ka";
   source_type?: "manual" | "upload";
   upload_file?: File | null;
   cover_image?: File | null;
@@ -708,6 +710,7 @@ function buildTextContentBody(payload: TextContentPayload): FormData {
   const form = new FormData();
   appendFormValue(form, "title", payload.title);
   appendFormValue(form, "description", payload.description || "");
+  appendFormValue(form, "content_language", payload.content_language || "en");
   appendFormValue(form, "source_type", sourceType);
   if (payload.is_anonymous !== undefined) appendFormValue(form, "is_anonymous", payload.is_anonymous);
   if (sourceType === "upload") {
@@ -728,6 +731,7 @@ function buildBookBody(payload: Partial<BookCreatePayload>): FormData {
   appendFormValue(form, "description", payload.description || "");
   appendFormValue(form, "foreword", payload.foreword || "");
   appendFormValue(form, "afterword", payload.afterword || "");
+  appendFormValue(form, "content_language", payload.content_language || "en");
   appendFormValue(form, "numbering_style", payload.numbering_style || "separator");
   appendFormValue(form, "source_type", sourceType);
   if (payload.is_anonymous !== undefined) appendFormValue(form, "is_anonymous", payload.is_anonymous);
@@ -814,6 +818,7 @@ export async function updateBook(id: number, payload: Partial<BookCreatePayload>
   if (payload.description !== undefined) appendFormValue(form, "description", payload.description);
   if (payload.foreword !== undefined) appendFormValue(form, "foreword", sanitizeEditableHtmlForTransport(payload.foreword));
   if (payload.afterword !== undefined) appendFormValue(form, "afterword", sanitizeEditableHtmlForTransport(payload.afterword));
+  if (payload.content_language !== undefined) appendFormValue(form, "content_language", payload.content_language);
   if (payload.numbering_style !== undefined) appendFormValue(form, "numbering_style", payload.numbering_style);
   if (payload.source_type !== undefined) appendFormValue(form, "source_type", payload.source_type);
   if (payload.is_anonymous !== undefined) appendFormValue(form, "is_anonymous", payload.is_anonymous);
@@ -844,6 +849,7 @@ export async function updatePoem(id: number, payload: Partial<TextContentPayload
   const sourceType = resolveTextSourceType(payload as TextContentPayload);
   if (payload.title !== undefined) appendFormValue(form, "title", payload.title);
   if (payload.description !== undefined) appendFormValue(form, "description", payload.description);
+  if (payload.content_language !== undefined) appendFormValue(form, "content_language", payload.content_language);
   appendFormValue(form, "source_type", sourceType);
   if (payload.is_anonymous !== undefined) appendFormValue(form, "is_anonymous", payload.is_anonymous);
   if (sourceType === "upload") {
@@ -877,6 +883,7 @@ export async function updateStory(id: number, payload: Partial<TextContentPayloa
   const sourceType = resolveTextSourceType(payload as TextContentPayload);
   if (payload.title !== undefined) appendFormValue(form, "title", payload.title);
   if (payload.description !== undefined) appendFormValue(form, "description", payload.description);
+  if (payload.content_language !== undefined) appendFormValue(form, "content_language", payload.content_language);
   appendFormValue(form, "source_type", sourceType);
   if (payload.is_anonymous !== undefined) appendFormValue(form, "is_anonymous", payload.is_anonymous);
   if (sourceType === "upload") {

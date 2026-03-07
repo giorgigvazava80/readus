@@ -17,7 +17,7 @@ from accounts.emailing import send_mail_safe
 from accounts.models import Notification
 from accounts.permissions import PasswordChangeNotForced
 from accounts.utils import can_manage_content, can_review_content, create_audit_log, create_notification
-from content.models import Book, Chapter, Poem, StatusChoices, Story
+from content.models import Book, Chapter, Poem, StatusChoices, Story, build_default_chapter_title
 from content.permissions import CanReviewContent, IsApprovedWriterOrReadOnly
 from content.serializers import (
     BookSerializer,
@@ -850,7 +850,17 @@ class ChapterViewSet(SubmitActionMixin, ReviewActionMixin, viewsets.ModelViewSet
         if book.author_id != user.id and not can_manage_content(user):
             raise PermissionDenied("You can only add chapters to your own books.")
 
-        chapter = serializer.save()
+        raw_title = str(serializer.validated_data.get("title") or "")
+        normalized_title = raw_title.strip()
+        if normalized_title:
+            chapter = serializer.save()
+        else:
+            chapter = serializer.save(
+                title=build_default_chapter_title(
+                    order=serializer.validated_data.get("order", 1),
+                    language=book.content_language,
+                )
+            )
         create_audit_log(
             actor=user,
             action="content_created",

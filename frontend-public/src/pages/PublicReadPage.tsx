@@ -20,6 +20,7 @@ import {
   trackContentView, trackReferralVisit, buildFacebookShareIntent,
 } from "@/lib/api";
 import { authorProfilePath, resolveAuthorKey } from "@/lib/authors";
+import { formatChapterTitleForDisplay } from "@/lib/content";
 import {
   getStoredReadingFontSize, readingFontSizeClassByPreference,
   setStoredReadingFontSize, type ReadingFontSize,
@@ -143,7 +144,11 @@ const PublicReadPage = () => {
     chapters.forEach((ch) => {
       s.push({
         id: `chapter-${ch.id}`,
-        title: ch.title || t("reader.chapterUntitled", "Chapter {number}").replace("{number}", String(ch.auto_label || ch.order)),
+        title: formatChapterTitleForDisplay(
+          ch.title,
+          ch.auto_label || ch.order,
+          t("reader.chapterUntitled", "Chapter {number}"),
+        ),
         html: ch.body || `<p>${t("reader.chapterEmptyText", "This chapter has no text yet.")}</p>`,
       });
     });
@@ -631,13 +636,6 @@ const PublicReadPage = () => {
               <div className="mb-6 h-1.5 w-16 rounded-full bg-primary" />
               <ReadingFontSizeControl value={fontSize} onChange={handleReadingFontSizeChange} />
             </>
-          )}
-
-          {content.upload_file && (
-            <p className="mb-6 text-sm text-muted-foreground">
-              {t("reader.uploadedFile", "Uploaded file:")}{" "}
-              <a className="underline" href={content.upload_file} target="_blank" rel="noreferrer">{t("reader.openFile", "Open file")}</a>
-            </p>
           )}
 
           {/* ── Book content ── */}

@@ -6,6 +6,7 @@ import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { fetchContentDetail, createChapter, deleteChapter, reorderChapters } from "@/lib/api";
+import { formatChapterTitleForDisplay } from "@/lib/content";
 import type { ChapterDetail } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
 
@@ -34,7 +35,7 @@ const WriterBookChaptersPage = () => {
       const nextOrder = chapterList.length + 1;
       return createChapter({
         book: bookId,
-        title: `Chapter ${nextOrder}`,
+        title: "",
         order: nextOrder,
         body: `<p>${t("editor.startChapter")}</p>`,
       });
@@ -150,7 +151,11 @@ const WriterBookChaptersPage = () => {
                 <div>
                   <p className="font-ui text-xs uppercase tracking-wide text-muted-foreground">{t("editor.order")} {chapter.order}</p>
                   <p className="font-display text-xl text-foreground">
-                    {chapter.title || `Chapter ${chapter.auto_label || chapter.order}`}
+                    {formatChapterTitleForDisplay(
+                      chapter.title,
+                      chapter.auto_label || chapter.order,
+                      t("editor.chapterPattern", "Chapter {num}"),
+                    )}
                   </p>
                 </div>
 

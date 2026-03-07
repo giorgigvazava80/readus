@@ -10,7 +10,14 @@ from django.utils import timezone
 
 from .background_jobs import submit_background_job
 from .file_extract import extract_text_from_upload
-from .models import Book, Chapter, SourceType, StatusChoices, UploadProcessingStatus
+from .models import (
+    Book,
+    Chapter,
+    SourceType,
+    StatusChoices,
+    UploadProcessingStatus,
+    build_default_chapter_title,
+)
 
 
 MAX_IMPORTED_CHAPTERS = 300
@@ -91,7 +98,10 @@ def process_book_upload(book_id: int, *, expected_upload_name: str) -> None:
     try:
         extracted = extract_text_from_upload(book.upload_file)
         normalized_text = _normalize_text(extracted)
-        parsed_chapters = split_text_into_chapters(normalized_text)
+        parsed_chapters = split_text_into_chapters(
+            normalized_text,
+            fallback_language=book.content_language,
+        )
     except Exception as exc:
         _set_processing_state(
             book,
@@ -126,7 +136,7 @@ def process_book_upload(book_id: int, *, expected_upload_name: str) -> None:
         )
 
 
-def split_text_into_chapters(raw_text: str) -> list[ParsedChapter]:
+def split_text_into_chapters(raw_text: str, *, fallback_language: str = "en") -> list[ParsedChapter]:
     text = _normalize_text(raw_text)
     if not text:
         return []
@@ -149,7 +159,14 @@ def split_text_into_chapters(raw_text: str) -> list[ParsedChapter]:
                 if _should_drop_leading_preamble(current_lines, results):
                     current_lines = []
                 else:
-                    results.append(_build_parsed_chapter(current_title, current_lines, len(results) + 1))
+                    results.append(
+                        _build_parsed_chapter(
+                            current_title,
+                            current_lines,
+                            len(results) + 1,
+                            fallback_language=fallback_language,
+                        )
+                    )
                 current_lines = []
             current_title = _clean_heading(stripped)
             continue
@@ -159,7 +176,14 @@ def split_text_into_chapters(raw_text: str) -> list[ParsedChapter]:
                 if _should_drop_leading_preamble(current_lines, results):
                     current_lines = []
                 else:
-                    results.append(_build_parsed_chapter(current_title, current_lines, len(results) + 1))
+                    results.append(
+                        _build_parsed_chapter(
+                            current_title,
+                            current_lines,
+                            len(results) + 1,
+                            fallback_language=fallback_language,
+                        )
+                    )
                 current_lines = []
             current_title = _clean_heading(stripped)
             continue
@@ -167,10 +191,17 @@ def split_text_into_chapters(raw_text: str) -> list[ParsedChapter]:
         current_lines.append(line)
 
     if _has_content(current_lines):
-        results.append(_build_parsed_chapter(current_title, current_lines, len(results) + 1))
+        results.append(
+            _build_parsed_chapter(
+                current_title,
+                current_lines,
+                len(results) + 1,
+                fallback_language=fallback_language,
+            )
+        )
 
     if not results:
-        return _fallback_split_without_headings(text)
+        return _fallback_split_without_headings(text, fallback_language=fallback_language)
 
     return results[:MAX_IMPORTED_CHAPTERS]
 
@@ -224,7 +255,7 @@ def _replace_draft_chapters(book: Book, parsed_chapters: list[ParsedChapter], *,
         rows.append(
             Chapter(
                 book=book,
-                title="Imported Chapter 1",
+                title=build_default_chapter_title(next_order, book.content_language),
                 order=next_order,
                 body=_plain_text_to_html(fallback_text),
             )
@@ -234,20 +265,37 @@ def _replace_draft_chapters(book: Book, parsed_chapters: list[ParsedChapter], *,
         Chapter.objects.bulk_create(rows, batch_size=100)
 
 
-def _build_parsed_chapter(title: str, lines: list[str], fallback_order: int) -> ParsedChapter:
+def _build_parsed_chapter(
+    title: str,
+    lines: list[str],
+    fallback_order: int,
+    *,
+    fallback_language: str = "en",
+) -> ParsedChapter:
     text_block = "\n".join(lines).strip()
-    final_title = _resolve_title(title, text_block, fallback_order)
+    final_title = _resolve_title(
+        title,
+        text_block,
+        fallback_order,
+        fallback_language=fallback_language,
+    )
     return ParsedChapter(
         title=final_title,
         body_html=_plain_text_to_html(text_block),
     )
 
 
-def _resolve_title(title: str, text_block: str, fallback_order: int) -> str:
+def _resolve_title(
+    title: str,
+    text_block: str,
+    fallback_order: int,
+    *,
+    fallback_language: str = "en",
+) -> str:
     normalized_title = _clean_heading(title)
     if normalized_title and not _is_numeric_marker_title(normalized_title):
         return normalized_title
-    return f"Chapter {fallback_order}"
+    return build_default_chapter_title(fallback_order, fallback_language)
 
 
 def _normalize_text(value: str) -> str:
@@ -449,11 +497,11 @@ def _plain_text_to_html(text: str) -> str:
     return "".join(html_chunks)
 
 
-def _fallback_split_without_headings(text: str) -> list[ParsedChapter]:
+def _fallback_split_without_headings(text: str, *, fallback_language: str = "en") -> list[ParsedChapter]:
     if len(text) <= FALLBACK_CHAPTER_CHAR_TARGET:
         return [
             ParsedChapter(
-                title="Chapter 1",
+                title=build_default_chapter_title(1, fallback_language),
                 body_html=_plain_text_to_html(text),
             )
         ]
@@ -472,7 +520,7 @@ def _fallback_split_without_headings(text: str) -> list[ParsedChapter]:
             chapter_index = len(results) + 1
             results.append(
                 ParsedChapter(
-                    title=f"Chapter {chapter_index}",
+                    title=build_default_chapter_title(chapter_index, fallback_language),
                     body_html=_plain_text_to_html("\n\n".join(chunk)),
                 )
             )
@@ -486,7 +534,7 @@ def _fallback_split_without_headings(text: str) -> list[ParsedChapter]:
         chapter_index = len(results) + 1
         results.append(
             ParsedChapter(
-                title=f"Chapter {chapter_index}",
+                title=build_default_chapter_title(chapter_index, fallback_language),
                 body_html=_plain_text_to_html("\n\n".join(chunk)),
             )
         )

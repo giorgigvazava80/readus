@@ -23,7 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 
 import { buildFacebookShareIntent, fetchContentDetail, resolveMediaUrl, updateBook, createChapter, updateChapter, deleteChapter, deleteContentItem, submitContentForReview, submitChapterForReview } from "@/lib/api";
-import { CONTENT_STATUS_STYLES } from "@/lib/content";
+import { CONTENT_STATUS_STYLES, formatChapterTitleForDisplay } from "@/lib/content";
 import { useAutosave } from "@/hooks/useAutosave";
 import { toast } from "@/hooks/use-toast";
 
@@ -445,7 +445,12 @@ const WriterBookEditorPage = () => {
   const addChapterMutation = useMutation({
     mutationFn: async () => {
       const order = chapters.length ? Math.max(...chapters.map(c => c.order)) + 1 : 1;
-      return createChapter({ book: bookId, order, title: `Chapter ${order}`, body: "" });
+      return createChapter({
+        book: bookId,
+        order,
+        title: "",
+        body: "",
+      });
     },
     onSuccess: (newChapter: { id: number }) => {
       queryClient.invalidateQueries({ queryKey: ["writer", "book", bookId] });
@@ -567,7 +572,11 @@ const WriterBookEditorPage = () => {
       : []),
     ...chapters.map(ch => ({
       value: ch.id.toString(),
-      label: ch.title || t("editor.chapterPattern", "Chapter {num}").replace("{num}", ch.order.toString()),
+      label: formatChapterTitleForDisplay(
+        ch.title,
+        ch.auto_label || ch.order,
+        t("editor.chapterPattern", "Chapter {num}"),
+      ),
       hint: t("editor.orderPattern", "Order {num}").replace("{num}", ch.order.toString()),
       icon: <AlignLeft className="h-4 w-4 shrink-0" />,
     })),

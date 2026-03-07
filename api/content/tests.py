@@ -9,7 +9,17 @@ from allauth.account.models import EmailAddress
 from accounts.constants import GROUP_REDACTORS
 from accounts.models import RedactorPermission
 from accounts.utils import get_profile
-from content.models import Book, Chapter, Poem, SourceType, StatusChoices, Story, UploadProcessingStatus
+from content.models import (
+    Book,
+    Chapter,
+    ContentLanguageChoices,
+    Poem,
+    SourceType,
+    StatusChoices,
+    Story,
+    UploadProcessingStatus,
+)
+from content.serializers import ChapterSerializer, sanitize_plain_text
 from content.upload_processing import process_book_upload, split_text_into_chapters
 
 
@@ -596,6 +606,50 @@ class SubmissionWorkflowTests(APITestCase):
         self.assertEqual(redactor_queue.status_code, 200)
         self.assertEqual(redactor_queue.data["count"], 0)
 
+    def test_create_chapter_defaults_title_to_georgian_when_book_language_is_georgian(self):
+        book = Book.objects.create(
+            author=self.writer,
+            title="Georgian Book",
+            content_language=ContentLanguageChoices.GEORGIAN,
+            status=StatusChoices.DRAFT,
+        )
+
+        self.client.force_authenticate(self.writer)
+        create_response = self.client.post(
+            "/api/content/chapters/",
+            {
+                "book": book.id,
+                "title": "",
+                "order": 1,
+                "body": "",
+            },
+            format="json",
+        )
+        self.assertEqual(create_response.status_code, 201)
+        self.assertEqual(create_response.data["title"], "თავი 1")
+
+    def test_create_chapter_defaults_title_to_english_when_book_language_is_english(self):
+        book = Book.objects.create(
+            author=self.writer,
+            title="English Book",
+            content_language=ContentLanguageChoices.ENGLISH,
+            status=StatusChoices.DRAFT,
+        )
+
+        self.client.force_authenticate(self.writer)
+        create_response = self.client.post(
+            "/api/content/chapters/",
+            {
+                "book": book.id,
+                "title": "",
+                "order": 1,
+                "body": "",
+            },
+            format="json",
+        )
+        self.assertEqual(create_response.status_code, 201)
+        self.assertEqual(create_response.data["title"], "Chapter 1")
+
 
 class UploadProcessingTests(TestCase):
     def setUp(self):
@@ -781,3 +835,62 @@ class UploadProcessingTests(TestCase):
         self.assertEqual(chapters[1].title, "Chapter 2: Turning Point")
         self.assertEqual(chapters[0].status, StatusChoices.DRAFT)
         self.assertFalse(chapters[0].is_submitted_for_review)
+
+
+class TextSanitizationTests(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.writer = User.objects.create_user(
+            username="space_writer",
+            email="space_writer@example.com",
+            password="Test1234!",
+        )
+        self.book = Book.objects.create(
+            author=self.writer,
+            title="Space Book",
+            source_type=SourceType.MANUAL,
+        )
+        self.chapter = Chapter.objects.create(
+            book=self.book,
+            title="Initial",
+            order=1,
+            body="Initial",
+        )
+
+    def test_sanitize_plain_text_preserves_single_trailing_space(self):
+        self.assertEqual(sanitize_plain_text("Hello "), "Hello ")
+
+    def test_sanitize_plain_text_collapses_multiple_trailing_spaces(self):
+        self.assertEqual(sanitize_plain_text("Hello   "), "Hello ")
+
+    def test_chapter_serializer_preserves_single_trailing_space(self):
+        serializer = ChapterSerializer(
+            instance=self.chapter,
+            data={
+                "title": "Hello ",
+                "body": "Body ",
+                "order": 1,
+                "book": self.book.id,
+            },
+            partial=True,
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        saved = serializer.save()
+        self.assertEqual(saved.title, "Hello ")
+        self.assertEqual(saved.body, "Body ")
+
+    def test_chapter_serializer_collapses_multiple_trailing_spaces(self):
+        serializer = ChapterSerializer(
+            instance=self.chapter,
+            data={
+                "title": "Hello   ",
+                "body": "Body   ",
+                "order": 1,
+                "book": self.book.id,
+            },
+            partial=True,
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        saved = serializer.save()
+        self.assertEqual(saved.title, "Hello ")
+        self.assertEqual(saved.body, "Body ")

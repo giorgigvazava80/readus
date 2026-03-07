@@ -18,6 +18,11 @@ class SourceType(models.TextChoices):
     UPLOAD = 'upload', 'Upload'
 
 
+class ContentLanguageChoices(models.TextChoices):
+    ENGLISH = "en", "English"
+    GEORGIAN = "ka", "Georgian"
+
+
 class UploadProcessingStatus(models.TextChoices):
     IDLE = 'idle', 'Idle'
     PROCESSING = 'processing', 'Processing'
@@ -57,6 +62,12 @@ def int_to_roman(num: int) -> str:
     return roman
 
 #-----------
+
+
+def build_default_chapter_title(order: int, language: str = ContentLanguageChoices.ENGLISH) -> str:
+    normalized = (language or ContentLanguageChoices.ENGLISH).lower()
+    prefix = "თავი" if normalized == ContentLanguageChoices.GEORGIAN else "Chapter"
+    return f"{prefix} {max(1, int(order or 1))}"
 
 
 
@@ -123,6 +134,11 @@ class BaseContent(StatusTrackedModel):
         max_length=10,
         choices=SourceType.choices,
         default=SourceType.MANUAL,
+    )
+    content_language = models.CharField(
+        max_length=5,
+        choices=ContentLanguageChoices.choices,
+        default=ContentLanguageChoices.ENGLISH,
     )
     upload_file = models.FileField(
         storage=build_content_upload_storage,
@@ -241,7 +257,7 @@ class Chapter(StatusTrackedModel):
 
 
     def __str__(self):
-        base = self.title or f"Chapter {self.auto_label}"
+        base = self.title or build_default_chapter_title(self.order, self.book.content_language)
         return f"{self.book.title}"
 
 

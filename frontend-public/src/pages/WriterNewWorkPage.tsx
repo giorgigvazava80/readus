@@ -19,6 +19,7 @@ import { createBook, createChapter, createPoem, createStory, fetchContent, fetch
 import { toast } from "@/hooks/use-toast";
 
 type WorkType = "book" | "poem" | "story" | "chapter";
+type NewWorkLanguage = "ka" | "en";
 
 const workTypeCards = [
   {
@@ -65,6 +66,7 @@ const WriterNewWorkPage = () => {
   const [workType, setWorkType] = useState<WorkType>("book");
   const [bookIdForChapter, setBookIdForChapter] = useState<string>("");
   const [sourceType, setSourceType] = useState<"manual" | "upload">("manual");
+  const [contentLanguage, setContentLanguage] = useState<NewWorkLanguage>("ka");
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isAnonymous, setIsAnonymous] = useState(false);
 
@@ -83,6 +85,7 @@ const WriterNewWorkPage = () => {
           description: "",
           foreword: "",
           afterword: "",
+          content_language: contentLanguage,
           numbering_style: "separator",
           source_type: sourceType,
           upload_file: sourceType === "upload" ? uploadFile : null,
@@ -96,6 +99,7 @@ const WriterNewWorkPage = () => {
           title: t("editor.untitledPoem"),
           description: "",
           body: "",
+          content_language: contentLanguage,
           source_type: sourceType,
           upload_file: sourceType === "upload" ? uploadFile : null,
           is_anonymous: isAnonymous,
@@ -108,6 +112,7 @@ const WriterNewWorkPage = () => {
           title: t("editor.untitledStory"),
           description: "",
           body: "",
+          content_language: contentLanguage,
           source_type: sourceType,
           upload_file: sourceType === "upload" ? uploadFile : null,
           is_anonymous: isAnonymous,
@@ -120,7 +125,7 @@ const WriterNewWorkPage = () => {
       const nextOrder = (book.chapters?.length || 0) + 1;
       const chapter = (await createChapter({
         book: selectedBookId,
-        title: t("editor.chapterTitle").replace("{number}", String(nextOrder)),
+        title: "",
         order: nextOrder,
         body: "",
       })) as { id: number };
@@ -194,6 +199,21 @@ const WriterNewWorkPage = () => {
       {/* Source type + options */}
       <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card space-y-5">
         <p className="font-ui text-sm font-medium text-muted-foreground">{t("newWork.step2")}</p>
+
+        {supportsUploadChoice && (
+          <div className="space-y-2">
+            <Label className="font-ui text-sm font-medium">{t("newWork.languageLabel", "Content Language")}</Label>
+            <Select value={contentLanguage} onValueChange={(value) => setContentLanguage(value as NewWorkLanguage)}>
+              <SelectTrigger className="h-11 font-ui">
+                <SelectValue placeholder={t("newWork.languageLabel", "Content Language")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ka">{t("newWork.languageGeorgian", "Georgian / ქართული")}</SelectItem>
+                <SelectItem value="en">{t("newWork.languageEnglish", "English / ინგლისური")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {supportsUploadChoice && (
           <div className="space-y-2">
