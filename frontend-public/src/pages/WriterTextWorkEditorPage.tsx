@@ -2,7 +2,7 @@ import { useI18n } from "@/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { Feather, FileText, ImagePlus, X, Trash, AlignLeft, Settings, ChevronRight, Menu } from "lucide-react";
+import { Feather, FileText, ImagePlus, X, Trash, AlignLeft, Settings, ChevronRight, Menu, Send } from "lucide-react";
 
 import RichTextEditor from "@/components/editor/RichTextEditor";
 import SaveStateBadge from "@/components/editor/SaveStateBadge";
@@ -21,7 +21,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useConfirm } from "@/components/ui/confirm-dialog";
-import { buildFacebookShareIntent, fetchContentDetail, resolveMediaUrl, updatePoem, updateStory, deleteContentItem } from "@/lib/api";
+import { buildFacebookShareIntent, fetchContentDetail, resolveMediaUrl, submitContentForReview, updatePoem, updateStory, deleteContentItem } from "@/lib/api";
 import { CONTENT_STATUS_STYLES } from "@/lib/content";
 import { useAutosave } from "@/hooks/useAutosave";
 import { toast } from "@/hooks/use-toast";
@@ -132,6 +132,16 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
     },
   });
 
+  const submitMutation = useMutation({
+    mutationFn: () => submitContentForReview(type, contentId),
+    onSuccess: (submitted) => {
+      queryClient.setQueryData(["writer", type, contentId], submitted);
+      queryClient.invalidateQueries({ queryKey: ["my-works"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "works-summary"] });
+      toast({ title: t("publish.sent", "Sent to redactor for approval.") });
+    },
+  });
+
   const autosave = useAutosave<{ draft: TextWorkDraft; coverRevision: number }>({
     value: { draft, coverRevision },
     enabled: detailQuery.isSuccess,
@@ -158,6 +168,32 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
     const status = detailQuery.data?.status;
     return status ? CONTENT_STATUS_STYLES[status] : "";
   }, [detailQuery.data?.status]);
+  const canPublish =
+    detailQuery.data?.status !== "approved" &&
+    !detailQuery.data?.is_submitted_for_review;
+
+  const handlePublish = async () => {
+    const isConfirmed = await confirm({
+      title: t("publish.button", "Publish"),
+      description: t(
+        "publish.confirmDescription",
+        "This will be sent to a redactor for approval.",
+      ),
+      confirmText: t("publish.send", "Send"),
+      cancelText: t("publish.cancel", "Decline"),
+    });
+    if (!isConfirmed) return;
+
+    try {
+      await autosave.saveNow();
+      await submitMutation.mutateAsync();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: error instanceof Error ? error.message : t("publish.failed", "Failed to send to redactor."),
+      });
+    }
+  };
 
   const currentCoverUrl = coverPreview || resolveMediaUrl(detailQuery.data?.cover_image) || null;
   const inviteKey = `invite-modal:${type}:${contentId}:${detailQuery.data?.updated_at || ""}`;
@@ -311,6 +347,14 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
               <Badge variant="outline" className={statusClass}>
                 {detailQuery.data?.status ? t("status." + detailQuery.data.status, detailQuery.data.status) : ""}
               </Badge>
+              {detailQuery.data?.is_submitted_for_review && detailQuery.data?.status === "draft" ? (
+                <Badge
+                  variant="outline"
+                  className="border-sky-500/50 bg-sky-500/10 text-sky-700"
+                >
+                  {t("myWorks.sentToRedactor", "Sent to redactor")}
+                </Badge>
+              ) : null}
               <SaveStateBadge
                 isSaving={autosave.isSaving}
                 hasUnsavedChanges={autosave.hasUnsavedChanges}
@@ -319,6 +363,20 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
               />
             </div>
           </div>
+          {canPublish ? (
+            <Button
+              className="gap-2 h-10"
+              onClick={handlePublish}
+              disabled={autosave.isSaving || submitMutation.isPending}
+            >
+              {submitMutation.isPending ? (
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+              {t("publish.button", "Publish")}
+            </Button>
+          ) : null}
         </header>
 
         {/* ─── Tablet pill navigation ──────────────────────── */}
@@ -392,6 +450,21 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                       </p>
                     </div>
                     <div className="hidden sm:flex items-center gap-2">
+                      {canPublish ? (
+                        <Button
+                          size="sm"
+                          className="gap-2 h-10"
+                          onClick={handlePublish}
+                          disabled={autosave.isSaving || submitMutation.isPending}
+                        >
+                          {submitMutation.isPending ? (
+                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                          ) : (
+                            <Send className="h-4 w-4" />
+                          )}
+                          {t("publish.button", "Publish")}
+                        </Button>
+                      ) : null}
                       <Button
                         variant="destructive"
                         size="sm"
@@ -560,7 +633,21 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                   </div>
 
                   {/* Mobile delete button */}
-                  <div className="sm:hidden pt-2 border-t border-border/40">
+                  <div className="sm:hidden pt-2 border-t border-border/40 space-y-2">
+                    {canPublish ? (
+                      <Button
+                        className="w-full h-11 gap-2 font-ui"
+                        onClick={handlePublish}
+                        disabled={autosave.isSaving || submitMutation.isPending}
+                      >
+                        {submitMutation.isPending ? (
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        ) : (
+                          <Send className="h-4 w-4" />
+                        )}
+                        {t("publish.button", "Publish")}
+                      </Button>
+                    ) : null}
                     <Button
                       variant="destructive"
                       className="w-full h-11 gap-2 font-ui"
@@ -594,6 +681,21 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                     </div>
                     {/* Desktop action buttons */}
                     <div className="hidden sm:flex items-center gap-2">
+                      {canPublish ? (
+                        <Button
+                          size="sm"
+                          className="gap-2 h-10"
+                          onClick={handlePublish}
+                          disabled={autosave.isSaving || submitMutation.isPending}
+                        >
+                          {submitMutation.isPending ? (
+                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                          ) : (
+                            <Send className="h-4 w-4" />
+                          )}
+                          {t("publish.button", "Publish")}
+                        </Button>
+                      ) : null}
                       <Button
                         variant="destructive"
                         size="sm"
@@ -661,7 +763,21 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
                   )}
 
                   {/* Mobile delete button */}
-                  <div className="sm:hidden mt-4 pt-4 border-t border-border/40">
+                  <div className="sm:hidden mt-4 pt-4 border-t border-border/40 space-y-2">
+                    {canPublish ? (
+                      <Button
+                        className="w-full h-11 gap-2 font-ui"
+                        onClick={handlePublish}
+                        disabled={autosave.isSaving || submitMutation.isPending}
+                      >
+                        {submitMutation.isPending ? (
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        ) : (
+                          <Send className="h-4 w-4" />
+                        )}
+                        {t("publish.button", "Publish")}
+                      </Button>
+                    ) : null}
                     <Button
                       variant="destructive"
                       className="w-full h-11 gap-2 font-ui"

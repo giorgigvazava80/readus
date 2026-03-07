@@ -505,7 +505,7 @@ const MyWorksPage = () => {
                             ) : (
                               <Send className="h-4 w-4" />
                             )}
-                            <span className="hidden sm:inline">{t("publish.button", "Publish")}</span>
+                            <span>{t("publish.button", "Publish")}</span>
                           </Button>
                         )}
                         <a href={readPath} target="_blank" rel="noreferrer">
