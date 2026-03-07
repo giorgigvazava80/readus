@@ -64,8 +64,10 @@ export interface ChapterDetail {
   title: string;
   order: number;
   body: string;
+  book_status?: ContentStatus;
   auto_label?: string;
   status: ContentStatus;
+  is_submitted_for_review?: boolean;
   rejection_reason: string;
   is_deleted?: boolean;
   deleted_at?: string | null;
@@ -82,8 +84,12 @@ export interface ContentItem {
   is_hidden: boolean;
   source_type: "manual" | "upload";
   upload_file: string | null;
+  upload_processing_status?: "idle" | "processing" | "done" | "failed";
+  upload_processing_error?: string;
+  upload_processed_at?: string | null;
   cover_image: string | null;
   status: ContentStatus;
+  is_submitted_for_review?: boolean;
   rejection_reason: string;
   created_at: string;
   updated_at: string;

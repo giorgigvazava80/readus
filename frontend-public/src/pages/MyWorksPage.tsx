@@ -13,6 +13,7 @@ import {
   Feather,
   FileText,
   Filter,
+  Send,
   PlusSquare,
   RotateCcw,
   Search,
@@ -37,6 +38,7 @@ import {
   fetchContent,
   hardDeleteContentItem,
   restoreContentItem,
+  submitContentForReview,
 } from "@/lib/api";
 import { CONTENT_STATUS_STYLES } from "@/lib/content";
 import { useSession } from "@/hooks/useSession";
@@ -94,6 +96,7 @@ const MyWorksPage = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [restoringId, setRestoringId] = useState<number | null>(null);
+  const [publishingId, setPublishingId] = useState<number | null>(null);
   const [isCleaningBin, setIsCleaningBin] = useState(false);
   const [showRecycleBin, setShowRecycleBin] = useState(searchParams.get("bin") === "1");
 
@@ -195,6 +198,33 @@ const MyWorksPage = () => {
       toast({ variant: "destructive", title: t("work.deleteFailed") });
     } finally {
       setIsCleaningBin(false);
+    }
+  };
+
+  const handlePublish = async (id: number) => {
+    const isConfirmed = await confirm({
+      title: t("publish.button", "Publish"),
+      description: t(
+        "publish.confirmDescription",
+        "This will be sent to a redactor for approval.",
+      ),
+      confirmText: t("publish.send", "Send"),
+      cancelText: t("publish.cancel", "Decline"),
+    });
+    if (!isConfirmed) return;
+
+    setPublishingId(id);
+    try {
+      await submitContentForReview(category, id);
+      worksQuery.refetch();
+      toast({ title: t("publish.sent", "Sent to redactor for approval.") });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: error instanceof Error ? error.message : t("publish.failed", "Failed to send to redactor."),
+      });
+    } finally {
+      setPublishingId(null);
     }
   };
 
@@ -398,6 +428,11 @@ const MyWorksPage = () => {
           const readPath = getReadPath(category, item.id);
           const isDeleting = deletingId === item.id;
           const isRestoring = restoringId === item.id;
+          const isPublishing = publishingId === item.id;
+          const canPublish =
+            !showRecycleBin &&
+            item.status !== "approved" &&
+            !item.is_submitted_for_review;
 
           return (
             <div
@@ -417,6 +452,14 @@ const MyWorksPage = () => {
                       >
                         {t(`myWorks.status${item.status.charAt(0).toUpperCase() + item.status.slice(1)}`, item.status)}
                       </span>
+                      {item.is_submitted_for_review && item.status === "draft" && (
+                        <Badge
+                          variant="outline"
+                          className="border-sky-500/50 bg-sky-500/10 text-sky-700 text-[10px] uppercase tracking-wider"
+                        >
+                          {t("myWorks.sentToRedactor", "Sent to redactor")}
+                        </Badge>
+                      )}
                       {item.is_deleted && (
                         <Badge
                           variant="outline"
@@ -449,6 +492,22 @@ const MyWorksPage = () => {
                   <div className="flex shrink-0 items-center gap-2">
                     {!showRecycleBin && (
                       <>
+                        {canPublish && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-9 gap-1.5 font-ui"
+                            disabled={isPublishing || isDeleting || isRestoring}
+                            onClick={() => handlePublish(item.id)}
+                          >
+                            {isPublishing ? (
+                              <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                            ) : (
+                              <Send className="h-4 w-4" />
+                            )}
+                            <span className="hidden sm:inline">{t("publish.button", "Publish")}</span>
+                          </Button>
+                        )}
                         <a href={readPath} target="_blank" rel="noreferrer">
                           <Button
                             variant="ghost"

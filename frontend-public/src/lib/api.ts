@@ -910,6 +910,13 @@ export async function cleanupRecycleBin(category: "books" | "poems" | "stories")
   return apiRequest<{ deleted_count: number }>(`/api/content/${category}/cleanup/`, { method: "POST" }, true);
 }
 
+export async function submitContentForReview(
+  category: "books" | "poems" | "stories",
+  id: number,
+): Promise<ContentDetail> {
+  return apiRequest<ContentDetail>(`/api/content/${category}/${id}/submit/`, { method: "POST" }, true);
+}
+
 export async function createChapter(payload: ChapterPayload) {
   return apiRequest(
     "/api/content/chapters/",
@@ -944,6 +951,10 @@ export async function updateChapter(id: number, payload: Partial<ChapterPayload>
 
 export async function deleteChapter(id: number): Promise<void> {
   await apiRequest(`/api/content/chapters/${id}/`, { method: "DELETE" }, true);
+}
+
+export async function submitChapterForReview(id: number): Promise<ContentDetail> {
+  return apiRequest<ContentDetail>(`/api/content/chapters/${id}/submit/`, { method: "POST" }, true);
 }
 
 export async function fetchBookChapters(bookId: number, page = 1) {
