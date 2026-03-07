@@ -202,6 +202,7 @@ SERVE_MEDIA = env.bool("SERVE_MEDIA", default=True)
 
 # Cloudinary configuration
 CLOUDINARY_URL = env("CLOUDINARY_URL", default="").strip()
+CONTENT_UPLOAD_STORAGE = env("CONTENT_UPLOAD_STORAGE", default="auto").strip().lower()
 if CLOUDINARY_URL:
     STORAGES["default"]["BACKEND"] = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
@@ -364,5 +365,3 @@ SWAGGER_SETTINGS = {
         }
     }
 }
-
-

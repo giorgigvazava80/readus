@@ -92,6 +92,7 @@ First login requires password change. After changing password, privileged endpoi
 - `THROTTLE_ANON`, `THROTTLE_USER`
 - `EMAIL_SEND_ASYNC` (set `1` in production so signup does not wait on SMTP)
 - `CONTENT_UPLOAD_ASYNC` (`0` for reliable inline upload analysis on hosted testing, `1` for in-process background threads)
+- `CONTENT_UPLOAD_STORAGE` (`auto` recommended: use Cloudinary raw when available, else local; `cloudinary_raw` to force Cloudinary; `local` to force MEDIA_ROOT)
 - `SOCIAL_AUTH_GOOGLE_CALLBACK_URL`, `SOCIAL_AUTH_FACEBOOK_CALLBACK_URL` (for OAuth code flow)
 - `SERVE_MEDIA` (set `1` to serve uploaded media files like cover images from Django in hosted testing)
 - `MEDIA_ROOT` and `MEDIA_URL` (where uploaded files are stored and served from)
