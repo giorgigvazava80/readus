@@ -662,6 +662,37 @@ class UploadProcessingTests(TestCase):
         self.assertEqual(chapters[0].title, "Chapter 1")
         self.assertIn("This is a long body sentence", chapters[0].body_html)
 
+    def test_split_text_ignores_numeric_marker_headings_as_titles(self):
+        text = (
+            "I\n"
+            "Alpha body.\n\n"
+            "II\n"
+            "Beta body.\n"
+        )
+        chapters = split_text_into_chapters(text)
+
+        self.assertEqual(len(chapters), 2)
+        self.assertEqual(chapters[0].title, "Chapter 1")
+        self.assertEqual(chapters[1].title, "Chapter 2")
+        self.assertIn("<p>Alpha body.</p>", chapters[0].body_html)
+        self.assertIn("<p>Beta body.</p>", chapters[1].body_html)
+
+    def test_split_text_detects_standalone_numeric_pdf_markers(self):
+        text = (
+            "Book Title\n"
+            "1\n\n"
+            "Alpha body.\n\n"
+            "2\n\n"
+            "Beta body.\n"
+        )
+        chapters = split_text_into_chapters(text)
+
+        self.assertEqual(len(chapters), 2)
+        self.assertEqual(chapters[0].title, "Chapter 1")
+        self.assertEqual(chapters[1].title, "Chapter 2")
+        self.assertIn("<p>Alpha body.</p>", chapters[0].body_html)
+        self.assertIn("<p>Beta body.</p>", chapters[1].body_html)
+
     def test_split_text_repairs_mojibake_dash_separator(self):
         # "â€”" is mojibake for an em dash.
         mojibake_em_dash = "\u00e2\u20ac\u201d"

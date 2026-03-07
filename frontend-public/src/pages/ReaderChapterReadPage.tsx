@@ -231,6 +231,10 @@ const ReaderChapterReadPage = () => {
   const previousChapter = currentIndex > 0 ? chapters[currentIndex - 1] : null;
   const nextChapter = currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : null;
   const isLastChapter = !nextChapter;
+  const readingWidthClass =
+    book.source_type === "upload"
+      ? "md:w-[95%] lg:w-[88%] xl:w-[84%]"
+      : "md:w-[85%] lg:w-[70%] xl:w-[60%]";
 
   return (
     <div>
@@ -239,7 +243,7 @@ const ReaderChapterReadPage = () => {
         <div className="reading-progress" style={{ width: `${Math.max(1, Math.min(100, displayProgress))}%` }} />
       )}
 
-      <div className={cn("container mx-auto w-full md:w-[85%] lg:w-[70%] xl:w-[60%] space-y-6 md:space-y-10 px-4 py-6 md:px-8 md:py-12", focusMode && "pt-4")}>
+      <div className={cn("container mx-auto w-full space-y-6 md:space-y-10 px-4 py-6 md:px-8 md:py-12", readingWidthClass, focusMode && "pt-4")}>
 
         {/* ── Header — hidden in focus mode ── */}
         {!focusMode && (

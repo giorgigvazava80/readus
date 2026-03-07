@@ -136,15 +136,30 @@ def split_text_into_chapters(raw_text: str) -> list[ParsedChapter]:
     current_title = ""
     current_lines: list[str] = []
 
-    for line in lines:
+    for index, line in enumerate(lines):
         stripped = line.strip()
         if not stripped:
             current_lines.append("")
             continue
 
+        previous_line = lines[index - 1] if index > 0 else ""
+        next_line = lines[index + 1] if index + 1 < len(lines) else ""
+        if _is_standalone_numeric_heading(stripped, previous_line, next_line, index):
+            if _has_content(current_lines):
+                if _should_drop_leading_preamble(current_lines, results):
+                    current_lines = []
+                else:
+                    results.append(_build_parsed_chapter(current_title, current_lines, len(results) + 1))
+                current_lines = []
+            current_title = _clean_heading(stripped)
+            continue
+
         if _is_heading_line(stripped):
             if _has_content(current_lines):
-                results.append(_build_parsed_chapter(current_title, current_lines, len(results) + 1))
+                if _should_drop_leading_preamble(current_lines, results):
+                    current_lines = []
+                else:
+                    results.append(_build_parsed_chapter(current_title, current_lines, len(results) + 1))
                 current_lines = []
             current_title = _clean_heading(stripped)
             continue
@@ -230,7 +245,7 @@ def _build_parsed_chapter(title: str, lines: list[str], fallback_order: int) -> 
 
 def _resolve_title(title: str, text_block: str, fallback_order: int) -> str:
     normalized_title = _clean_heading(title)
-    if normalized_title:
+    if normalized_title and not _is_numeric_marker_title(normalized_title):
         return normalized_title
     return f"Chapter {fallback_order}"
 
@@ -268,6 +283,23 @@ def _is_heading_line(stripped_line: str) -> bool:
     ):
         return True
     return False
+
+
+def _is_standalone_numeric_heading(
+    stripped_line: str,
+    previous_line: str,
+    next_line: str,
+    line_index: int,
+) -> bool:
+    if not _is_numeric_marker_title(stripped_line):
+        return False
+
+    prev_blank = not (previous_line or "").strip()
+    next_blank = not (next_line or "").strip()
+
+    # Chapter markers in many PDFs are rendered as standalone numeric lines
+    # surrounded by spacing. Allow the opening marker right after title line.
+    return next_blank and (prev_blank or line_index <= 1)
 
 
 def _is_separator_line(value: str) -> bool:
@@ -375,8 +407,35 @@ def _clean_heading(value: str) -> str:
     return line[:255]
 
 
+def _is_numeric_marker_title(value: str) -> bool:
+    line = (value or "").strip()
+    if not line:
+        return False
+    return bool(
+        re.fullmatch(
+            r"[\(\[\{]?\s*(?:\d{1,4}|[ivxlcdm]{1,12})\s*[\)\]\}]?\s*[:.\-–—]?\s*",
+            line,
+            flags=re.IGNORECASE,
+        )
+    )
+
+
 def _has_content(lines: list[str]) -> bool:
     return any(part.strip() for part in lines)
+
+
+def _should_drop_leading_preamble(lines: list[str], existing_results: list[ParsedChapter]) -> bool:
+    if existing_results:
+        return False
+    non_empty = [line.strip() for line in lines if line.strip()]
+    if not non_empty or len(non_empty) > 2:
+        return False
+    joined = " ".join(non_empty)
+    if len(joined) > 120:
+        return False
+    if re.search(r"[.!?…]\s*$", joined):
+        return False
+    return len(joined.split()) <= 15
 
 
 def _plain_text_to_html(text: str) -> str:

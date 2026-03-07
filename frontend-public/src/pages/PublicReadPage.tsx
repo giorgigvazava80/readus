@@ -466,6 +466,10 @@ const PublicReadPage = () => {
 
   const isReadingChapter = category === "books" && currentPage > 0;
   const isReadingContent = isReadingChapter || (category !== "books" && category !== null);
+  const readingWidthClass =
+    category === "books" && content?.source_type === "upload"
+      ? "md:w-[98%] lg:w-[92%] xl:w-[88%]"
+      : "md:w-[95%] lg:w-[75%]";
 
   return (
     <div>
@@ -603,7 +607,7 @@ const PublicReadPage = () => {
         transition={{ delay: 0.2 }}
         className={cn("container mx-auto px-4 sm:px-6 py-8 scroll-mt-20", focusMode && "pt-4")}
       >
-        <div className={cn("mx-auto w-full md:w-[95%] lg:w-[75%]", readingFontSizeClass)}>
+        <div className={cn("mx-auto w-full", readingWidthClass, readingFontSizeClass)}>
 
           {/* Non-focus-mode controls */}
           {!focusMode && (
