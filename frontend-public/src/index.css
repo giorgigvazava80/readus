@@ -146,6 +146,18 @@
     line-height: 2;
   }
 
+  .reader-html .verse-block {
+    margin-bottom: 0.9rem;
+  }
+
+  .reader-html .verse-line {
+    display: block;
+  }
+
+  .reader-html .verse-line + .verse-line {
+    margin-top: 0.18em;
+  }
+
   /* ── Reading progress bar ────────────────────── */
   .reading-progress {
     position: fixed;

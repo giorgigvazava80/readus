@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from .background_jobs import submit_background_job
 from .file_extract import extract_text_from_upload
+from .legacy_font_convert import maybe_convert_acadnusx_to_unicode
 from .models import (
     Book,
     Chapter,
@@ -72,6 +73,44 @@ HEADING_PATTERNS = [
     re.compile(r"^\s*თავი\s*[\divxlcdmა-ჰ]+\b.*$", re.IGNORECASE),
     re.compile(r"^\s*(?:პროლოგი|ეპილოგი|შესავალი|წინასიტყვაობა|ბოლოსიტყვაობა)\b.*$", re.IGNORECASE),
 ]
+
+
+GEORGIAN_CHAPTER_HEADING_RE = re.compile(r"^\s*\u10d7\u10d0\u10d5\u10d8\b(?:[\s\-:]+)(.+?)\s*$", re.IGNORECASE)
+GEORGIAN_CHAPTER_MARKER_RE = re.compile(r"^(?:\d{1,4}|[ivxlcdm]{1,12})$", re.IGNORECASE)
+GEORGIAN_WORD_TOKEN_RE = re.compile(r"^[\u10a0-\u10ff]+$")
+GEORGIAN_NUMERIC_STEMS = (
+    "\u10de\u10d8\u10e0\u10d5\u10d4\u10da",
+    "\u10d4\u10e0\u10d7",
+    "\u10dd\u10e0",
+    "\u10e1\u10d0\u10db",
+    "\u10dd\u10d7\u10ee",
+    "\u10ee\u10e3\u10d7",
+    "\u10d4\u10e5\u10d5\u10e1",
+    "\u10e8\u10d5\u10d8\u10d3",
+    "\u10e0\u10d5",
+    "\u10ea\u10ee\u10e0",
+    "\u10d0\u10d7",
+    "\u10d7\u10d4\u10e0\u10d7\u10db\u10d4\u10e2",  # თერთმეტ
+    "\u10d7\u10dd\u10e0\u10db\u10d4\u10e2",  # თორმეტ
+    "\u10ea\u10d0\u10db\u10d4\u10e2",  # ცამეტ
+    "\u10d7\u10dd\u10d7\u10ee\u10db\u10d4\u10e2",  # თოთხმეტ
+    "\u10ee\u10e3\u10d7\u10db\u10d4\u10e2",  # ხუთმეტ
+    "\u10d7\u10d4\u10e5\u10d5\u10e1\u10db\u10d4\u10e2",  # თექვსმეტ
+    "\u10e9\u10d5\u10d8\u10d3\u10db\u10d4\u10e2",  # ჩვიდმეტ
+    "\u10d7\u10d5\u10e0\u10d0\u10db\u10d4\u10e2",  # თვრამეტ
+    "\u10ea\u10ee\u10e0\u10d0\u10db\u10d4\u10e2",  # ცხრამეტ
+    "\u10dd\u10ea",
+    "\u10dd\u10e0\u10db\u10dd\u10ea",
+    "\u10e1\u10d0\u10db\u10dd\u10ea",
+    "\u10d0\u10e1",
+)
+
+LIST_OR_DIALOG_LINE_RE = re.compile(
+    r"^\s*(?:[-–—•*·]\s+|\(?\d{1,3}[\).:-]\s+|[A-Za-z\u10A0-\u10FF][\).]\s+)"
+)
+
+
+TERMINAL_LINE_PUNCTUATION_RE = re.compile(r"[.!?;:\u2026]\s*$")
 
 
 @dataclass
@@ -300,11 +339,14 @@ def _resolve_title(
 
 def _normalize_text(value: str) -> str:
     text = _repair_common_mojibake(value or "")
+    text = maybe_convert_acadnusx_to_unicode(text)
     text = _normalize_dialog_markers(text)
     text = text.replace("\r\n", "\n").replace("\r", "\n")
     text = text.replace("\x00", "")
     text = text.replace("\u00a0", " ")
-    text = re.sub(r"[ \t]+\n", "\n", text)
+    # Preserve intentional "2+ spaces before newline" marker for reflow logic.
+    text = re.sub(r"[ \t]{2,}\n", "  \n", text)
+    text = re.sub(r"(?<![ \t])[ \t]\n", "\n", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
 
@@ -312,6 +354,12 @@ def _normalize_text(value: str) -> str:
 def _is_heading_line(stripped_line: str) -> bool:
     if _is_separator_line(stripped_line):
         return True
+
+    # Georgian prose can start with "თავი..." ("head/self"), so only
+    # treat it as a chapter marker when it matches strict chapter syntax.
+    if stripped_line.startswith("\u10d7\u10d0\u10d5\u10d8"):
+        return _is_georgian_chapter_heading(stripped_line)
+
     if len(stripped_line) < 2 or len(stripped_line) > 140:
         return False
     if any(pattern.match(stripped_line) for pattern in HEADING_PATTERNS):
@@ -331,6 +379,69 @@ def _is_heading_line(stripped_line: str) -> bool:
     ):
         return True
     return False
+
+
+def _is_georgian_chapter_heading(value: str) -> bool:
+    line = (value or "").strip()
+    if len(line) < 5 or len(line) > 64:
+        return False
+
+    match = GEORGIAN_CHAPTER_HEADING_RE.match(line)
+    if not match:
+        return False
+
+    marker = match.group(1).strip()
+    if not marker:
+        return False
+
+    # Sentence punctuation strongly indicates prose, not a chapter label.
+    if any(ch in marker for ch in ",!?;()[]{}\"'\u201c\u201d\u2018\u2019"):
+        return False
+
+    marker_core = marker
+    marker_subtitle = ""
+    for separator in (" - ", ":"):
+        if separator in marker:
+            marker_core, marker_subtitle = marker.split(separator, 1)
+            marker_core = marker_core.strip()
+            marker_subtitle = marker_subtitle.strip()
+            break
+
+    if marker_subtitle:
+        if len(marker_subtitle) > 60 or len(marker_subtitle.split()) > 8:
+            return False
+        if any(ch in marker_subtitle for ch in ",.!?;()[]{}\"'\u201c\u201d\u2018\u2019"):
+            return False
+
+    marker_core = marker_core.rstrip(".").strip()
+    if not marker_core:
+        return False
+
+    if GEORGIAN_CHAPTER_MARKER_RE.fullmatch(marker_core):
+        return True
+
+    tokens = [part for part in re.split(r"[\s\-]+", marker_core) if part]
+    if not tokens or len(tokens) > 3:
+        return False
+    if any(not GEORGIAN_WORD_TOKEN_RE.fullmatch(token) for token in tokens):
+        return False
+
+    merged_marker = "".join(tokens)
+    return _looks_like_georgian_chapter_ordinal(merged_marker)
+
+
+def _looks_like_georgian_chapter_ordinal(token: str) -> bool:
+    value = (token or "").lower()
+    if not value or not GEORGIAN_WORD_TOKEN_RE.fullmatch(value):
+        return False
+
+    if value == "პირველი":
+        return True
+
+    if not value.endswith("ე"):
+        return False
+
+    return any(stem in value for stem in GEORGIAN_NUMERIC_STEMS)
 
 
 def _is_standalone_numeric_heading(
@@ -486,12 +597,152 @@ def _should_drop_leading_preamble(lines: list[str], existing_results: list[Parse
     return len(joined.split()) <= 15
 
 
+def _rewrap_hard_wrapped_text(text: str) -> str:
+    if not text or "\n" not in text:
+        return text
+
+    blocks = [part for part in re.split(r"\n{2,}", text) if part.strip()]
+    if not blocks:
+        return ""
+
+    rewrapped_blocks = [_rewrap_text_block(block) for block in blocks]
+    return "\n\n".join(part for part in rewrapped_blocks if part.strip())
+
+
+def _rewrap_text_block(block: str) -> str:
+    raw_lines = [line for line in block.split("\n") if line.strip()]
+    if len(raw_lines) <= 1:
+        return raw_lines[0].strip() if raw_lines else ""
+
+    reference_width = _estimate_reference_line_width(raw_lines)
+    if _looks_like_verse_block(raw_lines, reference_width):
+        return "\n".join(line.strip() for line in raw_lines if line.strip())
+
+    merged: list[str] = []
+    current = raw_lines[0].strip()
+    last_source_line = raw_lines[0]
+    for raw_line in raw_lines[1:]:
+        if _should_preserve_line_break(last_source_line, raw_line, reference_width):
+            merged.append(current)
+            current = raw_line.strip()
+        else:
+            current = f"{current.rstrip()} {raw_line.strip()}"
+        last_source_line = raw_line
+
+    merged.append(current)
+    return "\n".join(part for part in merged if part.strip())
+
+
+def _estimate_reference_line_width(lines: list[str]) -> int:
+    lengths = sorted(len(line.strip()) for line in lines if line.strip())
+    if not lengths:
+        return 0
+    # Robust width estimate for wrapped prose lines.
+    percentile_index = max(0, int((len(lengths) - 1) * 0.8))
+    return lengths[percentile_index]
+
+
+def _looks_like_verse_block(lines: list[str], reference_width: int) -> bool:
+    stripped_lines = [line.strip() for line in lines if line.strip()]
+    line_count = len(stripped_lines)
+    if line_count < 3:
+        return False
+
+    dialog_line_count = sum(1 for line in stripped_lines if LIST_OR_DIALOG_LINE_RE.match(line))
+    if dialog_line_count / line_count >= 0.5:
+        return False
+
+    effective_width = reference_width or _estimate_reference_line_width(stripped_lines)
+    short_or_medium_limit = min(52, max(28, int(effective_width * 1.15)))
+    short_or_medium_count = sum(1 for line in stripped_lines if len(line) <= short_or_medium_limit)
+    short_or_medium_ratio = short_or_medium_count / line_count
+
+    punctuation_end_count = sum(
+        1 for line in stripped_lines if TERMINAL_LINE_PUNCTUATION_RE.search(line)
+    )
+    punctuation_end_ratio = punctuation_end_count / line_count
+
+    average_char_count = sum(len(line) for line in stripped_lines) / line_count
+    average_word_count = sum(len(line.split()) for line in stripped_lines) / line_count
+
+    if line_count == 3:
+        return (
+            short_or_medium_ratio >= 1.0
+            and average_char_count <= 40
+            and average_word_count <= 6.5
+            and punctuation_end_ratio <= 0.34
+        )
+
+    return (
+        short_or_medium_ratio >= 0.8
+        and average_char_count <= 48
+        and average_word_count <= 8
+        and punctuation_end_ratio <= 0.55
+    )
+
+
+def _should_preserve_line_break(previous_line: str, next_line: str, reference_width: int) -> bool:
+    prev_raw = previous_line.rstrip("\r\n")
+    prev = prev_raw.strip()
+    nxt = next_line.strip()
+    if not prev or not nxt:
+        return True
+
+    if prev.endswith("-"):
+        return True
+
+    if _is_protected_layout_line(prev) or _is_protected_layout_line(nxt):
+        return True
+
+    # Keep line break when there is visual room for >=2 extra characters
+    # on the current source line, but only if sentence is dot-terminated.
+    if reference_width > 0:
+        visual_space = reference_width - len(prev)
+        if visual_space >= 2:
+            return prev.endswith(".")
+
+    return False
+
+
+def _is_protected_layout_line(line: str) -> bool:
+    stripped = line.strip()
+    if not stripped:
+        return True
+
+    if _is_separator_line(stripped) or _is_numeric_marker_title(stripped):
+        return True
+    if _is_heading_line(stripped):
+        return True
+    if LIST_OR_DIALOG_LINE_RE.match(stripped):
+        return True
+
+    return False
+
+
+def _render_verse_paragraph_html(paragraph: str) -> str:
+    verse_lines = [line.strip() for line in paragraph.split("\n") if line.strip()]
+    if not verse_lines:
+        return ""
+    rendered_lines = "".join(
+        f"<span class=\"verse-line\">{html.escape(line)}</span>"
+        for line in verse_lines
+    )
+    return f"<p class=\"verse-block\">{rendered_lines}</p>"
+
+
 def _plain_text_to_html(text: str) -> str:
     if not text.strip():
         return ""
-    paragraphs = [part.strip() for part in re.split(r"\n{2,}", text) if part.strip()]
+    normalized = _rewrap_hard_wrapped_text(text)
+    paragraphs = [part.strip() for part in re.split(r"\n{2,}", normalized) if part.strip()]
     html_chunks = []
     for paragraph in paragraphs:
+        paragraph_lines = [line.strip() for line in paragraph.split("\n") if line.strip()]
+        if _looks_like_verse_block(paragraph_lines, _estimate_reference_line_width(paragraph_lines)):
+            rendered = _render_verse_paragraph_html(paragraph)
+            if rendered:
+                html_chunks.append(rendered)
+            continue
         escaped = html.escape(paragraph).replace("\n", "<br />")
         html_chunks.append(f"<p>{escaped}</p>")
     return "".join(html_chunks)

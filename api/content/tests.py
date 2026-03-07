@@ -19,6 +19,7 @@ from content.models import (
     Story,
     UploadProcessingStatus,
 )
+from content.legacy_font_convert import detect_pdf_has_acadnusx_font, maybe_convert_acadnusx_to_unicode
 from content.serializers import ChapterSerializer, sanitize_plain_text
 from content.upload_processing import process_book_upload, split_text_into_chapters
 
@@ -731,6 +732,127 @@ class UploadProcessingTests(TestCase):
         self.assertIn("<p>Alpha body.</p>", chapters[0].body_html)
         self.assertIn("<p>Beta body.</p>", chapters[1].body_html)
 
+    def test_split_text_treats_only_real_georgian_tavi_markers_as_headings(self):
+        heading_one = "\u10d7\u10d0\u10d5\u10d8 \u10de\u10d8\u10e0\u10d5\u10d4\u10da\u10d8"
+        heading_two = "\u10d7\u10d0\u10d5\u10d8 \u10db\u10d4\u10dd\u10e0\u10d4"
+        non_heading = "\u10d7\u10d0\u10d5\u10d8 \u10d0\u10db\u10dd\u10e1\u10d3\u10d8\u10e1, - \u10d7\u10e5\u10d5\u10d0 \u10db\u10d0\u10dc."
+        text = (
+            f"{heading_one}\n"
+            "Alpha body.\n\n"
+            f"{non_heading}\n"
+            "Still chapter one body.\n\n"
+            f"{heading_two}\n"
+            "Beta body.\n"
+        )
+
+        chapters = split_text_into_chapters(text, fallback_language="ka")
+
+        self.assertEqual(len(chapters), 2)
+        self.assertEqual(chapters[0].title, heading_one)
+        self.assertEqual(chapters[1].title, heading_two)
+        self.assertIn(non_heading, chapters[0].body_html)
+
+    def test_split_text_does_not_treat_tavis_word_forms_as_headings(self):
+        heading_one = "\u10d7\u10d0\u10d5\u10d8 \u10de\u10d8\u10e0\u10d5\u10d4\u10da\u10d8"
+        heading_two = "\u10d7\u10d0\u10d5\u10d8 \u10db\u10d4\u10dd\u10e0\u10d4"
+        non_heading = "\u10d7\u10d0\u10d5\u10d8\u10e1 \u10d9\u10d0\u10da\u10d0\u10de\u10dd\u10e2\u10e1."
+        text = (
+            f"{heading_one}\n"
+            f"{non_heading}\n\n"
+            f"{heading_two}\n"
+            "Beta body.\n"
+        )
+
+        chapters = split_text_into_chapters(text, fallback_language="ka")
+
+        self.assertEqual(len(chapters), 2)
+        self.assertEqual(chapters[0].title, heading_one)
+        self.assertEqual(chapters[1].title, heading_two)
+        self.assertIn(non_heading, chapters[0].body_html)
+
+    def test_split_text_recognizes_mechvidmete_and_metvramete_headings(self):
+        heading_one = "\u10d7\u10d0\u10d5\u10d8 \u10db\u10d4\u10e9\u10d5\u10d8\u10d3\u10db\u10d4\u10e2\u10d4"
+        heading_two = "\u10d7\u10d0\u10d5\u10d8 \u10db\u10d4\u10d7\u10d5\u10e0\u10d0\u10db\u10d4\u10e2\u10d4"
+        text = (
+            f"{heading_one}\n"
+            "Alpha body.\n\n"
+            f"{heading_two}\n"
+            "Beta body.\n"
+        )
+
+        chapters = split_text_into_chapters(text, fallback_language="ka")
+
+        self.assertEqual(len(chapters), 2)
+        self.assertEqual(chapters[0].title, heading_one)
+        self.assertEqual(chapters[1].title, heading_two)
+
+    def test_split_text_reflows_wrapped_prose_lines(self):
+        text = (
+            "\u10d4\u10e1 \u10d0\u10e0\u10d8\u10e1 \u10d2\u10e0\u10eb\u10d4\u10da\u10d8 \u10db\u10d8\u10e1\u10d0\u10d3\u10d0\u10d2\u10d8 \u10ec\u10d8\u10dc\u10d0\u10d3\u10d0\u10d3\u10d4\u10d1\u10d0\n"
+            "\u10e0\u10dd\u10db\u10d4\u10da\u10d8\u10ea \u10e8\u10d4\u10db\u10d3\u10d4\u10d2 \u10e1\u10e2\u10e0\u10d8\u10e5\u10dd\u10dc\u10d6\u10d4 \u10d2\u10d0\u10d2\u10e0\u10eb\u10d4\u10da\u10d3\u10d0\n"
+            "\u10d3\u10d0 \u10d1\u10dd\u10da\u10dd\u10e1 \u10d3\u10d0\u10e1\u10e0\u10e3\u10da\u10d3\u10d0.\n"
+        )
+        chapters = split_text_into_chapters(text, fallback_language="ka")
+
+        self.assertEqual(len(chapters), 1)
+        self.assertIn(
+            "\u10db\u10d8\u10e1\u10d0\u10d3\u10d0\u10d2\u10d8 \u10ec\u10d8\u10dc\u10d0\u10d3\u10d0\u10d3\u10d4\u10d1\u10d0 \u10e0\u10dd\u10db\u10d4\u10da\u10d8\u10ea",
+            chapters[0].body_html,
+        )
+        self.assertNotIn("<br />", chapters[0].body_html)
+
+    def test_split_text_merges_lines_without_terminal_dot(self):
+        text = (
+            "\u10d4\u10e1 \u10d0\u10e0\u10d8\u10e1 \u10e8\u10d4\u10d5\u10e0\u10d0\u10de\u10d8\u10e0\u10d4\u10d1\u10e3\u10da\u10d8 \u10de\u10e0\u10dd\u10d6\u10d0\u10d8\u10e1 \u10de\u10d8\u10e0\u10d5\u10d4\u10da\u10d8 \u10e1\u10e2\u10e0\u10d8\u10e5\u10dd\u10dc\u10d8\n"
+            "\u10e0\u10dd\u10db\u10d4\u10da\u10d8\u10ea \u10db\u10d4\u10dd\u10e0\u10d4 \u10e1\u10e2\u10e0\u10d8\u10e5\u10dd\u10dc\u10d7\u10d0\u10dc \u10d4\u10e0\u10d7 \u10d0\u10d1\u10d6\u10d0\u10ea\u10d0\u10d3 \u10e3\u10dc\u10d3\u10d0 \u10d2\u10d0\u10d4\u10e0\u10d7\u10d8\u10d0\u10dc\u10d3\u10d4\u10e1\n"
+        )
+        chapters = split_text_into_chapters(text, fallback_language="ka")
+
+        self.assertEqual(len(chapters), 1)
+        self.assertNotIn("<br />", chapters[0].body_html)
+
+    def test_split_text_preserves_verse_lines_with_verse_markup(self):
+        text = (
+            "\u10ea\u10d0 \u10db\u10ec\u10d5\u10d0\u10dc\u10d4\u10d3 \u10d2\u10d0\u10d3\u10d0\u10d8\u10e1\u10d0\n"
+            "\u10db\u10d7\u10d0 \u10db\u10d4\u10da\u10dd\u10d3\u10d8\u10e1 \u10e9\u10d0\u10e0\u10e9\u10d5\u10e8\u10d8\n"
+            "\u10e5\u10d0\u10e0\u10d8 \u10e9\u10e3\u10db\u10d0\u10d3 \u10d2\u10d0\u10d3\u10d0\u10d8\u10d5\u10da\u10d8\u10e1\n"
+            "\u10da\u10e3\u10ea\u10d5\u10d0 \u10db\u10d4 \u10d2\u10e3\u10da\u10e8\u10d8 \u10d3\u10e0\u10e9\u10d4\u10d1\u10d0\n"
+        )
+        chapters = split_text_into_chapters(text, fallback_language="ka")
+
+        self.assertEqual(len(chapters), 1)
+        self.assertIn("class=\"verse-block\"", chapters[0].body_html)
+        self.assertGreaterEqual(chapters[0].body_html.count("class=\"verse-line\""), 4)
+        self.assertNotIn("<br />", chapters[0].body_html)
+
+    def test_split_text_does_not_apply_verse_markup_to_dialogue(self):
+        text = (
+            "- \u10de\u10d8\u10e0\u10d5\u10d4\u10da\u10d8 \u10e0\u10d4\u10de\u10da\u10d8\u10d9\u10d0\n"
+            "- \u10db\u10d4\u10dd\u10e0\u10d4 \u10e0\u10d4\u10de\u10da\u10d8\u10d9\u10d0\n"
+            "- \u10db\u10d4\u10e1\u10d0\u10db\u10d4 \u10e0\u10d4\u10de\u10da\u10d8\u10d9\u10d0\n"
+        )
+        chapters = split_text_into_chapters(text, fallback_language="ka")
+
+        self.assertEqual(len(chapters), 1)
+        self.assertNotIn("class=\"verse-block\"", chapters[0].body_html)
+        self.assertIn("<br />", chapters[0].body_html)
+
+    def test_split_text_keeps_line_break_only_for_visual_space_and_dot(self):
+        keep_break_text = (
+            "\u10db\u10dd\u10d9\u10da\u10d4 \u10ec\u10d8\u10dc\u10d0\u10d3\u10d0\u10d3\u10d4\u10d1\u10d0.\n"
+            "\u10d4\u10e1 \u10d0\u10e0\u10d8\u10e1 \u10d2\u10d0\u10ea\u10d8\u10da\u10d4\u10d1\u10d8\u10d7 \u10d2\u10e0\u10eb\u10d4\u10da\u10d8 \u10db\u10d4\u10dd\u10e0\u10d4 \u10e1\u10e2\u10e0\u10d8\u10e5\u10dd\u10dc\u10d8, \u10e0\u10dd\u10db\u10d4\u10da\u10d8\u10ea \u10e1\u10d8\u10d2\u10e0\u10eb\u10d8\u10d7 \u10d2\u10d0\u10db\u10dd\u10d0\u10ea\u10d4\u10db\u10e1 \u10db\u10d8\u10e1 \u10e8\u10d0\u10d1\u10da\u10dd\u10dc\u10e1.\n"
+        )
+        merge_text = (
+            "\u10db\u10dd\u10d9\u10da\u10d4 \u10ec\u10d8\u10dc\u10d0\u10d3\u10d0\u10d3\u10d4\u10d1\u10d0\n"
+            "\u10d4\u10e1 \u10d0\u10e0\u10d8\u10e1 \u10d2\u10d0\u10ea\u10d8\u10da\u10d4\u10d1\u10d8\u10d7 \u10d2\u10e0\u10eb\u10d4\u10da\u10d8 \u10db\u10d4\u10dd\u10e0\u10d4 \u10e1\u10e2\u10e0\u10d8\u10e5\u10dd\u10dc\u10d8, \u10e0\u10dd\u10db\u10d4\u10da\u10d8\u10ea \u10e1\u10d8\u10d2\u10e0\u10eb\u10d8\u10d7 \u10d2\u10d0\u10db\u10dd\u10d0\u10ea\u10d4\u10db\u10e1 \u10db\u10d8\u10e1 \u10e8\u10d0\u10d1\u10da\u10dd\u10dc\u10e1.\n"
+        )
+
+        keep_chapters = split_text_into_chapters(keep_break_text, fallback_language="ka")
+        merge_chapters = split_text_into_chapters(merge_text, fallback_language="ka")
+
+        self.assertIn("<br />", keep_chapters[0].body_html)
+        self.assertNotIn("<br />", merge_chapters[0].body_html)
+
     def test_split_text_detects_standalone_numeric_pdf_markers(self):
         text = (
             "Book Title\n"
@@ -802,6 +924,39 @@ class UploadProcessingTests(TestCase):
         self.assertIn(
             "\u0437\u043e\u043b\u043e\u0442\u044b\u0435, \u043d\u0435\u043d\u0430\u0433\u043b\u044f\u0434\u043d\u044b\u0435.",
             chapters[0].body_html,
+        )
+
+    def test_split_text_converts_acadnusx_legacy_text(self):
+        text = (
+            "Tqveni naSromi gamoqveynebisaTvis mzadaa.\n"
+            "Cemi saTauri.\n"
+        )
+        chapters = split_text_into_chapters(text)
+
+        self.assertEqual(len(chapters), 1)
+        self.assertIn("\u10d7\u10e5\u10d5\u10d4\u10dc\u10d8 \u10dc\u10d0\u10e8\u10e0\u10dd\u10db\u10d8", chapters[0].body_html)
+        self.assertIn("\u10e9\u10d4\u10db\u10d8 \u10e1\u10d0\u10d7\u10d0\u10e3\u10e0\u10d8", chapters[0].body_html)
+        self.assertNotIn("Tqveni", chapters[0].body_html)
+
+    def test_split_text_does_not_convert_regular_english_text(self):
+        text = (
+            "This is a simple chapter introduction for readers.\n"
+            "It should stay in English.\n"
+        )
+        chapters = split_text_into_chapters(text)
+
+        self.assertEqual(len(chapters), 1)
+        self.assertIn("This is a simple chapter introduction for readers.", chapters[0].body_html)
+        self.assertIn("It should stay in English.", chapters[0].body_html)
+
+    def test_detect_pdf_has_acadnusx_font_marker(self):
+        self.assertTrue(detect_pdf_has_acadnusx_font(b"/BaseFont /ABCDEF+AcadNusx"))
+        self.assertFalse(detect_pdf_has_acadnusx_font(b"/BaseFont /ABCDEF+Sylfaen"))
+
+    def test_force_convert_acadnusx_text(self):
+        self.assertEqual(
+            maybe_convert_acadnusx_to_unicode("Tqveni", force=True),
+            "\u10d7\u10e5\u10d5\u10d4\u10dc\u10d8",
         )
 
     def test_process_book_upload_creates_draft_chapters_with_separator_titles(self):

@@ -7,6 +7,8 @@ import tempfile
 import zipfile
 from xml.etree import ElementTree
 
+from .legacy_font_convert import detect_pdf_has_acadnusx_font, maybe_convert_acadnusx_to_unicode
+
 
 def _extract_text_from_txt(raw: bytes) -> str:
     for encoding in ("utf-8", "utf-16", "latin-1"):
@@ -52,7 +54,8 @@ def _extract_text_from_pdf(data: bytes) -> str:
             pages.append(page.extract_text() or "")
         except Exception:
             pages.append("")
-    return "\n\n".join(pages)
+    text = "\n\n".join(pages)
+    return maybe_convert_acadnusx_to_unicode(text, force=detect_pdf_has_acadnusx_font(data))
 
 
 def _extract_text_from_doc_with_tool(data: bytes) -> str:
@@ -129,11 +132,11 @@ def extract_text_from_upload(upload_file) -> str:
         return ""
 
     if ext == ".txt":
-        return _extract_text_from_txt(raw)
+        return maybe_convert_acadnusx_to_unicode(_extract_text_from_txt(raw))
 
     if ext == ".docx":
         try:
-            return _extract_text_from_docx(raw)
+            return maybe_convert_acadnusx_to_unicode(_extract_text_from_docx(raw))
         except Exception:
             return ""
 
@@ -147,12 +150,12 @@ def extract_text_from_upload(upload_file) -> str:
         if raw[:2] == b"PK":
             # Some uploads are DOCX with wrong extension.
             try:
-                return _extract_text_from_docx(raw)
+                return maybe_convert_acadnusx_to_unicode(_extract_text_from_docx(raw))
             except Exception:
                 pass
         with_tool = _extract_text_from_doc_with_tool(raw)
         if with_tool:
-            return with_tool
-        return _extract_text_from_doc_binary(raw)
+            return maybe_convert_acadnusx_to_unicode(with_tool)
+        return maybe_convert_acadnusx_to_unicode(_extract_text_from_doc_binary(raw))
 
     return ""
