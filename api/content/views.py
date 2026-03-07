@@ -17,11 +17,14 @@ from accounts.utils import can_manage_content, can_review_content, create_audit_
 from content.models import Book, Chapter, Poem, StatusChoices, Story, build_default_chapter_title
 from content.permissions import CanReviewContent, IsApprovedWriterOrReadOnly
 from content.serializers import (
+    BookListSerializer,
     BookSerializer,
     ChapterSerializer,
     ContentReviewSerializer,
+    PoemListSerializer,
     PoemSerializer,
     PublicAuthorSummarySerializer,
+    StoryListSerializer,
     StorySerializer,
 )
 from core.cache_utils import (
@@ -577,6 +580,12 @@ class SubmitActionMixin:
 
 class AuthorContentViewSet(PublicCacheMixin, SubmitActionMixin, ReviewActionMixin, viewsets.ModelViewSet):
     permission_classes = [IsApprovedWriterOrReadOnly]
+    list_serializer_class = None
+
+    def get_serializer_class(self):
+        if self.action == "list" and self.list_serializer_class is not None:
+            return self.list_serializer_class
+        return super().get_serializer_class()
 
     def list(self, request, *args, **kwargs):
         cache_context, cached_response = self._prepare_public_cache_response(
@@ -789,16 +798,19 @@ class AuthorContentViewSet(PublicCacheMixin, SubmitActionMixin, ReviewActionMixi
 class StoryViewSet(AuthorContentViewSet):
     queryset = Story.objects.select_related("author").all()
     serializer_class = StorySerializer
+    list_serializer_class = StoryListSerializer
 
 
 class PoemViewSet(AuthorContentViewSet):
     queryset = Poem.objects.select_related("author").all()
     serializer_class = PoemSerializer
+    list_serializer_class = PoemListSerializer
 
 
 class BookViewSet(AuthorContentViewSet):
-    queryset = Book.objects.select_related("author").all().prefetch_related("chapters")
+    queryset = Book.objects.select_related("author").all()
     serializer_class = BookSerializer
+    list_serializer_class = BookListSerializer
 
     def get_queryset(self):
         # Start with base queryset logic from AuthorContentViewSet
@@ -817,7 +829,10 @@ class BookViewSet(AuthorContentViewSet):
                     Q(status=StatusChoices.DRAFT, is_submitted_for_review=True)
                     | Q(chapters__status=StatusChoices.DRAFT, chapters__is_submitted_for_review=True),
                     is_deleted=False,
-                ).select_related("author").prefetch_related("chapters").distinct()
+                ).select_related("author").distinct()
+
+        if self.action != "list":
+            queryset = queryset.prefetch_related("chapters")
 
         return queryset.order_by("-created_at")
 

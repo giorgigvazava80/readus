@@ -111,7 +111,14 @@ if [ "${RUN_COLLECTSTATIC:-0}" = "1" ]; then
 fi
 
 if [ "$#" -eq 0 ]; then
-    set -- gunicorn --bind "0.0.0.0:${PORT:-8000}" --workers "${GUNICORN_WORKERS:-3}" core.wsgi:application
+    set -- gunicorn \
+        --bind "0.0.0.0:${PORT:-8000}" \
+        --workers "${GUNICORN_WORKERS:-1}" \
+        --timeout "${GUNICORN_TIMEOUT:-120}" \
+        --graceful-timeout "${GUNICORN_GRACEFUL_TIMEOUT:-30}" \
+        --max-requests "${GUNICORN_MAX_REQUESTS:-1000}" \
+        --max-requests-jitter "${GUNICORN_MAX_REQUESTS_JITTER:-100}" \
+        core.wsgi:application
 fi
 
 exec "$@"

@@ -109,7 +109,7 @@ const PublicBrowsePage = () => {
 
   const trendingWeekQuery = useQuery({
     queryKey: ["browse-trending-week"],
-    queryFn: () => fetchTrending("week", 120),
+    queryFn: () => fetchTrending("week", 36),
   });
 
   const filtered = useMemo(() => {

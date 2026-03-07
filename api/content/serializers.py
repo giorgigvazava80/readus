@@ -316,6 +316,32 @@ class StorySerializer(ContentValidationMixin):
         return instance
 
 
+class StoryListSerializer(StorySerializer):
+    class Meta(StorySerializer.Meta):
+        fields = [
+            "id",
+            "public_slug",
+            "title",
+            "description",
+            "is_anonymous",
+            "is_hidden",
+            "content_language",
+            "cover_image",
+            "author_username",
+            "author_name",
+            "author_key",
+            "author_id",
+            "status",
+            "is_submitted_for_review",
+            "rejection_reason",
+            "is_deleted",
+            "deleted_at",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = fields
+
+
 class PoemSerializer(ContentValidationMixin):
     author_id = serializers.SerializerMethodField()
     author_username = serializers.SerializerMethodField()
@@ -409,6 +435,32 @@ class PoemSerializer(ContentValidationMixin):
         instance = super().update(instance, validated_data)
         self._sync_extracted_text(instance)
         return instance
+
+
+class PoemListSerializer(PoemSerializer):
+    class Meta(PoemSerializer.Meta):
+        fields = [
+            "id",
+            "public_slug",
+            "title",
+            "description",
+            "is_anonymous",
+            "is_hidden",
+            "content_language",
+            "cover_image",
+            "author_username",
+            "author_name",
+            "author_key",
+            "author_id",
+            "status",
+            "is_submitted_for_review",
+            "rejection_reason",
+            "is_deleted",
+            "deleted_at",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = fields
 
 
 class ChapterSerializer(serializers.ModelSerializer):
@@ -643,6 +695,38 @@ class BookSerializer(ContentValidationMixin):
             self._sync_extracted_text(instance)
             self._reset_upload_processing_state(instance)
         return instance
+
+
+class BookListSerializer(BookSerializer):
+    class Meta(BookSerializer.Meta):
+        fields = [
+            "id",
+            "public_slug",
+            "title",
+            "description",
+            "is_anonymous",
+            "is_hidden",
+            "content_language",
+            "numbering_style",
+            "source_type",
+            "upload_processing_status",
+            "upload_processing_error",
+            "upload_processed_at",
+            "cover_image",
+            "author_username",
+            "author_name",
+            "author_key",
+            "author_id",
+            "status",
+            "is_submitted_for_review",
+            "rejection_reason",
+            "is_deleted",
+            "deleted_at",
+            "created_at",
+            "updated_at",
+            "has_draft_chapters",
+        ]
+        read_only_fields = fields
 
 
 class ContentReviewSerializer(serializers.Serializer):

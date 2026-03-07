@@ -55,6 +55,7 @@ from .targets import extract_target_paragraphs, get_target_author, get_target_ca
 
 
 REACTION_COOLDOWN_SECONDS = int(getattr(settings, "ENGAGEMENT_REACTION_COOLDOWN_SECONDS", 4))
+DISCOVERY_PUBLIC_CACHE_SECONDS = int(getattr(settings, "CACHE_TTL_PUBLIC_LIST", 120))
 
 
 def _public_queryset_for_category(category: str):
@@ -851,6 +852,33 @@ class TrendingView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
+        cache_meta = get_public_cache_meta(
+            "public-discover:trending",
+            canonicalize_request_path(request),
+        )
+        not_modified = build_public_not_modified_response(
+            request,
+            etag=cache_meta["etag"],
+            last_modified=cache_meta["last_modified"],
+        )
+        if not_modified is not None:
+            not_modified["X-Cache"] = "REVALIDATED"
+            return apply_public_cache_headers(
+                not_modified,
+                etag=cache_meta["etag"],
+                last_modified=cache_meta["last_modified"],
+            )
+
+        cached_payload = safe_cache_get(cache_meta["cache_key"])
+        if cached_payload is not None:
+            response = Response(cached_payload)
+            response["X-Cache"] = "HIT"
+            return apply_public_cache_headers(
+                response,
+                etag=cache_meta["etag"],
+                last_modified=cache_meta["last_modified"],
+            )
+
         start_at, normalized_window = _trending_window_to_start(request.query_params.get("window", "week"))
         limit = _parse_limit(request.query_params.get("limit", "20"))
 
@@ -890,7 +918,20 @@ class TrendingView(APIView):
                 row.get("created_at") or datetime.min.replace(tzinfo=dt_timezone.utc),
             )
         )
-        return Response({"window": normalized_window, "results": ranked[:limit]})
+        payload = {"window": normalized_window, "results": ranked[:limit]}
+        safe_cache_set(
+            cache_meta["cache_key"],
+            payload,
+            timeout=DISCOVERY_PUBLIC_CACHE_SECONDS,
+            jitter=True,
+        )
+        response = Response(payload)
+        response["X-Cache"] = "MISS"
+        return apply_public_cache_headers(
+            response,
+            etag=cache_meta["etag"],
+            last_modified=cache_meta["last_modified"],
+        )
 
 
 class RecommendationsView(APIView):
@@ -904,6 +945,33 @@ class RecommendationsView(APIView):
         public_popularity_targets = _load_public_targets_for_metric_keys(set(popularity_metrics.keys()))
 
         if not request.user or not request.user.is_authenticated:
+            cache_meta = get_public_cache_meta(
+                "public-discover:recommendations",
+                canonicalize_request_path(request),
+            )
+            not_modified = build_public_not_modified_response(
+                request,
+                etag=cache_meta["etag"],
+                last_modified=cache_meta["last_modified"],
+            )
+            if not_modified is not None:
+                not_modified["X-Cache"] = "REVALIDATED"
+                return apply_public_cache_headers(
+                    not_modified,
+                    etag=cache_meta["etag"],
+                    last_modified=cache_meta["last_modified"],
+                )
+
+            cached_payload = safe_cache_get(cache_meta["cache_key"])
+            if cached_payload is not None:
+                response = Response(cached_payload)
+                response["X-Cache"] = "HIT"
+                return apply_public_cache_headers(
+                    response,
+                    etag=cache_meta["etag"],
+                    last_modified=cache_meta["last_modified"],
+                )
+
             rows = []
             for key, stats_map in popularity_metrics.items():
                 target = public_popularity_targets.get(key)
@@ -922,7 +990,20 @@ class RecommendationsView(APIView):
                     row.get("created_at") or datetime.min.replace(tzinfo=dt_timezone.utc),
                 )
             )
-            return Response({"results": rows[:limit]})
+            payload = {"results": rows[:limit]}
+            safe_cache_set(
+                cache_meta["cache_key"],
+                payload,
+                timeout=DISCOVERY_PUBLIC_CACHE_SECONDS,
+                jitter=True,
+            )
+            response = Response(payload)
+            response["X-Cache"] = "MISS"
+            return apply_public_cache_headers(
+                response,
+                etag=cache_meta["etag"],
+                last_modified=cache_meta["last_modified"],
+            )
 
         followed_author_ids = set(
             AuthorFollow.objects.filter(follower=request.user).values_list("author_id", flat=True)
