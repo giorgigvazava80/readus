@@ -95,6 +95,7 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
     is_anonymous: false,
     is_hidden: false,
   });
+  const hasInitializedDraftRef = useRef(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
@@ -151,18 +152,44 @@ const WriterTextWorkEditorPage = ({ type }: WriterTextWorkEditorPageProps) => {
   });
 
   useEffect(() => {
+    hasInitializedDraftRef.current = false;
+  }, [contentId, type]);
+
+  useEffect(() => {
     if (!detailQuery.data) {
       return;
     }
     const nextDraft = toDraft(detailQuery.data);
     if (!nextDraft.title) nextDraft.title = t("editor.untitled");
+
+    if (!hasInitializedDraftRef.current) {
+      setDraft(nextDraft);
+      setUploadFile(null);
+      setCoverImage(null);
+      setCoverPreview(null);
+      setCoverRevision(0);
+      autosave.markSaved({ draft: nextDraft, coverRevision: 0 });
+      hasInitializedDraftRef.current = true;
+      return;
+    }
+
+    if (autosave.hasUnsavedChanges || autosave.isSaving) {
+      return;
+    }
+
     setDraft(nextDraft);
     setUploadFile(null);
     setCoverImage(null);
     setCoverPreview(null);
     setCoverRevision(0);
     autosave.markSaved({ draft: nextDraft, coverRevision: 0 });
-  }, [detailQuery.data, autosave.markSaved]);
+  }, [
+    autosave.hasUnsavedChanges,
+    autosave.isSaving,
+    autosave.markSaved,
+    detailQuery.data,
+    t,
+  ]);
 
   const statusClass = useMemo(() => {
     const status = detailQuery.data?.status;

@@ -91,6 +91,7 @@ function ChapterEditorInline({
   });
 
   const [draft, setDraft] = useState({ title: "", order: 1, body: "" });
+  const hasInitializedDraftRef = useRef(false);
 
   const saveMutation = useMutation({
     mutationFn: (payload: typeof draft) => updateChapter(chapterId, payload),
@@ -130,16 +131,34 @@ function ChapterEditorInline({
 
   const { markSaved: chaptermarkSaved } = autosave;
   useEffect(() => {
-    if (detailQuery.data) {
-      const nextDraft = {
-        title: detailQuery.data.title || "",
-        order: detailQuery.data.order || 1,
-        body: detailQuery.data.body || "",
-      };
+    hasInitializedDraftRef.current = false;
+  }, [chapterId]);
+
+  useEffect(() => {
+    if (!detailQuery.data) {
+      return;
+    }
+
+    const nextDraft = {
+      title: detailQuery.data.title || "",
+      order: detailQuery.data.order || 1,
+      body: detailQuery.data.body || "",
+    };
+
+    if (!hasInitializedDraftRef.current) {
       setDraft(nextDraft);
       chaptermarkSaved(nextDraft);
+      hasInitializedDraftRef.current = true;
+      return;
     }
-  }, [detailQuery.data, chaptermarkSaved]);
+
+    if (autosave.hasUnsavedChanges || autosave.isSaving) {
+      return;
+    }
+
+    setDraft(nextDraft);
+    chaptermarkSaved(nextDraft);
+  }, [autosave.hasUnsavedChanges, autosave.isSaving, chaptermarkSaved, detailQuery.data]);
 
   const handlePublish = async () => {
     const isConfirmed = await confirm({
@@ -368,6 +387,7 @@ const WriterBookEditorPage = () => {
       setCoverPreview(null);
     },
   });
+  const hasInitializedBookDraftRef = useRef(false);
 
   const submitBookMutation = useMutation({
     mutationFn: () => submitContentForReview("books", bookId),
@@ -388,15 +408,34 @@ const WriterBookEditorPage = () => {
 
   const { markSaved: bookmarkSaved } = autosave;
   useEffect(() => {
+    hasInitializedBookDraftRef.current = false;
+  }, [bookId]);
+
+  useEffect(() => {
     if (!detailQuery.data) return;
     const nextDraft = toDraft(detailQuery.data, t("editor.untitledBook"));
+    if (!hasInitializedBookDraftRef.current) {
+      setDraft(nextDraft);
+      setUploadFile(null);
+      setCoverImage(null);
+      setCoverPreview(null);
+      setCoverRevision(0);
+      bookmarkSaved({ draft: nextDraft, coverRevision: 0 });
+      hasInitializedBookDraftRef.current = true;
+      return;
+    }
+
+    if (autosave.hasUnsavedChanges || autosave.isSaving) {
+      return;
+    }
+
     setDraft(nextDraft);
     setUploadFile(null);
     setCoverImage(null);
     setCoverPreview(null);
     setCoverRevision(0);
     bookmarkSaved({ draft: nextDraft, coverRevision: 0 });
-  }, [detailQuery.data, bookmarkSaved]);
+  }, [autosave.hasUnsavedChanges, autosave.isSaving, bookmarkSaved, detailQuery.data, t]);
 
   const chapters = useMemo(() => {
     if (!detailQuery.data?.chapters) return [];

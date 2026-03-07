@@ -365,15 +365,17 @@ class ReviewActionMixin:
         reason = serializer.validated_data.get("rejection_reason", "")
         previous_status = obj.status
 
-        if isinstance(obj, Book) and status_value == StatusChoices.APPROVED:
-            has_approved_chapters = obj.chapters.filter(status=StatusChoices.APPROVED).exists()
-            if not has_approved_chapters and obj.chapters.exists():
-                return Response(
-                    {"detail": "At least one chapter must be approved before approving this book."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
         obj.set_status(status_value, user=request.user, reason=reason)
+        if isinstance(obj, Book) and status_value == StatusChoices.APPROVED:
+            now = timezone.now()
+            obj.chapters.exclude(status=StatusChoices.APPROVED).update(
+                status=StatusChoices.APPROVED,
+                is_submitted_for_review=False,
+                rejection_reason="",
+                status_changed_at=now,
+                status_changed_by=request.user,
+                updated_at=now,
+            )
 
         if previous_status != StatusChoices.APPROVED and status_value == StatusChoices.APPROVED:
             from engagement.services import notify_followers_about_publication

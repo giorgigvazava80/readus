@@ -219,7 +219,12 @@ const AdminContentReadPage = () => {
     );
   }
 
-  const canდამტკიცებაBook = chapterStats.total === 0 || (chapterStats.pending === 0 && chapterStats.rejected === 0);
+  const canReviewActiveChapter =
+    Boolean(activeBookSection?.kind === "chapter" && activeBookSection.chapter) &&
+    (
+      activeBookSection?.chapter?.status !== "draft" ||
+      Boolean(activeBookSection?.chapter?.is_submitted_for_review)
+    );
 
   return (
     <div className="container mx-auto max-w-6xl space-y-8 px-6 py-10">
@@ -263,7 +268,7 @@ const AdminContentReadPage = () => {
           <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-card">
             <h2 className="font-display text-2xl text-foreground">{t("work.book")}ს დამტკიცების ნაბიჯები</h2>
             <p className="mt-1 font-ui text-sm text-muted-foreground">
-              1) Review წინასიტყვაობა and every chapter, 2) fix rejected chapters, 3) approve the book when everything is approved.
+              Book approval now approves the full book package, including all chapters, in one action.
             </p>
 
             <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -277,12 +282,6 @@ const AdminContentReadPage = () => {
                 უარყოფილი chapters: {chapterStats.rejected}
               </span>
             </div>
-
-            {!canდამტკიცებაBook ? (
-              <p className="mt-3 rounded-lg border border-amber-500/35 bg-amber-500/10 p-3 font-ui text-sm text-amber-800">
-                You cannot approve this book yet. First make all chapters approved.
-              </p>
-            ) : null}
 
             <Textarea
               className="mt-4 font-ui"
@@ -301,7 +300,7 @@ const AdminContentReadPage = () => {
                     reasonKey: "book",
                   })
                 }
-                disabled={reviewMutation.isPending || !canდამტკიცებაBook}
+                disabled={reviewMutation.isPending}
               >
                 დამტკიცება Book
               </Button>
@@ -387,6 +386,11 @@ const AdminContentReadPage = () => {
                     <Badge variant="outline" className={statusStyles[activeBookSection.chapter.status]}>
                       {activeBookSection.chapter.status}
                     </Badge>
+                    {activeBookSection.chapter.status === "draft" && !activeBookSection.chapter.is_submitted_for_review ? (
+                      <span className="rounded-full border border-amber-500/35 bg-amber-500/10 px-2 py-0.5 text-xs font-ui text-amber-800">
+                        Not submitted for chapter-level review
+                      </span>
+                    ) : null}
                   </div>
 
                   {activeBookSection.chapter.rejection_reason ? (
@@ -417,7 +421,7 @@ const AdminContentReadPage = () => {
                           reasonKey: activeBookSection.key,
                         })
                       }
-                      disabled={reviewMutation.isPending}
+                      disabled={reviewMutation.isPending || !canReviewActiveChapter}
                     >
                       დამტკიცება Chapter
                     </Button>
@@ -431,7 +435,7 @@ const AdminContentReadPage = () => {
                           reasonKey: activeBookSection.key,
                         })
                       }
-                      disabled={reviewMutation.isPending}
+                      disabled={reviewMutation.isPending || !canReviewActiveChapter}
                     >
                       უარყოფა Chapter
                     </Button>

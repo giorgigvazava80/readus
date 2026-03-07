@@ -1,5 +1,5 @@
 import { useI18n } from "@/i18n";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ListTree, ScrollText, Send } from "lucide-react";
@@ -54,6 +54,7 @@ const WriterChapterEditorPage = () => {
     body: "",
     book: 0,
   });
+  const hasInitializedDraftRef = useRef(false);
 
   const saveMutation = useMutation({
     mutationFn: (payload: ChapterDraft) =>
@@ -90,14 +91,29 @@ const WriterChapterEditorPage = () => {
   });
 
   useEffect(() => {
+    hasInitializedDraftRef.current = false;
+  }, [chapterId]);
+
+  useEffect(() => {
     if (!detailQuery.data) {
       return;
     }
 
     const nextDraft = toDraft(detailQuery.data as { title?: string; order?: number; body?: string; book?: number });
+    if (!hasInitializedDraftRef.current) {
+      setDraft(nextDraft);
+      autosave.markSaved(nextDraft);
+      hasInitializedDraftRef.current = true;
+      return;
+    }
+
+    if (autosave.hasUnsavedChanges || autosave.isSaving) {
+      return;
+    }
+
     setDraft(nextDraft);
     autosave.markSaved(nextDraft);
-  }, [detailQuery.data, autosave.markSaved]);
+  }, [detailQuery.data, autosave.hasUnsavedChanges, autosave.isSaving, autosave.markSaved]);
 
   const statusClass = useMemo(() => {
     const status = detailQuery.data?.status;
