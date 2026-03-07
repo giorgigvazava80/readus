@@ -9,6 +9,11 @@ import warnings
 
 import environ
 
+try:
+    import redis
+except Exception:  # pragma: no cover - redis is optional at import time
+    redis = None
+
 
 env = environ.Env(
     DEBUG=(bool, False),
@@ -177,6 +182,8 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_BROWSER_CACHE_SECONDS = env.int("STATIC_BROWSER_CACHE_SECONDS", default=86400)
+WHITENOISE_MAX_AGE = STATIC_BROWSER_CACHE_SECONDS
 
 STORAGES = {
     "default": {
@@ -199,6 +206,7 @@ else:
     MEDIA_ROOT = BASE_DIR / "media"
 
 SERVE_MEDIA = env.bool("SERVE_MEDIA", default=True)
+MEDIA_BROWSER_CACHE_SECONDS = env.int("MEDIA_BROWSER_CACHE_SECONDS", default=3600)
 
 # Cloudinary configuration
 CLOUDINARY_URL = env("CLOUDINARY_URL", default="").strip()
@@ -210,14 +218,31 @@ CACHE_KEY_PREFIX = env("CACHE_KEY_PREFIX", default="readus")
 CACHE_DEFAULT_TIMEOUT = env.int("CACHE_DEFAULT_TIMEOUT", default=300)
 CACHE_TTL_PUBLIC_LIST = env.int("CACHE_TTL_PUBLIC_LIST", default=120)
 CACHE_TTL_PUBLIC_DETAIL = env.int("CACHE_TTL_PUBLIC_DETAIL", default=300)
+CACHE_REDIS_SOCKET_TIMEOUT = env.float("CACHE_REDIS_SOCKET_TIMEOUT", default=2.0)
+CACHE_REDIS_SOCKET_CONNECT_TIMEOUT = env.float("CACHE_REDIS_SOCKET_CONNECT_TIMEOUT", default=2.0)
+CACHE_REDIS_HEALTH_CHECK_INTERVAL = env.int("CACHE_REDIS_HEALTH_CHECK_INTERVAL", default=30)
+CACHE_REDIS_MAX_CONNECTIONS = env.int("CACHE_REDIS_MAX_CONNECTIONS", default=100)
+CACHE_REDIS_RETRY_ON_TIMEOUT = env.bool("CACHE_REDIS_RETRY_ON_TIMEOUT", default=True)
 
 if CACHE_URL:
+    redis_options = {
+        "socket_timeout": CACHE_REDIS_SOCKET_TIMEOUT,
+        "socket_connect_timeout": CACHE_REDIS_SOCKET_CONNECT_TIMEOUT,
+        "health_check_interval": CACHE_REDIS_HEALTH_CHECK_INTERVAL,
+        "retry_on_timeout": CACHE_REDIS_RETRY_ON_TIMEOUT,
+    }
+    if CACHE_REDIS_MAX_CONNECTIONS > 0:
+        redis_options["max_connections"] = CACHE_REDIS_MAX_CONNECTIONS
+    if redis is not None:
+        redis_options["pool_class"] = redis.BlockingConnectionPool
+
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.redis.RedisCache",
             "LOCATION": CACHE_URL,
             "KEY_PREFIX": CACHE_KEY_PREFIX,
             "TIMEOUT": CACHE_DEFAULT_TIMEOUT,
+            "OPTIONS": redis_options,
         }
     }
 else:

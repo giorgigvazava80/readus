@@ -1,8 +1,5 @@
-from hashlib import sha256
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
 from django.core.files.storage import default_storage
 from django.db.models import Count, F, Q, Value
 from django.db.models.functions import Concat
@@ -27,10 +24,20 @@ from content.serializers import (
     PublicAuthorSummarySerializer,
     StorySerializer,
 )
+from core.cache_utils import (
+    apply_private_no_store_headers,
+    apply_public_cache_headers,
+    build_public_not_modified_response,
+    bump_public_cache_version,
+    canonicalize_request_path,
+    get_public_cache_meta,
+    get_public_cache_version,
+    safe_cache_get,
+    safe_cache_set,
+)
 from engagement.models import AuthorFollow
 
 
-PUBLIC_CONTENT_CACHE_VERSION_KEY = "public-content-cache-version"
 ANONYMOUS_AUTHOR_KEY = "anonymous"
 
 
@@ -49,27 +56,15 @@ def _send_review_email(user, status_value):
 
 
 def _get_public_cache_version() -> int:
-    version = cache.get(PUBLIC_CONTENT_CACHE_VERSION_KEY)
-    if version is None:
-        cache.set(PUBLIC_CONTENT_CACHE_VERSION_KEY, 1, timeout=None)
-        return 1
-    return int(version)
+    return get_public_cache_version()
 
 
 def _bump_public_cache_version() -> None:
-    if cache.get(PUBLIC_CONTENT_CACHE_VERSION_KEY) is None:
-        cache.set(PUBLIC_CONTENT_CACHE_VERSION_KEY, 1, timeout=None)
-    try:
-        cache.incr(PUBLIC_CONTENT_CACHE_VERSION_KEY)
-    except ValueError:
-        current = cache.get(PUBLIC_CONTENT_CACHE_VERSION_KEY) or 1
-        cache.set(PUBLIC_CONTENT_CACHE_VERSION_KEY, int(current) + 1, timeout=None)
+    bump_public_cache_version()
 
 
 def _public_cache_key(prefix: str, path: str) -> str:
-    path_hash = sha256(path.encode("utf-8")).hexdigest()
-    version = _get_public_cache_version()
-    return f"{prefix}:v{version}:{path_hash}"
+    return str(get_public_cache_meta(prefix, path)["cache_key"])
 
 
 def _is_review_staff(user) -> bool:
@@ -248,23 +243,88 @@ def _get_author_summary_by_key(author_key: str) -> dict[str, object]:
     return _to_named_author_summary(row)
 
 
-class PublicAuthorListView(generics.GenericAPIView):
-    serializer_class = PublicAuthorSummarySerializer
-    permission_classes = [permissions.AllowAny]
-
+class PublicCacheMixin:
     def _can_use_public_cache(self, request):
         user = request.user
         return request.method == "GET" and not (user and user.is_authenticated)
 
+    def _public_cache_timeout(self, *, detail: bool) -> int:
+        setting_name = "CACHE_TTL_PUBLIC_DETAIL" if detail else "CACHE_TTL_PUBLIC_LIST"
+        fallback = 300 if detail else 120
+        return int(getattr(settings, setting_name, fallback))
+
+    def _prepare_public_cache_response(self, request, *, prefix: str, detail: bool = False):
+        if not self._can_use_public_cache(request):
+            return None, None
+
+        cache_context = {
+            **get_public_cache_meta(prefix, canonicalize_request_path(request)),
+            "timeout": self._public_cache_timeout(detail=detail),
+        }
+        not_modified = build_public_not_modified_response(
+            request,
+            etag=cache_context["etag"],
+            last_modified=cache_context["last_modified"],
+        )
+        if not_modified is not None:
+            not_modified["X-Cache"] = "REVALIDATED"
+            apply_public_cache_headers(
+                not_modified,
+                etag=cache_context["etag"],
+                last_modified=cache_context["last_modified"],
+            )
+            return cache_context, not_modified
+
+        cached_payload = safe_cache_get(cache_context["cache_key"])
+        if cached_payload is not None:
+            response = Response(cached_payload)
+            response["X-Cache"] = "HIT"
+            apply_public_cache_headers(
+                response,
+                etag=cache_context["etag"],
+                last_modified=cache_context["last_modified"],
+            )
+            return cache_context, response
+
+        return cache_context, None
+
+    def _finalize_public_cache_response(self, request, response, *, cache_context=None):
+        if cache_context is None:
+            apply_private_no_store_headers(response)
+            return response
+
+        if response.status_code == status.HTTP_200_OK:
+            safe_cache_set(
+                cache_context["cache_key"],
+                response.data,
+                timeout=cache_context["timeout"],
+                jitter=True,
+            )
+            if "X-Cache" not in response:
+                response["X-Cache"] = "MISS"
+            apply_public_cache_headers(
+                response,
+                etag=cache_context["etag"],
+                last_modified=cache_context["last_modified"],
+            )
+            return response
+
+        apply_private_no_store_headers(response)
+        return response
+
+
+class PublicAuthorListView(PublicCacheMixin, generics.GenericAPIView):
+    serializer_class = PublicAuthorSummarySerializer
+    permission_classes = [permissions.AllowAny]
+
     def get(self, request):
-        use_cache = self._can_use_public_cache(request)
-        cache_key = _public_cache_key("public-authors:list", request.get_full_path())
-        if use_cache:
-            cached_payload = cache.get(cache_key)
-            if cached_payload is not None:
-                response = Response(cached_payload)
-                response["X-Cache"] = "HIT"
-                return response
+        cache_context, cached_response = self._prepare_public_cache_response(
+            request,
+            prefix="public-authors:list",
+            detail=False,
+        )
+        if cached_response is not None:
+            return cached_response
 
         search = request.query_params.get("q", "").strip()
         named_rows = (
@@ -308,30 +368,21 @@ class PublicAuthorListView(generics.GenericAPIView):
             serializer = self.get_serializer(authors, many=True)
             response = Response(serializer.data)
 
-        if use_cache and response.status_code == status.HTTP_200_OK:
-            cache.set(cache_key, response.data, timeout=getattr(settings, "CACHE_TTL_PUBLIC_LIST", 120))
-            response["X-Cache"] = "MISS"
-
-        return response
+        return self._finalize_public_cache_response(request, response, cache_context=cache_context)
 
 
-class PublicAuthorDetailView(generics.GenericAPIView):
+class PublicAuthorDetailView(PublicCacheMixin, generics.GenericAPIView):
     serializer_class = PublicAuthorSummarySerializer
     permission_classes = [permissions.AllowAny]
 
-    def _can_use_public_cache(self, request):
-        user = request.user
-        return request.method == "GET" and not (user and user.is_authenticated)
-
     def get(self, request, author_key: str):
-        use_cache = self._can_use_public_cache(request)
-        cache_key = _public_cache_key("public-authors:detail", request.get_full_path())
-        if use_cache:
-            cached_payload = cache.get(cache_key)
-            if cached_payload is not None:
-                response = Response(cached_payload)
-                response["X-Cache"] = "HIT"
-                return response
+        cache_context, cached_response = self._prepare_public_cache_response(
+            request,
+            prefix="public-authors:detail",
+            detail=True,
+        )
+        if cached_response is not None:
+            return cached_response
 
         summary = _get_author_summary_by_key(author_key)
         if request.user and request.user.is_authenticated and summary.get("id"):
@@ -342,11 +393,7 @@ class PublicAuthorDetailView(generics.GenericAPIView):
         serializer = self.get_serializer(summary)
         response = Response(serializer.data)
 
-        if use_cache and response.status_code == status.HTTP_200_OK:
-            cache.set(cache_key, response.data, timeout=getattr(settings, "CACHE_TTL_PUBLIC_DETAIL", 300))
-            response["X-Cache"] = "MISS"
-
-        return response
+        return self._finalize_public_cache_response(request, response, cache_context=cache_context)
 
 
 class ReviewActionMixin:
@@ -528,46 +575,32 @@ class SubmitActionMixin:
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class AuthorContentViewSet(SubmitActionMixin, ReviewActionMixin, viewsets.ModelViewSet):
+class AuthorContentViewSet(PublicCacheMixin, SubmitActionMixin, ReviewActionMixin, viewsets.ModelViewSet):
     permission_classes = [IsApprovedWriterOrReadOnly]
 
-    def _can_use_public_cache(self, request):
-        user = request.user
-        return request.method == "GET" and not (user and user.is_authenticated)
-
     def list(self, request, *args, **kwargs):
-        if not self._can_use_public_cache(request):
-            return super().list(request, *args, **kwargs)
-
-        cache_key = _public_cache_key(f"public-content:{self.basename}:list", request.get_full_path())
-        cached_payload = cache.get(cache_key)
-        if cached_payload is not None:
-            response = Response(cached_payload)
-            response["X-Cache"] = "HIT"
-            return response
+        cache_context, cached_response = self._prepare_public_cache_response(
+            request,
+            prefix=f"public-content:{self.basename}:list",
+            detail=False,
+        )
+        if cached_response is not None:
+            return cached_response
 
         response = super().list(request, *args, **kwargs)
-        if response.status_code == status.HTTP_200_OK:
-            cache.set(cache_key, response.data, timeout=getattr(settings, "CACHE_TTL_PUBLIC_LIST", 120))
-            response["X-Cache"] = "MISS"
-        return response
+        return self._finalize_public_cache_response(request, response, cache_context=cache_context)
 
     def retrieve(self, request, *args, **kwargs):
-        if not self._can_use_public_cache(request):
-            return super().retrieve(request, *args, **kwargs)
-
-        cache_key = _public_cache_key(f"public-content:{self.basename}:detail", request.get_full_path())
-        cached_payload = cache.get(cache_key)
-        if cached_payload is not None:
-            response = Response(cached_payload)
-            response["X-Cache"] = "HIT"
-            return response
+        cache_context, cached_response = self._prepare_public_cache_response(
+            request,
+            prefix=f"public-content:{self.basename}:detail",
+            detail=True,
+        )
+        if cached_response is not None:
+            return cached_response
 
         response = super().retrieve(request, *args, **kwargs)
-        if response.status_code == status.HTTP_200_OK:
-            cache.set(cache_key, response.data, timeout=getattr(settings, "CACHE_TTL_PUBLIC_DETAIL", 300))
-            response["X-Cache"] = "MISS"
-        return response
+        return self._finalize_public_cache_response(request, response, cache_context=cache_context)
 
     def get_object(self):
         queryset = self.filter_queryset(self.get_queryset())
@@ -789,10 +822,34 @@ class BookViewSet(AuthorContentViewSet):
         return queryset.order_by("-created_at")
 
 
-class ChapterViewSet(SubmitActionMixin, ReviewActionMixin, viewsets.ModelViewSet):
+class ChapterViewSet(PublicCacheMixin, SubmitActionMixin, ReviewActionMixin, viewsets.ModelViewSet):
     queryset = Chapter.objects.select_related("book", "book__author")
     serializer_class = ChapterSerializer
     permission_classes = [IsApprovedWriterOrReadOnly]
+
+    def list(self, request, *args, **kwargs):
+        cache_context, cached_response = self._prepare_public_cache_response(
+            request,
+            prefix="public-content:chapter:list",
+            detail=False,
+        )
+        if cached_response is not None:
+            return cached_response
+
+        response = super().list(request, *args, **kwargs)
+        return self._finalize_public_cache_response(request, response, cache_context=cache_context)
+
+    def retrieve(self, request, *args, **kwargs):
+        cache_context, cached_response = self._prepare_public_cache_response(
+            request,
+            prefix="public-content:chapter:detail",
+            detail=True,
+        )
+        if cached_response is not None:
+            return cached_response
+
+        response = super().retrieve(request, *args, **kwargs)
+        return self._finalize_public_cache_response(request, response, cache_context=cache_context)
 
     def get_queryset(self):
         queryset = super().get_queryset()

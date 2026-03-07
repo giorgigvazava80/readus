@@ -63,6 +63,10 @@ services:
         value: "1"
       - key: MEDIA_ROOT
         value: /var/data/media
+      - key: STATIC_BROWSER_CACHE_SECONDS
+        value: "86400"
+      - key: MEDIA_BROWSER_CACHE_SECONDS
+        value: "3600"
       - key: CACHE_URL
         fromService:
           type: keyvalue
@@ -82,6 +86,25 @@ services:
     name: readus-public
     buildCommand: cd frontend-public && npm ci && npm run build
     staticPublishPath: ./frontend-public/dist
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /favicon.ico
+        name: Cache-Control
+        value: public, max-age=86400, must-revalidate
+      - path: /favicon.svg
+        name: Cache-Control
+        value: public, max-age=86400, must-revalidate
+      - path: /placeholder.svg
+        name: Cache-Control
+        value: public, max-age=86400, must-revalidate
+      - path: /robots.txt
+        name: Cache-Control
+        value: public, max-age=86400, must-revalidate
+      - path: /index.html
+        name: Cache-Control
+        value: public, no-cache, must-revalidate
     envVars:
       - key: VITE_API_BASE_URL
         value: https://readus-api.onrender.com
@@ -97,6 +120,25 @@ services:
     name: readus-admin
     buildCommand: cd frontend-admin && npm ci && npm run build
     staticPublishPath: ./frontend-admin/dist
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /favicon.ico
+        name: Cache-Control
+        value: public, max-age=86400, must-revalidate
+      - path: /favicon.svg
+        name: Cache-Control
+        value: public, max-age=86400, must-revalidate
+      - path: /placeholder.svg
+        name: Cache-Control
+        value: public, max-age=86400, must-revalidate
+      - path: /robots.txt
+        name: Cache-Control
+        value: public, max-age=86400, must-revalidate
+      - path: /index.html
+        name: Cache-Control
+        value: public, no-cache, must-revalidate
     envVars:
       - key: VITE_API_BASE_URL
         value: https://readus-api.onrender.com

@@ -7,7 +7,6 @@ from html import escape
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.core.cache import cache
 from django.db.models import Avg, Count, Q
 from django.http import Http404, HttpResponse
 from django.urls import reverse
@@ -20,6 +19,14 @@ from rest_framework.views import APIView
 from accounts.models import Notification
 from accounts.utils import create_audit_log, create_notification, is_writer_approved
 from content.models import Book, Chapter, Poem, StatusChoices, Story
+from core.cache_utils import (
+    apply_public_cache_headers,
+    build_public_not_modified_response,
+    canonicalize_request_path,
+    get_public_cache_meta,
+    safe_cache_get,
+    safe_cache_set,
+)
 
 from .models import AuthorFollow, CommentAnchorType, ContentComment, ContentReaction, ContentViewEvent, ReadingProgress, ReactionType
 from .serializers import (
@@ -101,9 +108,9 @@ def _reaction_cooldown_key(user_id: int, target, action: str) -> str:
 
 def _enforce_reaction_cooldown(user_id: int, target, action: str) -> None:
     key = _reaction_cooldown_key(user_id, target, action)
-    if cache.get(key):
+    if safe_cache_get(key):
         raise Throttled(detail="Too many like actions. Please wait a moment.", wait=REACTION_COOLDOWN_SECONDS)
-    cache.set(key, "1", timeout=REACTION_COOLDOWN_SECONDS)
+    safe_cache_set(key, "1", timeout=REACTION_COOLDOWN_SECONDS)
 
 
 def _reaction_summary(target, *, user=None) -> dict[str, object]:
@@ -1093,6 +1100,20 @@ class ShareMetadataView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, category: str, identifier: str):
+        cache_meta = get_public_cache_meta("public-share:metadata", canonicalize_request_path(request))
+        not_modified = build_public_not_modified_response(
+            request,
+            etag=cache_meta["etag"],
+            last_modified=cache_meta["last_modified"],
+        )
+        if not_modified is not None:
+            return apply_public_cache_headers(
+                not_modified,
+                etag=cache_meta["etag"],
+                last_modified=cache_meta["last_modified"],
+                vary_on_auth=False,
+            )
+
         target = _resolve_public_target(category, identifier)
         payload = build_target_payload(target, request=request)
         share_url = request.build_absolute_uri()
@@ -1134,13 +1155,33 @@ class ShareMetadataView(APIView):
 </body>
 </html>
 """
-        return HttpResponse(html_doc)
+        response = HttpResponse(html_doc)
+        return apply_public_cache_headers(
+            response,
+            etag=cache_meta["etag"],
+            last_modified=cache_meta["last_modified"],
+            vary_on_auth=False,
+        )
 
 
 class ShareImageView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, category: str, identifier: str):
+        cache_meta = get_public_cache_meta("public-share:image", canonicalize_request_path(request))
+        not_modified = build_public_not_modified_response(
+            request,
+            etag=cache_meta["etag"],
+            last_modified=cache_meta["last_modified"],
+        )
+        if not_modified is not None:
+            return apply_public_cache_headers(
+                not_modified,
+                etag=cache_meta["etag"],
+                last_modified=cache_meta["last_modified"],
+                vary_on_auth=False,
+            )
+
         target = _resolve_public_target(category, identifier)
         payload = build_target_payload(target, request=request)
         title = escape(str(payload["title"]))[:120]
@@ -1162,4 +1203,10 @@ class ShareImageView(APIView):
   <text x="90" y="560" font-family="Arial, sans-serif" font-size="34" fill="#f9fafb">Readus</text>
 </svg>
 """
-        return HttpResponse(svg, content_type="image/svg+xml")
+        response = HttpResponse(svg, content_type="image/svg+xml")
+        return apply_public_cache_headers(
+            response,
+            etag=cache_meta["etag"],
+            last_modified=cache_meta["last_modified"],
+            vary_on_auth=False,
+        )

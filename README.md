@@ -60,6 +60,10 @@ If your current Render plan does not support persistent disks, move media to obj
 
 API response caching is configured to use Redis-compatible cache via `CACHE_URL` when available.
 In this repo's `render.yaml`, `readus-api` reads `CACHE_URL` from `readus-cache` connection string.
+Browser caching is configured separately:
+- public API/share responses use HTTP revalidation (`ETag`/`Last-Modified`)
+- Render static frontends cache hashed `/assets/*` files aggressively and revalidate `index.html`
+- Django-served media files use `MEDIA_BROWSER_CACHE_SECONDS`
 
 ## URLs
 
@@ -95,6 +99,7 @@ First login requires password change. After changing password, privileged endpoi
 - `SOCIAL_AUTH_GOOGLE_CALLBACK_URL`, `SOCIAL_AUTH_FACEBOOK_CALLBACK_URL` (for OAuth code flow)
 - `SERVE_MEDIA` (set `1` to serve uploaded media files like cover images from Django in hosted testing)
 - `MEDIA_ROOT` and `MEDIA_URL` (where uploaded files are stored and served from)
+- `STATIC_BROWSER_CACHE_SECONDS`, `MEDIA_BROWSER_CACHE_SECONDS` (browser cache TTLs for Django-served static/media files)
 - `CACHE_URL`, `CACHE_KEY_PREFIX`, `CACHE_DEFAULT_TIMEOUT`, `CACHE_TTL_PUBLIC_LIST`, `CACHE_TTL_PUBLIC_DETAIL`
 
 ## Google OAuth Checklist

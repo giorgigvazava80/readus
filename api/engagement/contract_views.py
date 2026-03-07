@@ -9,7 +9,6 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.cache import cache
 from django.db.models import Avg, Count, Q
 from django.http import Http404, HttpResponse
 from django.urls import reverse
@@ -21,6 +20,15 @@ from rest_framework.views import APIView
 
 from accounts.utils import create_audit_log, get_profile, is_admin_user, is_writer_approved
 from content.models import Book, Chapter, Poem, StatusChoices, Story
+from core.cache_utils import (
+    apply_public_cache_headers,
+    build_public_not_modified_response,
+    canonicalize_request_path,
+    get_public_cache_meta,
+    get_public_cache_version,
+    safe_cache_get,
+    safe_cache_set,
+)
 
 from .models import (
     AuthorFollow,
@@ -177,9 +185,9 @@ def _like_cooldown_key(user_id: int, target, action: str) -> str:
 
 def _enforce_like_cooldown(user_id: int, target, action: str) -> None:
     key = _like_cooldown_key(user_id, target, action)
-    if cache.get(key):
+    if safe_cache_get(key):
         raise Throttled(detail="Too many like actions. Please wait a moment.", wait=LIKE_COOLDOWN_SECONDS)
-    cache.set(key, "1", timeout=LIKE_COOLDOWN_SECONDS)
+    safe_cache_set(key, "1", timeout=LIKE_COOLDOWN_SECONDS)
 
 
 def _comment_cooldown_key(user_id: int, target) -> str:
@@ -189,9 +197,9 @@ def _comment_cooldown_key(user_id: int, target) -> str:
 
 def _enforce_comment_cooldown(user_id: int, target) -> None:
     key = _comment_cooldown_key(user_id, target)
-    if cache.get(key):
+    if safe_cache_get(key):
         raise Throttled(detail="Too many comments. Please wait a moment.", wait=COMMENT_COOLDOWN_SECONDS)
-    cache.set(key, "1", timeout=COMMENT_COOLDOWN_SECONDS)
+    safe_cache_set(key, "1", timeout=COMMENT_COOLDOWN_SECONDS)
 
 
 def _start_for_discover(range_key: str) -> tuple[datetime, str]:
@@ -335,9 +343,7 @@ def _is_root_user(user) -> bool:
 
 
 def _share_card_cache_version() -> int:
-    from content.views import _get_public_cache_version
-
-    return int(_get_public_cache_version())
+    return int(get_public_cache_version())
 
 
 def _render_share_card_png(target) -> bytes:
@@ -414,7 +420,21 @@ def _render_share_card_png(target) -> bytes:
     return stream.getvalue()
 
 
-def _share_card_response(target):
+def _share_card_response(request, target):
+    cache_meta = get_public_cache_meta("public-share:card", canonicalize_request_path(request))
+    not_modified = build_public_not_modified_response(
+        request,
+        etag=cache_meta["etag"],
+        last_modified=cache_meta["last_modified"],
+    )
+    if not_modified is not None:
+        return apply_public_cache_headers(
+            not_modified,
+            etag=cache_meta["etag"],
+            last_modified=cache_meta["last_modified"],
+            vary_on_auth=False,
+        )
+
     payload = build_target_payload(target)
     digest_source = "|".join(
         [
@@ -428,13 +448,25 @@ def _share_card_response(target):
     )
     digest = sha256(digest_source.encode("utf-8")).hexdigest()
     cache_key = f"share-card:{get_target_category(target)}:{target.id}:{digest}"
-    cached = cache.get(cache_key)
+    cached = safe_cache_get(cache_key)
     if cached:
-        return HttpResponse(cached, content_type="image/png")
+        response = HttpResponse(cached, content_type="image/png")
+        return apply_public_cache_headers(
+            response,
+            etag=cache_meta["etag"],
+            last_modified=cache_meta["last_modified"],
+            vary_on_auth=False,
+        )
 
     data = _render_share_card_png(target)
-    cache.set(cache_key, data, timeout=SHARE_CARD_CACHE_SECONDS)
-    return HttpResponse(data, content_type="image/png")
+    safe_cache_set(cache_key, data, timeout=SHARE_CARD_CACHE_SECONDS, jitter=True)
+    response = HttpResponse(data, content_type="image/png")
+    return apply_public_cache_headers(
+        response,
+        etag=cache_meta["etag"],
+        last_modified=cache_meta["last_modified"],
+        vary_on_auth=False,
+    )
 
 
 class LikesApiView(APIView):
@@ -1088,7 +1120,7 @@ class ShareCardWorkPngView(APIView):
 
     def get(self, request, work_id: int):
         target, _work_type = _resolve_public_work(work_id, request.query_params.get("work_type"))
-        return _share_card_response(target)
+        return _share_card_response(request, target)
 
 
 class ShareCardChapterPngView(APIView):
@@ -1096,13 +1128,27 @@ class ShareCardChapterPngView(APIView):
 
     def get(self, request, chapter_id: int):
         target = _resolve_public_chapter(chapter_id)
-        return _share_card_response(target)
+        return _share_card_response(request, target)
 
 
 class ShareWorkHtmlView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, work_id: int):
+        cache_meta = get_public_cache_meta("public-share:work-html", canonicalize_request_path(request))
+        not_modified = build_public_not_modified_response(
+            request,
+            etag=cache_meta["etag"],
+            last_modified=cache_meta["last_modified"],
+        )
+        if not_modified is not None:
+            return apply_public_cache_headers(
+                not_modified,
+                etag=cache_meta["etag"],
+                last_modified=cache_meta["last_modified"],
+                vary_on_auth=False,
+            )
+
         target, _work_type = _resolve_public_work(work_id, request.query_params.get("work_type"))
         payload = build_target_payload(target, request=request)
         share_url = request.build_absolute_uri()
@@ -1136,13 +1182,33 @@ class ShareWorkHtmlView(APIView):
 </body>
 </html>
 """
-        return HttpResponse(html_doc)
+        response = HttpResponse(html_doc)
+        return apply_public_cache_headers(
+            response,
+            etag=cache_meta["etag"],
+            last_modified=cache_meta["last_modified"],
+            vary_on_auth=False,
+        )
 
 
 class ShareChapterHtmlView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, chapter_id: int):
+        cache_meta = get_public_cache_meta("public-share:chapter-html", canonicalize_request_path(request))
+        not_modified = build_public_not_modified_response(
+            request,
+            etag=cache_meta["etag"],
+            last_modified=cache_meta["last_modified"],
+        )
+        if not_modified is not None:
+            return apply_public_cache_headers(
+                not_modified,
+                etag=cache_meta["etag"],
+                last_modified=cache_meta["last_modified"],
+                vary_on_auth=False,
+            )
+
         target = _resolve_public_chapter(chapter_id)
         payload = build_target_payload(target, request=request)
         share_url = request.build_absolute_uri()
@@ -1176,7 +1242,13 @@ class ShareChapterHtmlView(APIView):
 </body>
 </html>
 """
-        return HttpResponse(html_doc)
+        response = HttpResponse(html_doc)
+        return apply_public_cache_headers(
+            response,
+            etag=cache_meta["etag"],
+            last_modified=cache_meta["last_modified"],
+            vary_on_auth=False,
+        )
 
 
 class ReferralVisitTrackView(APIView):

@@ -10,6 +10,7 @@ from django.db import IntegrityError
 from django.utils import timezone
 from rest_framework import serializers
 
+from core.cache_utils import bump_public_cache_version
 from .constants import (
     GROUP_READERS,
     GROUP_REDACTORS,
@@ -226,18 +227,22 @@ class MeUpdateSerializer(serializers.Serializer):
         profile = get_profile(instance)
         user_changed_fields = []
         profile_changed_fields = []
+        public_identity_changed = False
 
         if "username" in validated_data:
             instance.username = validated_data["username"]
             user_changed_fields.append("username")
+            public_identity_changed = True
 
         if "first_name" in validated_data:
             instance.first_name = validated_data["first_name"].strip()
             user_changed_fields.append("first_name")
+            public_identity_changed = True
 
         if "last_name" in validated_data:
             instance.last_name = validated_data["last_name"].strip()
             user_changed_fields.append("last_name")
+            public_identity_changed = True
 
         if user_changed_fields:
             instance.save(update_fields=user_changed_fields)
@@ -257,14 +262,19 @@ class MeUpdateSerializer(serializers.Serializer):
                 profile.profile_photo.delete(save=False)
             profile.profile_photo = None
             profile_changed_fields.append("profile_photo")
+            public_identity_changed = True
         elif photo_in_payload:
             if profile.profile_photo and profile.profile_photo != validated_data["profile_photo"]:
                 profile.profile_photo.delete(save=False)
             profile.profile_photo = validated_data["profile_photo"]
             profile_changed_fields.append("profile_photo")
+            public_identity_changed = True
 
         if profile_changed_fields:
             profile.save(update_fields=[*set(profile_changed_fields), "updated_at"])
+
+        if public_identity_changed:
+            bump_public_cache_version()
 
         return instance
 

@@ -52,6 +52,13 @@ class PublicAuthorApiTests(APITestCase):
             is_hidden=False,
             is_anonymous=False,
         )
+        self.alice_chapter = Chapter.objects.create(
+            book=self.alice_book,
+            title="Alice Chapter",
+            order=1,
+            body="Chapter body",
+            status=StatusChoices.APPROVED,
+        )
         self.alice_story = Story.objects.create(
             author=self.alice,
             title="Alice Story",
@@ -195,6 +202,63 @@ class PublicAuthorApiTests(APITestCase):
         self.assertEqual(third.headers.get("X-Cache"), "MISS")
         keys = {row["key"] for row in third.data["results"]}
         self.assertNotIn("bob", keys)
+
+    def test_public_authors_http_cache_uses_etag_revalidation(self):
+        first = self.client.get("/api/content/authors/?q=alice")
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(first.headers.get("Cache-Control"), "public, no-cache, must-revalidate")
+        self.assertIn("Authorization", first.headers.get("Vary", ""))
+        self.assertIn("Cookie", first.headers.get("Vary", ""))
+        etag = first.headers.get("ETag")
+        self.assertTrue(etag)
+        self.assertTrue(first.headers.get("Last-Modified"))
+
+        second = self.client.get("/api/content/authors/?q=alice", HTTP_IF_NONE_MATCH=etag)
+        self.assertEqual(second.status_code, 304)
+        self.assertEqual(second.headers.get("X-Cache"), "REVALIDATED")
+        self.assertEqual(second.headers.get("ETag"), etag)
+
+    def test_public_author_etag_changes_after_profile_update(self):
+        first = self.client.get("/api/content/authors/alice/")
+        self.assertEqual(first.status_code, 200)
+        etag = first.headers.get("ETag")
+
+        self.client.force_authenticate(self.alice)
+        update = self.client.patch(
+            "/api/accounts/me/",
+            {"first_name": "Alicia"},
+            format="json",
+        )
+        self.assertEqual(update.status_code, 200)
+        self.client.force_authenticate(None)
+
+        second = self.client.get("/api/content/authors/alice/", HTTP_IF_NONE_MATCH=etag)
+        self.assertEqual(second.status_code, 200)
+        self.assertNotEqual(second.headers.get("ETag"), etag)
+        self.assertEqual(second.data["display_name"], "Alicia Writer")
+
+    def test_public_chapter_list_uses_cache_and_http_revalidation(self):
+        path = f"/api/content/chapters/?book={self.alice_book.id}"
+
+        first = self.client.get(path)
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(first.headers.get("X-Cache"), "MISS")
+        self.assertEqual(first.headers.get("Cache-Control"), "public, no-cache, must-revalidate")
+        etag = first.headers.get("ETag")
+
+        second = self.client.get(path)
+        self.assertEqual(second.status_code, 200)
+        self.assertEqual(second.headers.get("X-Cache"), "HIT")
+
+        third = self.client.get(path, HTTP_IF_NONE_MATCH=etag)
+        self.assertEqual(third.status_code, 304)
+        self.assertEqual(third.headers.get("X-Cache"), "REVALIDATED")
+
+    def test_authenticated_content_list_is_marked_no_store(self):
+        self.client.force_authenticate(self.alice)
+        response = self.client.get("/api/content/stories/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers.get("Cache-Control"), "private, no-store, max-age=0")
 
 
 class RecycleBinApiTests(APITestCase):

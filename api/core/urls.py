@@ -7,12 +7,12 @@ from django.conf import settings
 from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import include, path, re_path
-from django.views.static import serve as static_serve
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
 from accounts.auth_views import FacebookLoginView, GoogleLoginView, VerifyEmailAndLoginView
+from core.media_views import serve_cached_media
 from engagement.contract_views import ShareChapterHtmlView, ShareWorkHtmlView
 
 
@@ -84,7 +84,7 @@ if settings.DEBUG or getattr(settings, "SERVE_MEDIA", False):
     urlpatterns += [
         re_path(
             rf"^{media_prefix}(?P<path>.*)$",
-            static_serve,
+            serve_cached_media,
             {"document_root": settings.MEDIA_ROOT},
         )
     ]
