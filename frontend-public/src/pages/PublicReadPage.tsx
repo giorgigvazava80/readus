@@ -33,6 +33,13 @@ import { useSession } from "@/hooks/useSession";
 
 const allowedCategories: ContentCategory[] = ["books", "chapters", "poems", "stories"];
 
+type BookSection = {
+  id: string;
+  title: string;
+  kind: "foreword" | "chapter" | "afterword";
+  chapterId?: number;
+};
+
 function stripHtml(value: string | undefined): string {
   return (value || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -108,7 +115,10 @@ const PublicReadPage = () => {
 
   const detailQuery = useQuery({
     queryKey: ["public-read", category, identifier],
-    queryFn: () => fetchContentDetail(category as ContentCategory, identifier),
+    queryFn: () =>
+      fetchContentDetail(category as ContentCategory, identifier, {
+        includeChapterBodies: category === "books" ? false : undefined,
+      }),
     enabled: Boolean(category) && Boolean(identifier),
   });
 
@@ -136,10 +146,10 @@ const PublicReadPage = () => {
   const sections = useMemo(() => {
     if (!content || category !== "books") return [];
     const chapters = (content.chapters || []).slice().sort((a, b) => a.order - b.order);
-    const s: { id: string; title: string; html: string }[] = [];
+    const s: BookSection[] = [];
 
     if (hasTextContent(content.foreword)) {
-      s.push({ id: "foreword", title: t("reader.foreword", "Foreword"), html: content.foreword! });
+      s.push({ id: "foreword", title: t("reader.foreword", "Foreword"), kind: "foreword" });
     }
     chapters.forEach((ch) => {
       s.push({
@@ -149,32 +159,40 @@ const PublicReadPage = () => {
           ch.auto_label || ch.order,
           t("reader.chapterUntitled", "Chapter {number}"),
         ),
-        html: ch.body || `<p>${t("reader.chapterEmptyText", "This chapter has no text yet.")}</p>`,
+        kind: "chapter",
+        chapterId: ch.id,
       });
     });
     if (hasTextContent(content.afterword)) {
-      s.push({ id: "afterword", title: t("reader.afterword", "Afterword"), html: content.afterword! });
+      s.push({ id: "afterword", title: t("reader.afterword", "Afterword"), kind: "afterword" });
     }
     return s;
   }, [content, category, t]);
+
+  const activeBookSection = useMemo(() => {
+    if (category !== "books" || currentPage <= 0) return null;
+    return sections[currentPage - 1] || null;
+  }, [category, currentPage, sections]);
+
+  const currentChapterId =
+    activeBookSection?.kind === "chapter" && activeBookSection.chapterId
+      ? activeBookSection.chapterId
+      : null;
+  const activeBookChapterQuery = useQuery({
+    queryKey: ["public-read", "book-chapter", currentChapterId],
+    queryFn: () => fetchContentDetail("chapters", currentChapterId as number),
+    enabled: Boolean(category === "books" && currentPage > 0 && currentChapterId),
+  });
 
   const commentTargetType = category === "chapters" ? "chapter" : "work";
   const commentTargetId = content?.id || 0;
   const commentWorkType = category === "books" || category === "stories" || category === "poems" ? category : undefined;
   const preferParagraphAnchorOnly = category !== "chapters" && content?.source_type === "upload";
 
-  const currentChapterId = useMemo(() => {
-    if (category !== "books" || currentPage <= 0) return null;
-    const section = sections[currentPage - 1];
-    if (!section || !section.id.startsWith("chapter-")) return null;
-    const parsed = Number.parseInt(section.id.replace("chapter-", ""), 10);
-    return Number.isFinite(parsed) ? parsed : null;
-  }, [category, currentPage, sections]);
-
   const lastChapterPage = useMemo(() => {
     if (category !== "books" || sections.length === 0) return null;
     for (let i = sections.length - 1; i >= 0; i -= 1) {
-      if (sections[i].id.startsWith("chapter-")) {
+      if (sections[i].kind === "chapter") {
         return i + 1; // 1-based page index
       }
     }
@@ -183,7 +201,7 @@ const PublicReadPage = () => {
 
   const afterwordPage = useMemo(() => {
     if (category !== "books" || sections.length === 0) return null;
-    const index = sections.findIndex((section) => section.id === "afterword");
+    const index = sections.findIndex((section) => section.kind === "afterword");
     return index >= 0 ? index + 1 : null; // 1-based page index
   }, [category, sections]);
 
@@ -194,6 +212,26 @@ const PublicReadPage = () => {
     currentPage > 0 &&
     endButtonPage !== null &&
     currentPage === endButtonPage,
+  );
+  const activeBookSectionHtml = useMemo(() => {
+    if (!content || category !== "books" || !activeBookSection) return "";
+    if (activeBookSection.kind === "foreword") {
+      return content.foreword || "";
+    }
+    if (activeBookSection.kind === "afterword") {
+      return content.afterword || "";
+    }
+    return activeBookChapterQuery.data?.body || "";
+  }, [activeBookChapterQuery.data?.body, activeBookSection, category, content]);
+  const activeBookSectionLoading = Boolean(
+    category === "books" &&
+    activeBookSection?.kind === "chapter" &&
+    activeBookChapterQuery.isLoading,
+  );
+  const activeBookSectionError = Boolean(
+    category === "books" &&
+    activeBookSection?.kind === "chapter" &&
+    activeBookChapterQuery.isError,
   );
 
   /* ── Per-chapter saved progress map ── */
@@ -274,8 +312,8 @@ const PublicReadPage = () => {
   useEffect(() => {
     if (currentPage > 0 && sections[currentPage - 1]) {
       const section = sections[currentPage - 1];
-      if (section.id.startsWith("chapter-")) {
-        const chapterId = parseInt(section.id.replace("chapter-", ""), 10);
+      if (section.kind === "chapter" && section.chapterId) {
+        const chapterId = section.chapterId;
         markAsRead(chapterId);
       }
     }
@@ -648,9 +686,8 @@ const PublicReadPage = () => {
                     <h2 className="font-display text-3xl font-semibold text-foreground mb-6">{t("reader.contents", "Contents")}</h2>
                     <div className="flex flex-col gap-3">
                       {sections.map((sec, idx) => {
-                        const isChapter = sec.id.startsWith("chapter-");
-                        const chapterId = isChapter ? parseInt(sec.id.replace("chapter-", ""), 10) : null;
-                        const showNew = isChapter && chapterId !== null && !isRead(chapterId);
+                        const chapterId = sec.kind === "chapter" ? (sec.chapterId || null) : null;
+                        const showNew = chapterId !== null && !isRead(chapterId);
 
                         return (
                           <button
@@ -673,14 +710,20 @@ const PublicReadPage = () => {
                       })}
                     </div>
                   </section>
-                ) : sections[currentPage - 1] ? (
+                ) : activeBookSection ? (
                   /* ──── CHAPTER CONTENT ──── */
                   <section className="animate-in fade-in duration-500" data-reading-body="true" key={currentPage}>
-                    <h2 className="font-display text-2xl sm:text-3xl font-semibold text-foreground mb-6">{sections[currentPage - 1].title}</h2>
-                    <div
-                      className="reader-html prose-literary text-foreground/90"
-                      dangerouslySetInnerHTML={{ __html: sections[currentPage - 1].html }}
-                    />
+                    <h2 className="font-display text-2xl sm:text-3xl font-semibold text-foreground mb-6">{activeBookSection.title}</h2>
+                    {activeBookSectionLoading ? (
+                      <p className="font-ui text-sm text-muted-foreground">{t("reader.chapterLoading", "Loading chapter...")}</p>
+                    ) : activeBookSectionError ? (
+                      <p className="font-ui text-sm text-red-700">{t("reader.chapterLoadError", "Could not load chapter.")}</p>
+                    ) : (
+                      <div
+                        className="reader-html prose-literary text-foreground/90"
+                        dangerouslySetInnerHTML={{ __html: activeBookSectionHtml || `<p>${t("reader.chapterEmptyText", "This chapter has no text yet.")}</p>` }}
+                      />
+                    )}
                   </section>
                 ) : (
                   <p className="font-ui text-sm text-muted-foreground">{t("reader.pageNotFound", "Page not found.")}</p>

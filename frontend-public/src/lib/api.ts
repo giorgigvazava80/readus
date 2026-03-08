@@ -796,9 +796,18 @@ export async function fetchPublicAuthorDetail(authorKey: string): Promise<Public
 export async function fetchContentDetail(
   category: ContentCategory,
   id: number | string,
-  options: { requiresAuth?: boolean } = {},
+  options: { requiresAuth?: boolean; includeChapterBodies?: boolean } = {},
 ): Promise<ContentDetail> {
-  return apiRequest<ContentDetail>(`/api/content/${category}/${id}/`, { method: "GET" }, Boolean(options.requiresAuth));
+  const includeChapterBodiesParam =
+    category === "books" && options.includeChapterBodies !== undefined
+      ? (options.includeChapterBodies ? 1 : 0)
+      : undefined;
+  const query = buildQueryString({ include_chapter_bodies: includeChapterBodiesParam });
+  return apiRequest<ContentDetail>(
+    `/api/content/${category}/${id}/${query}`,
+    { method: "GET" },
+    Boolean(options.requiresAuth),
+  );
 }
 
 export async function createBook(payload: BookCreatePayload): Promise<ContentDetail> {

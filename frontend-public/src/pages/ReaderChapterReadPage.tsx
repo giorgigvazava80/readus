@@ -37,36 +37,42 @@ const ReaderChapterReadPage = () => {
   const readingFontSizeClass = readingFontSizeClassByPreference[fontSize];
 
   const bookQuery = useQuery({
-    queryKey: ["reader", "book", bookIdentifier, "chapter", currentChapterId],
-    queryFn: () => fetchContentDetail("books", bookIdentifier),
+    queryKey: ["reader", "book", bookIdentifier],
+    queryFn: () => fetchContentDetail("books", bookIdentifier, { includeChapterBodies: false }),
     enabled: Boolean(bookIdentifier) && Number.isFinite(currentChapterId),
   });
 
   const book = bookQuery.data;
   const chapters = useMemo(() => (book?.chapters || []).slice().sort((a, b) => a.order - b.order), [book]);
   const currentIndex = useMemo(() => chapters.findIndex((ch) => ch.id === currentChapterId), [chapters, currentChapterId]);
-  const chapter = currentIndex >= 0 ? chapters[currentIndex] : null;
+  const chapterMeta = currentIndex >= 0 ? chapters[currentIndex] : null;
+  const chapterQuery = useQuery({
+    queryKey: ["reader", "chapter", currentChapterId],
+    queryFn: () => fetchContentDetail("chapters", currentChapterId),
+    enabled: Boolean(bookIdentifier) && Number.isFinite(currentChapterId) && currentIndex >= 0,
+  });
+  const chapter = chapterQuery.data;
 
   const continueReadingQuery = useQuery({
-    queryKey: ["continue-reading-chapter", me?.id, book?.id, chapter?.id],
+    queryKey: ["continue-reading-chapter", me?.id, book?.id, chapterMeta?.id],
     queryFn: () => fetchMyContinueReading(30),
-    enabled: Boolean(me && book?.id && chapter?.id),
+    enabled: Boolean(me && book?.id && chapterMeta?.id),
   });
   const savedProgress = useMemo(() => {
-    if (!book?.id || !chapter?.id) return 0;
+    if (!book?.id || !chapterMeta?.id) return 0;
     const match = (continueReadingQuery.data || []).find(
-      (item) => item.work.id === book.id && item.chapter?.id === chapter.id,
+      (item) => item.work.id === book.id && item.chapter?.id === chapterMeta.id,
     );
     return Number(match?.progress_percent || 0);
-  }, [book?.id, chapter?.id, continueReadingQuery.data]);
+  }, [book?.id, chapterMeta?.id, continueReadingQuery.data]);
   const displayProgress = Math.max(liveProgress, savedProgress);
 
   const shareLink = useMemo(() => {
-    if (!book || !chapter) return window.location.href;
-    const base = `${window.location.origin}/read/chapters/${chapter.id}`;
+    if (!book || !chapterMeta) return window.location.href;
+    const base = `${window.location.origin}/read/chapters/${chapterMeta.id}`;
     if (me?.username) return `${base}?ref=${encodeURIComponent(`@${me.username}`)}`;
     return base;
-  }, [book, chapter, me?.username]);
+  }, [book, chapterMeta, me?.username]);
 
   // Dispatch focus event
   useEffect(() => {
@@ -79,14 +85,14 @@ const ReaderChapterReadPage = () => {
   }, [focusMode]);
 
   useEffect(() => {
-    if (chapter) markAsRead(chapter.id);
-  }, [chapter, markAsRead]);
+    if (chapterMeta) markAsRead(chapterMeta.id);
+  }, [chapterMeta, markAsRead]);
 
   useEffect(() => {
     const isMobileViewport = () => window.matchMedia("(max-width: 1023px)").matches;
 
     const maybeAutoEnterFocus = () => {
-      if (!chapter || !isMobileViewport()) return;
+      if (!chapterMeta || !isMobileViewport()) return;
       const readingBody = chapterBodyRef.current;
       if (!readingBody) return;
 
@@ -111,7 +117,7 @@ const ReaderChapterReadPage = () => {
       window.removeEventListener("scroll", maybeAutoEnterFocus);
       window.removeEventListener("resize", maybeAutoEnterFocus);
     };
-  }, [autoFocusSuppressed, chapter, focusMode]);
+  }, [autoFocusSuppressed, chapterMeta, focusMode]);
 
   useEffect(() => {
     if (!book?.public_slug || bookIdentifier === book.public_slug || !Number.isFinite(currentChapterId)) return;
@@ -121,7 +127,7 @@ const ReaderChapterReadPage = () => {
 
   // Scroll-based progress tracking
   useEffect(() => {
-    if (!chapter || !book) return;
+    if (!chapterMeta || !book) return;
 
     const computeProgressPercent = () => {
       const doc = document.documentElement;
@@ -129,7 +135,7 @@ const ReaderChapterReadPage = () => {
       return Math.max(0, Math.min(100, (window.scrollY / scrollable) * 100));
     };
 
-    trackContentView("chapters", chapter.id).catch(() => undefined);
+    trackContentView("chapters", chapterMeta.id).catch(() => undefined);
 
     const sendProgress = () => {
       const progressPercent = computeProgressPercent();
@@ -138,12 +144,12 @@ const ReaderChapterReadPage = () => {
       saveReadingProgress({
         work_id: book.id,
         work_type: "books",
-        chapter_id: chapter.id,
+        chapter_id: chapterMeta.id,
         progress_percent: Number(progressPercent.toFixed(2)),
         last_position: {
           scroll_y: Math.round(window.scrollY),
           route: location.pathname,
-          chapter_id: chapter.id,
+          chapter_id: chapterMeta.id,
         },
       }).catch(() => undefined);
     };
@@ -154,12 +160,12 @@ const ReaderChapterReadPage = () => {
       saveReadingProgressKeepalive({
         work_id: book.id,
         work_type: "books",
-        chapter_id: chapter.id,
+        chapter_id: chapterMeta.id,
         progress_percent: Number(progressPercent.toFixed(2)),
         last_position: {
           scroll_y: Math.round(window.scrollY),
           route: location.pathname,
-          chapter_id: chapter.id,
+          chapter_id: chapterMeta.id,
         },
       });
     };
@@ -179,7 +185,7 @@ const ReaderChapterReadPage = () => {
       window.removeEventListener("scroll", handleScroll);
       sendProgress();
     };
-  }, [book, chapter, location.pathname, me]);
+  }, [book, chapterMeta, location.pathname, me]);
 
   const handleReadingFontSizeChange = (next: ReadingFontSize) => {
     setStoredReadingFontSize(next);
@@ -217,10 +223,29 @@ const ReaderChapterReadPage = () => {
     );
   }
 
-  if (!chapter) {
+  if (!chapterMeta) {
     return (
       <div className="container mx-auto px-6 py-10 space-y-4">
         <p className="font-ui text-sm text-red-700">{t("reader.chapterNotFound", "This chapter was not found in the book.")}</p>
+        <Link to={`/books/${book.public_slug || bookIdentifier}`}>
+          <Button variant="outline">{t("reader.backToContents", "Back to contents")}</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  if (chapterQuery.isLoading) {
+    return (
+      <div className="container mx-auto px-6 py-10">
+        <p className="font-ui text-sm text-muted-foreground">{t("reader.chapterLoading", "Loading chapter...")}</p>
+      </div>
+    );
+  }
+
+  if (chapterQuery.isError || !chapter) {
+    return (
+      <div className="container mx-auto px-6 py-10 space-y-4">
+        <p className="font-ui text-sm text-red-700">{t("reader.chapterLoadError", "Could not load chapter.")}</p>
         <Link to={`/books/${book.public_slug || bookIdentifier}`}>
           <Button variant="outline">{t("reader.backToContents", "Back to contents")}</Button>
         </Link>
@@ -232,8 +257,8 @@ const ReaderChapterReadPage = () => {
   const previousChapter = currentIndex > 0 ? chapters[currentIndex - 1] : null;
   const nextChapter = currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : null;
   const chapterDisplayTitle = formatChapterTitleForDisplay(
-    chapter.title,
-    chapter.auto_label || chapter.order,
+    chapterMeta.title,
+    chapterMeta.auto_label || chapterMeta.order,
     t("reader.chapterUntitled", "Chapter {number}"),
   );
   const isLastChapter = !nextChapter;

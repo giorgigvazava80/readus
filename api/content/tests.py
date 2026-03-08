@@ -254,6 +254,25 @@ class PublicAuthorApiTests(APITestCase):
         self.assertEqual(third.status_code, 304)
         self.assertEqual(third.headers.get("X-Cache"), "REVALIDATED")
 
+    def test_public_book_detail_returns_chapter_outline_without_body(self):
+        response = self.client.get(f"/api/content/books/{self.alice_book.id}/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data["chapters"]), 1)
+        self.assertNotIn("body", response.data["chapters"][0])
+
+    def test_book_author_detail_includes_chapter_body(self):
+        self.client.force_authenticate(self.alice)
+        response = self.client.get(f"/api/content/books/{self.alice_book.id}/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data["chapters"]), 1)
+        self.assertEqual(response.data["chapters"][0]["body"], self.alice_chapter.body)
+
+    def test_public_book_detail_can_opt_in_to_chapter_bodies(self):
+        response = self.client.get(f"/api/content/books/{self.alice_book.id}/?include_chapter_bodies=1")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data["chapters"]), 1)
+        self.assertEqual(response.data["chapters"][0]["body"], self.alice_chapter.body)
+
     def test_authenticated_content_list_is_marked_no_store(self):
         self.client.force_authenticate(self.alice)
         response = self.client.get("/api/content/stories/")

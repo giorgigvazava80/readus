@@ -831,9 +831,6 @@ class BookViewSet(AuthorContentViewSet):
                     is_deleted=False,
                 ).select_related("author").distinct()
 
-        if self.action != "list":
-            queryset = queryset.prefetch_related("chapters")
-
         return queryset.order_by("-created_at")
 
 

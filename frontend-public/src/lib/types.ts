@@ -64,7 +64,7 @@ export interface ChapterDetail {
   id: number;
   title: string;
   order: number;
-  body: string;
+  body?: string;
   book_status?: ContentStatus;
   auto_label?: string;
   status: ContentStatus;

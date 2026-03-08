@@ -38,7 +38,7 @@ const ReaderBookDetailPage = () => {
 
   const bookQuery = useQuery({
     queryKey: ["reader", "book", contentIdentifier],
-    queryFn: () => fetchContentDetail("books", contentIdentifier),
+    queryFn: () => fetchContentDetail("books", contentIdentifier, { includeChapterBodies: false }),
     enabled: Boolean(contentIdentifier),
   });
 

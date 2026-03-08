@@ -502,6 +502,28 @@ class ChapterSerializer(serializers.ModelSerializer):
         return sanitize_rich_html(value)
 
 
+class ChapterSummarySerializer(serializers.ModelSerializer):
+    auto_label = serializers.ReadOnlyField()
+    book_status = serializers.ReadOnlyField(source="book.status")
+
+    class Meta:
+        model = Chapter
+        fields = [
+            "id",
+            "book",
+            "book_status",
+            "title",
+            "order",
+            "auto_label",
+            "status",
+            "is_submitted_for_review",
+            "rejection_reason",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = fields
+
+
 class BookChapterCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter
@@ -616,8 +638,20 @@ class BookSerializer(ContentValidationMixin):
             if can_manage_content(user) or can_review_content(user) or obj.author == user:
                 return ChapterSerializer(chapters, many=True, context=self.context).data
 
-        approved_chapters = [c for c in chapters if c.status == StatusChoices.APPROVED]
-        return ChapterSerializer(approved_chapters, many=True, context=self.context).data
+        include_chapter_bodies = False
+        if request is not None:
+            include_chapter_bodies = request.query_params.get("include_chapter_bodies", "").strip().lower() in {
+                "1",
+                "true",
+                "yes",
+            }
+
+        approved_chapters = chapters.filter(status=StatusChoices.APPROVED)
+        if include_chapter_bodies:
+            return ChapterSerializer(approved_chapters, many=True, context=self.context).data
+
+        chapter_outline = approved_chapters.select_related("book").defer("body")
+        return ChapterSummarySerializer(chapter_outline, many=True, context=self.context).data
 
     def get_has_draft_chapters(self, obj):
         return obj.chapters.filter(status=StatusChoices.DRAFT).exists()
